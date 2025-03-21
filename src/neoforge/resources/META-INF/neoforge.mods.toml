@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+issueTrackerURL = "https://github.com/rhysdh540/Omnilook/issues"
+license = "Unlicense"
+[[mods]]
+modId = "omnilook"
+version = "${version}"
+displayName = "Omnilook"
+authors = "rdh"
+description = "funny look around mod"
+[[dependencies.omnilook]]
+modId = "neoforge"
+mandatory = true
+versionRange = "[20.4.195,)"
+ordering = "AFTER"
+side = "CLIENT"
+[[dependencies.omnilook]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.4,)"
+ordering = "AFTER"
+side = "CLIENT"
+[[mixins]]
+config="omnilook.mixins.json"
+

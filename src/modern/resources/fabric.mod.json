@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "omnilook",
+  "version": "${version}",
+
+  "name": "Omnilook",
+  "description": "funny look around mod",
+  "authors": ["rdh"],
+  "contact": {
+    "sources": "https://github.com/rhysdh540/Omnilook"
+  },
+
+  "license": "Unlicense",
+  //"icon": "omnilook.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.rdh.omnilook.Modernlook"]
+  },
+  "mixins": [
+    "omnilook.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric-key-binding-api-v1": "*"
+  }
+}
