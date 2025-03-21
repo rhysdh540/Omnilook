@@ -21,9 +21,7 @@ public abstract class LexForge_CameraMixin {
 	@Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
 	private void hookRotation(Camera thiz, float yRot, float xRot) {
 		Forgelook fl = (Forgelook) Omnilook.getInstance();
-		if (fl.key.consumeClick()) {
-			fl.toggle();
-		}
+		fl.updateKey(fl.key.consumeClick(), fl.key.isDown());
 
 		if (fl.isEnabled()) {
 			xRot = fl.getXRot();

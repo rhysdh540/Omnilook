@@ -19,7 +19,7 @@ public abstract class Omnilook {
 	}
 
 	protected Omnilook() {
-		if (instance != null) {
+		if(instance != null) {
 			throw new IllegalStateException("Omnilook has already been initialized");
 		}
 
@@ -38,16 +38,17 @@ public abstract class Omnilook {
 
 	/**
 	 * Updates the freelook camera rotation.
+	 *
 	 * @param xRot the change in x rotation
 	 * @param yRot the change in y rotation
 	 * @return whether the regular minecraft camera should be updated
 	 */
 	public boolean update(float xRot, float yRot) {
-		if (enabled) {
+		if(enabled) {
 			xRot = this.xRot + xRot * 0.15F;
-			if (xRot < -90.0F) {
+			if(xRot < -90.0F) {
 				xRot = -90.0F;
-			} else if (xRot > 90.0F) {
+			} else if(xRot > 90.0F) {
 				xRot = 90.0F;
 			}
 			this.xRot = xRot;
@@ -58,21 +59,45 @@ public abstract class Omnilook {
 		return true;
 	}
 
-	/**
-	 * Toggles the freelook camera.
-	 */
-	public void toggle() {
-		if (enabled) {
-			setCameraType(lastCameraType);
-			enabled = false;
-		} else {
-			lastCameraType = getCameraType();
-			setCameraType(1);
-			enabled = true;
-		}
+	private static boolean toggleMode = true; // TODO: config
 
-		this.xRot = getMCXRot();
-		this.yRot = getMCYRot();
+	/**
+	 * Updates the freelook camera state.
+	 *
+	 * @param clicked whether the key was clicked
+	 * @param held whether the key is held this tick
+	 */
+	public void updateKey(boolean clicked, boolean held) {
+		if (toggleMode) {
+			if(!clicked) return;
+
+			if(enabled) {
+				setCameraType(lastCameraType);
+				enabled = false;
+			} else {
+				lastCameraType = getCameraType();
+				setCameraType(1);
+				enabled = true;
+			}
+
+			this.xRot = getMCXRot();
+			this.yRot = getMCYRot();
+		} else {
+			if(held && !enabled) {
+				lastCameraType = getCameraType();
+				setCameraType(1);
+				enabled = true;
+
+				this.xRot = getMCXRot();
+				this.yRot = getMCYRot();
+			} else if (!held && enabled) {
+				setCameraType(lastCameraType);
+				enabled = false;
+
+				this.xRot = getMCXRot();
+				this.yRot = getMCYRot();
+			}
+		}
 	}
 
 	// endregion
@@ -93,8 +118,11 @@ public abstract class Omnilook {
 
 	// region impl
 	protected abstract void setCameraType(int cameraType);
+
 	protected abstract int getCameraType();
+
 	protected abstract float getMCXRot();
+
 	protected abstract float getMCYRot();
 	// endregion
 }

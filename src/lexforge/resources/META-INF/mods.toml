@@ -11,7 +11,7 @@ description = "funny look around mod"
 [[dependencies.omnilook]]
 modId = "forge"
 mandatory = true
-versionRange = "[37,49.999.999]"
+versionRange = "[37,50)"
 ordering = "AFTER"
 side = "CLIENT"
 [[dependencies.omnilook]]
