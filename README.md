@@ -2,7 +2,7 @@
 
 A simple freelook/perspective mod for Minecraft.
 
-![showcase video](.github/readme/showcase.mp4)
+https://github.com/user-attachments/assets/cb2b3255-b664-4bfd-8992-07aef30071f3
 
 ## Version support
 
@@ -14,7 +14,7 @@ More version support is always planned!
 
 ## Credits
 Thanks to [Nolij](https://github.com/Nolij) and his mod [Zume](https://github.com/Nolij/Zume)
-for the inspiration/idea of large multiversion mods such as this, and many strategies that are used to implement it.
+for the inspiration/idea of large multiversion mods such as this, and many strategies that I use to implement it.
 
 
 ## License
