@@ -3,6 +3,7 @@ package dev.rdh.omnilook;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -11,6 +12,8 @@ import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+
+import java.nio.file.Path;
 
 @Mod(value = Omnilook.ID, dist = Dist.CLIENT)
 public final class Neolook extends Omnilook {
@@ -33,6 +36,11 @@ public final class Neolook extends Omnilook {
 			event.setPitch(getXRot());
 			event.setYaw(getYRot());
 		}
+	}
+
+	@Override
+	public Path getConfigDir() {
+		return FMLPaths.CONFIGDIR.get();
 	}
 
 	@Override

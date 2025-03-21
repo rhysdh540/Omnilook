@@ -6,9 +6,12 @@ import org.lwjgl.glfw.GLFW;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+
+import java.nio.file.Path;
 
 @Mod(Omnilook.ID)
 public final class Forgelook extends Omnilook {
@@ -25,6 +28,11 @@ public final class Forgelook extends Omnilook {
 		// this is kind of jank but RegisterKeyMappingsEvent doesn't exist until like 1.19
 		// and ClientRegistry (the old way to do it) changed packages a lot
 		Minecraft.getInstance().options.keyMappings = ArrayUtils.add(Minecraft.getInstance().options.keyMappings, key);
+	}
+
+	@Override
+	public Path getConfigDir() {
+		return FMLPaths.CONFIGDIR.get();
 	}
 
 	@Override

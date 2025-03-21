@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import java.util.List;
 import java.util.Set;
 
-public final class MixinConfigPlugin implements IMixinConfigPlugin {
+public final class MixinPlugin implements IMixinConfigPlugin {
 	private String platform;
 
 	private static boolean classExists(String className) {
