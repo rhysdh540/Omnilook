@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 
 public final class Modernlook extends Omnilook implements ClientModInitializer {
 	public final KeyMapping key;
-	private final boolean post116;
 	private final MethodHandle[] cameraTypeHandles;
 	private final MethodHandle[] xyRotHandles;
 
@@ -31,22 +30,24 @@ public final class Modernlook extends Omnilook implements ClientModInitializer {
 
 		// before 1.16.2-pre1, there was just an int field, after there's getter/setter with CameraType
 		MethodHandle g, s;
-		boolean b;
 		try {
 			String getCameraTypeName = mr.mapMethodName("intermediary", "net.minecraft.class_315", "method_31044", "()Lnet/minecraft/class_5498;");
 			String setCameraTypeName = mr.mapMethodName("intermediary", "net.minecraft.class_315", "method_31043", "(Lnet/minecraft/class_5498;)V");
-			g = lookup.findVirtual(Options.class, getCameraTypeName, MethodType.methodType(CameraType.class));
-			s = lookup.findVirtual(Options.class, setCameraTypeName, MethodType.methodType(void.class, CameraType.class));
-			b = true;
-		} catch (Throwable t) {
+			g = MethodHandles.filterArguments(
+					lookup.findVirtual(CameraType.class, "ordinal", MethodType.methodType(int.class)), 0,
+					lookup.findVirtual(Options.class, getCameraTypeName, MethodType.methodType(CameraType.class))
+			);
+			s = MethodHandles.filterArguments(
+					lookup.findVirtual(Options.class, setCameraTypeName, MethodType.methodType(void.class, CameraType.class)), 1,
+					MethodHandles.arrayElementGetter(CameraType[].class).bindTo(CameraType.values())
+			);
+		} catch (NoClassDefFoundError t) {
 			String fieldName = mr.mapFieldName("intermediary", "net.minecraft.class_315", "field_1850", "Lnet/minecraft/class_5498;");
 			g = lookup.findGetter(Options.class, fieldName, int.class);
 			s = lookup.findSetter(Options.class, fieldName, int.class);
-			b = false;
 		}
 
 		cameraTypeHandles = new MethodHandle[] {g, s};
-		post116 = b;
 
 		// before 21w17a, the fields were public
 		// since we're using reflection we can just access them directly anyway without needing to worry about the getters
@@ -68,31 +69,21 @@ public final class Modernlook extends Omnilook implements ClientModInitializer {
 
 	@Override
 	protected void setCameraType(int cameraType) {
-		MethodHandle setCameraType = cameraTypeHandles[1];
-		if (post116) {
-			setCameraType.invoke(Minecraft.getInstance().options, CameraType.values()[cameraType]);
-		} else {
-			setCameraType.invoke(Minecraft.getInstance().options, cameraType);
-		}
+		cameraTypeHandles[1].invokeExact(Minecraft.getInstance().options, cameraType);
 	}
 
 	@Override
 	protected int getCameraType() {
-		MethodHandle getCameraType = cameraTypeHandles[0];
-		if (post116) {
-			return ((CameraType) getCameraType.invoke(Minecraft.getInstance().options)).ordinal();
-		} else {
-			return (int) getCameraType.invoke(Minecraft.getInstance().options);
-		}
+		return (int) cameraTypeHandles[0].invokeExact(Minecraft.getInstance().options);
 	}
 
 	@Override
 	protected float getMCXRot() {
-		return (float) xyRotHandles[0].invoke(Minecraft.getInstance().cameraEntity);
+		return (float) xyRotHandles[0].invokeExact(Minecraft.getInstance().cameraEntity);
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return (float) xyRotHandles[1].invoke(Minecraft.getInstance().cameraEntity);
+		return (float) xyRotHandles[1].invokeExact(Minecraft.getInstance().cameraEntity);
 	}
 }
