@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import java.nio.file.Path;
 
 public final class Forgelook extends Omnilook {
-	public final KeyMapping key;
+	private final KeyMapping key;
 
 	public Forgelook() {
 		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
@@ -51,5 +51,15 @@ public final class Forgelook extends Omnilook {
 	@Override
 	protected float getMCYRot() {
 		return Minecraft.getInstance().cameraEntity.getYRot();
+	}
+
+	@Override
+	protected boolean isKeyClicked() {
+		return key.consumeClick();
+	}
+
+	@Override
+	protected boolean isKeyDown() {
+		return key.isDown();
 	}
 }

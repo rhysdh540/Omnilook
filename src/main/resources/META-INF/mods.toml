@@ -2,21 +2,24 @@ modLoader = "javafml"
 loaderVersion = "[1,)"
 issueTrackerURL = "https://github.com/rhysdh540/Omnilook/issues"
 license = "Unlicense"
+
 [[mods]]
-modId = "omnilook"
-version = "${version}"
-displayName = "Omnilook"
-authors = "rdh"
-description = "funny look around mod"
+    modId = "omnilook"
+    version = "${version}"
+    displayName = "Omnilook"
+    authors = "rdh"
+    description = "funny look around mod"
+
 [[dependencies.omnilook]]
-modId = "forge"
-mandatory = true
-versionRange = "[28,50)"
-ordering = "AFTER"
-side = "CLIENT"
+    modId = "forge"
+    mandatory = true
+    versionRange = "[0,50)"
+    ordering = "NONE"
+    side = "CLIENT"
+
 [[dependencies.omnilook]]
-modId = "minecraft"
-mandatory = true
-versionRange = "[1.14.4,1.20.5]"
-ordering = "AFTER"
-side = "CLIENT"
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "[0,1.20.5]"
+    ordering = "NONE"
+    side = "CLIENT"

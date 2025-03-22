@@ -30,6 +30,8 @@ dependencies {
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
     sourceSets.modern.implementationConfigurationName(fabricApi.fabricModule("fabric-key-binding-api-v1", "modern_fabricapi_version"()))
+    sourceSets.lexforge13.compileOnlyConfigurationName("org.spongepowered:mixin:${"mixin_version"()}")
+    sourceSets.lexforge13.compileOnlyConfigurationName(sourceSets.lexforge16.output)
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -133,6 +135,18 @@ unimined.minecraft(sourceSets.lexforge16) {
         mixinConfig("omnilook.mixins.json")
     }
 }
+
+unimined.minecraft(sourceSets.lexforge13) {
+    configureDefaults("lexforge13", mojmap = false)
+    minecraftForge {
+        loader("lexforge13_version"())
+        mixinConfig("omnilook.mixins.json")
+    }
+
+    mappings {
+        mcp(channel = "snapshot", version = "lexforge13_mcp_version"() + "-" + minecraft.version)
+    }
+}
 // endregion
 
 // region helpers
@@ -141,6 +155,7 @@ val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
 val SourceSetContainer.modern get() = maybeCreate("modern")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
+val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")

@@ -11,7 +11,7 @@ public class ForgeEntrypoint {
 		String classname;
 		if(MixinPlugin.getPlatform().equals("LexForge")) {
 			classname = "dev.rdh.omnilook.Forgelook";
-		} else if(MixinPlugin.getPlatform().equals("LexForge16")) {
+		} else if(MixinPlugin.getPlatform().equals("LexForge16") || MixinPlugin.getPlatform().equals("LexForge13")) {
 			classname = "dev.rdh.omnilook.Forgelook16";
 		} else {
 			throw new IllegalStateException("Unexpected platform: " + MixinPlugin.getPlatform());

@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import dev.rdh.omnilook.Forgelook16;
 import dev.rdh.omnilook.Omnilook;
 
 import net.minecraft.client.Camera;
@@ -20,12 +19,12 @@ public abstract class LexForge16_CameraMixin {
 
 	@Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
 	private void hookRotation(Camera thiz, float yRot, float xRot) {
-		Forgelook16 fl = (Forgelook16) Omnilook.getInstance();
-		fl.updateKey(fl.key.consumeClick(), fl.key.isDown());
+		Omnilook o = Omnilook.getInstance();
+		o.updateKey();
 
-		if (fl.isEnabled()) {
-			xRot = fl.getXRot();
-			yRot = fl.getYRot();
+		if (o.isEnabled()) {
+			xRot = o.getXRot();
+			yRot = o.getYRot();
 		}
 
 		this.setRotation(yRot, xRot);

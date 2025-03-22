@@ -39,6 +39,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				platform = "LexForge";
 			} else if(major >= 26) {
 				platform = "LexForge16";
+			} else if(major == 25) {
+				platform = "LexForge13";
 			} else {
 				throw new IllegalStateException("Forge 1.14- not supported yet");
 			}
@@ -48,7 +50,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			throw new IllegalStateException("Unsupported platform");
 		}
 
-		Omnilook.log.info("Freelook mixin plugin detected platform: {}", platform);
+		Omnilook.log.info("Omnilook mixin plugin detected platform: {}", platform);
 	}
 
 	// this is really jank but it's the best way I can figure out how to get only the mixins on the classpath to load in dev
@@ -69,6 +71,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				return Arrays.asList(
 						"LexForge16_CameraMixin",
 						"LexForge16_MouseHandlerMixin"
+				);
+			case "LexForge13":
+				return Arrays.asList(
+						"LexForge13_MouseHelperMixin",
+						"LexForge13_ActiveRenderInfoMixin"
 				);
 			case "Modern":
 				return Arrays.asList(

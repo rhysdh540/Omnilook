@@ -67,13 +67,10 @@ public abstract class Omnilook {
 
 	/**
 	 * Updates the freelook camera state.
-	 *
-	 * @param clicked whether the key was clicked
-	 * @param held whether the key is held this tick
 	 */
-	public void updateKey(boolean clicked, boolean held) {
+	public void updateKey() {
 		if (Config.toggleMode) {
-			if(!clicked) return;
+			if(!isKeyClicked()) return;
 
 			if(enabled) {
 				setCameraType(lastCameraType);
@@ -87,6 +84,7 @@ public abstract class Omnilook {
 			this.xRot = getMCXRot();
 			this.yRot = getMCYRot();
 		} else {
+			boolean held = isKeyDown();
 			if(held && !enabled) {
 				lastCameraType = getCameraType();
 				setCameraType(1);
@@ -130,5 +128,8 @@ public abstract class Omnilook {
 	protected abstract float getMCXRot();
 
 	protected abstract float getMCYRot();
+
+	protected abstract boolean isKeyClicked();
+	protected abstract boolean isKeyDown();
 	// endregion
 }

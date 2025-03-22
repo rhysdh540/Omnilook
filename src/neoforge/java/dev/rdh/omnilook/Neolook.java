@@ -30,7 +30,7 @@ public final class Neolook extends Omnilook {
 	}
 
 	void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
-		this.updateKey(key.consumeClick(), key.isDown());
+		this.updateKey();
 
 		if (this.isEnabled()) {
 			event.setPitch(getXRot());
@@ -61,5 +61,15 @@ public final class Neolook extends Omnilook {
 	@Override
 	protected float getMCYRot() {
 		return Minecraft.getInstance().cameraEntity.getYRot();
+	}
+
+	@Override
+	protected boolean isKeyClicked() {
+		return key.consumeClick();
+	}
+
+	@Override
+	protected boolean isKeyDown() {
+		return key.isDown();
 	}
 }
