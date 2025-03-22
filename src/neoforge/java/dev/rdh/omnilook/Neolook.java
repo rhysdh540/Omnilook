@@ -20,7 +20,7 @@ public final class Neolook extends Omnilook {
 	private final KeyMapping key;
 
 	public Neolook(IEventBus bus) {
-		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.CATEGORY_MISC);
+		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
 		NeoForge.EVENT_BUS.addListener(this::onComputeCameraAngles);
 		bus.addListener(this::onRegisterKeyMappings);
 	}

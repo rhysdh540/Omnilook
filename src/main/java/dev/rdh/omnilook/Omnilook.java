@@ -11,6 +11,7 @@ public abstract class Omnilook {
 	public static final Logger log = LogManager.getLogger(ID);
 
 	protected static final String KEYBINDING_NAME = "key.omnilook.toggle";
+	protected static final String KEYBINDING_CATEGORY = "key.categories.misc";
 
 	// region instance
 	private static Omnilook instance;
