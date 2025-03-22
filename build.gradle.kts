@@ -1,15 +1,19 @@
+import org.taumc.gradle.compression.DeflateAlgorithm
+import org.taumc.gradle.compression.JsonShrinkingType
+import org.taumc.gradle.compression.entryprocessing.EntryProcessors
+import org.taumc.gradle.compression.task.AdvzipTask
+import org.taumc.gradle.compression.task.JarEntryModificationTask
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
 
 plugins {
     id("java")
     id("xyz.wagyourtail.unimined") version("1.3.13")
+    id("org.taumc.gradle.compression") version("0.3.28")
 }
 
 group = "dev.rdh"
 version = "0.1"
 base.archivesName = project.name.lowercase()
-
-setupSourceSets()
 
 val ap: Configuration by configurations.creating {
     isCanBeConsumed = false
@@ -21,11 +25,10 @@ dependencies {
     compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
     compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
 
-
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
-    "modernImplementation"(fabricApi.fabricModule("fabric-key-binding-api-v1", "modern_fabricapi_version"()))
+    sourceSets.modern.implementationConfigurationName(fabricApi.fabricModule("fabric-key-binding-api-v1", "modern_fabricapi_version"()))
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -53,9 +56,10 @@ tasks.withType<ProcessResources> {
     }
 }
 
+// region mergeJars and compression
 val mergeJars by tasks.registering(Jar::class) {
     group = "build"
-    archiveClassifier.set("")
+    archiveClassifier = "dev"
     from(sourceSets.main.output)
 
     destinationDirectory = layout.buildDirectory.dir("libs")
@@ -66,20 +70,34 @@ val mergeJars by tasks.registering(Jar::class) {
     )
 }
 
+tasks.assemble {
+    dependsOn(mergeJars)
+}
+
 afterEvaluate {
     mergeJars.configure {
         tasks.withType<RemapJarTask>().forEach { from(zipTree(it.asJar.archiveFile)) }
     }
 }
 
+val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars, replaceOriginal = false) {
+    group = "build"
+    archiveClassifier = ""
+
+    json(JsonShrinkingType.MINIFY)
+    process(EntryProcessors.minifyClass())
+}
+
+val compressJar2 = tau.compression.compress<AdvzipTask>(compressJar1) {
+    level = DeflateAlgorithm.INSANE
+}
+
+// endregion
+
 tasks.withType<RemapJarTask> {
     mixinRemap {
         disableRefmap()
     }
-}
-
-tasks.assemble {
-    dependsOn(mergeJars)
 }
 
 java {
@@ -140,13 +158,6 @@ val SourceSetContainer.main get() = getByName("main")
 val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
 val SourceSetContainer.modern get() = maybeCreate("modern")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
-
-// makes sure the source sets are created
-fun setupSourceSets() {
-    sourceSets.neoforge
-    sourceSets.modern
-    sourceSets.lexforge
-}
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
 // endregion
