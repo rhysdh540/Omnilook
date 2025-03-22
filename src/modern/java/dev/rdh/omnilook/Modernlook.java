@@ -31,7 +31,7 @@ public final class Modernlook extends Omnilook implements ClientModInitializer {
 
 		// before 1.16.2-pre1, there was just an int field, after there's getter/setter with CameraType
 		MethodHandle g, s;
-		try {
+		if (MixinPlugin.classExists(mr.mapClassName("intermediary", "net.minecraft.class_5498"))) {
 			String getCameraTypeName = mr.mapMethodName("intermediary", "net.minecraft.class_315", "method_31044", "()Lnet/minecraft/class_5498;");
 			String setCameraTypeName = mr.mapMethodName("intermediary", "net.minecraft.class_315", "method_31043", "(Lnet/minecraft/class_5498;)V");
 			g = MethodHandles.filterArguments(
@@ -42,7 +42,7 @@ public final class Modernlook extends Omnilook implements ClientModInitializer {
 					lookup.findVirtual(Options.class, setCameraTypeName, MethodType.methodType(void.class, CameraType.class)), 1,
 					MethodHandles.arrayElementGetter(CameraType[].class).bindTo(CameraType.values())
 			);
-		} catch (NoClassDefFoundError t) {
+		} else {
 			String fieldName = mr.mapFieldName("intermediary", "net.minecraft.class_315", "field_1850", "Lnet/minecraft/class_5498;");
 			g = lookup.findGetter(Options.class, fieldName, int.class);
 			s = lookup.findSetter(Options.class, fieldName, int.class);
