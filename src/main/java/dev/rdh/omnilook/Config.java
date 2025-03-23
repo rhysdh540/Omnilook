@@ -37,10 +37,8 @@ public final class Config {
 			for(WatchEvent<?> pollEvent : key.pollEvents()) {
 				try {
 					Path changed = parent.resolve((Path) pollEvent.context());
-					if(!Files.isSameFile(changed, file)) {
-						Omnilook.log.info("Changed file: {}", changed);
-						continue;
-					}
+					if(!Files.isSameFile(changed, file)) continue;
+
 					long currentTime = System.currentTimeMillis();
 					if(currentTime <= nextTime || !semaphore.tryAcquire()) continue;
 					semaphore.release();

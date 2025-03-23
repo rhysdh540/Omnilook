@@ -18,12 +18,12 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
-public final class Modernlook extends Omnilook implements ClientModInitializer {
+public final class Fabriclook extends Omnilook implements ClientModInitializer {
 	private final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
 	private final MethodHandle[] xyRotHandles;
 
-	public Modernlook() {
+	public Fabriclook() {
 		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
 
 		MethodHandles.Lookup lookup = MethodHandles.lookup();

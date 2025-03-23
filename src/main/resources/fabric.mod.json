@@ -14,7 +14,7 @@
 
   "environment": "client",
   "entrypoints": {
-    "client": ["dev.rdh.omnilook.Modernlook"]
+    "client": ["dev.rdh.omnilook.Entrypoint::fabric"]
   },
   "mixins": ["omnilook.mixins.json"],
 

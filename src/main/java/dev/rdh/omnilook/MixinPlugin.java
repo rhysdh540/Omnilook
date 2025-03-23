@@ -40,12 +40,14 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			} else if(major >= 26) {
 				platform = "LexForge16";
 			} else if(major == 25) {
+				// soon :(
 				platform = "LexForge13";
+				throw new IllegalStateException("Forge 1.13 not supported yet :(");
 			} else {
-				throw new IllegalStateException("Forge 1.14- not supported yet");
+				throw new IllegalStateException("Forge 1.13- not supported yet");
 			}
 		} else if (classExists("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
-			platform = "Modern";
+			platform = "Fabric";
 		} else {
 			throw new IllegalStateException("Unsupported platform");
 		}
@@ -60,27 +62,29 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		switch(platform) {
 			case "NeoForge":
 				return Arrays.asList(
-						"NeoForge_MouseHandlerMixin"
+						"neoforge.MouseHandlerMixin"
 				);
 			case "LexForge":
 				return Arrays.asList(
-						"LexForge_CameraMixin",
-						"LexForge_MouseHandlerMixin"
+						"lexforge.CameraMixin",
+						"lexforge.MouseHandlerMixin"
 				);
 			case "LexForge16":
 				return Arrays.asList(
-						"LexForge16_CameraMixin",
-						"LexForge16_MouseHandlerMixin"
+						"lexforge16.CameraMixin",
+						"lexforge16.MouseHandlerMixin"
 				);
 			case "LexForge13":
 				return Arrays.asList(
-						"LexForge13_MouseHelperMixin",
-						"LexForge13_ActiveRenderInfoMixin"
+						"lexforge13.MouseHelperMixin",
+						"lexforge13.ActiveRenderInfoMixin",
+						"lexforge13.GameRendererMixin",
+						"lexforge13.RenderManagerMixin"
 				);
-			case "Modern":
+			case "Fabric":
 				return Arrays.asList(
-						"Modern_CameraMixin",
-						"Modern_MouseHandlerMixin"
+						"fabric.CameraMixin",
+						"fabric.MouseHandlerMixin"
 				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
@@ -89,7 +93,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		return mixinClassName.contains(platform);
+		return mixinClassName.contains(platform.toLowerCase());
 	}
 
 	// <editor-fold desc="Unused" defaultstate="collapsed">
