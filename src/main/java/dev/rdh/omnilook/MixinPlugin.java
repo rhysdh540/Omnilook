@@ -4,6 +4,7 @@ import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
 public final class MixinPlugin implements IMixinConfigPlugin {
 	private static String platform;
 
+	// region Reflection Utilities
 	public static boolean classExists(String className) {
 		try {
 			Class.forName(className, false, MixinPlugin.class.getClassLoader());
@@ -19,6 +21,18 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			return false;
 		}
 	}
+
+	public static Field field(Class<?> clazz, String... names) {
+		for(String name : names) {
+			try {
+				return clazz.getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				// continue
+			}
+		}
+		throw new NoSuchFieldError("No such field in class " + clazz.getName() + ": " + Arrays.toString(names));
+	}
+	// endregion
 
 	public static String getPlatform() {
 		return platform;
