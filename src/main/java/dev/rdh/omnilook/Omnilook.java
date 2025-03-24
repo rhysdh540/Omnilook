@@ -25,7 +25,7 @@ public abstract class Omnilook {
 			throw new IllegalStateException("Omnilook has already been initialized");
 		}
 
-		log.info("Omnilook initialized with {}", getClass().getName());
+		log.info("Omnilook initialized with " + getClass().getName());
 
 		instance = this;
 
@@ -45,8 +45,8 @@ public abstract class Omnilook {
 	/**
 	 * Updates the freelook camera rotation.
 	 *
-	 * @param xRot the change in x rotation
-	 * @param yRot the change in y rotation
+	 * @param xRot the change in rotation about the x axis (pitch)
+	 * @param yRot the change in rotation about the y axis (yaw)
 	 * @return whether the regular minecraft camera should be updated
 	 */
 	public boolean updateCamera(float xRot, float yRot) {
@@ -66,38 +66,48 @@ public abstract class Omnilook {
 	/**
 	 * Updates the freelook camera state.
 	 */
-	public void updateKey() {
-		if (Config.toggleMode) {
-			if(!isKeyClicked()) return;
+	public void update() {
+		if(getCameraType() != 1 && enabled) {
+			disable();
+		}
 
-			if(enabled) {
-				setCameraType(lastCameraType);
-				enabled = false;
-			} else {
-				lastCameraType = getCameraType();
-				setCameraType(1);
-				enabled = true;
+		if(Config.toggleMode) {
+			if(isKeyClicked()) {
+				if(enabled) {
+					disable();
+				} else {
+					enable();
+				}
 			}
-
-			this.xRot = getMCXRot();
-			this.yRot = getMCYRot();
 		} else {
 			boolean held = isKeyDown();
 			if(held && !enabled) {
-				lastCameraType = getCameraType();
-				setCameraType(1);
-				enabled = true;
-
-				this.xRot = getMCXRot();
-				this.yRot = getMCYRot();
-			} else if (!held && enabled) {
-				setCameraType(lastCameraType);
-				enabled = false;
-
-				this.xRot = getMCXRot();
-				this.yRot = getMCYRot();
+				enable();
+			} else if(!held && enabled) {
+				disable();
 			}
 		}
+	}
+
+	public void enable() {
+		if(enabled) return;
+
+		lastCameraType = getCameraType();
+		setCameraType(1);
+		enabled = true;
+
+		this.xRot = getMCXRot();
+		this.yRot = getMCYRot();
+	}
+
+	public void disable() {
+		if(!enabled) return;
+
+		setCameraType(lastCameraType);
+		enabled = false;
+
+		this.xRot = getMCXRot();
+		this.yRot = getMCYRot();
 	}
 
 	// endregion
@@ -128,6 +138,7 @@ public abstract class Omnilook {
 	protected abstract float getMCYRot();
 
 	protected abstract boolean isKeyClicked();
+
 	protected abstract boolean isKeyDown();
 	// endregion
 }

@@ -86,7 +86,7 @@ public final class Config {
 					" toggleMode: if true, pressing the keybind toggles freelook, otherwise it must be held"
 			);
 		}
-		Omnilook.log.info("Config loaded: {}", props);
+		Omnilook.log.info("Config loaded: " + props);
 		semaphore.release();
 	}
 }

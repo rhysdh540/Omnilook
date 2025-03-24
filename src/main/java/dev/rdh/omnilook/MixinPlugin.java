@@ -13,7 +13,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	public static boolean classExists(String className) {
 		try {
-			Class.forName(className);
+			Class.forName(className, false, MixinPlugin.class.getClassLoader());
 			return true;
 		} catch (ClassNotFoundException e) {
 			return false;
@@ -44,15 +44,17 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				platform = "LexForge13";
 				throw new IllegalStateException("Forge 1.13 not supported yet :(");
 			} else {
-				throw new IllegalStateException("Forge 1.13- not supported yet");
+				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
-		} else if (classExists("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
+		} else if(classExists("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
 			platform = "Fabric";
+		} else if(classExists("net.minecraft.command.ICommand")) {
+			platform = "LexForge12";
 		} else {
 			throw new IllegalStateException("Unsupported platform");
 		}
 
-		Omnilook.log.info("Omnilook mixin plugin detected platform: {}", platform);
+		Omnilook.log.info("Omnilook mixin plugin detected platform: " + platform);
 	}
 
 	// this is really jank but it's the best way I can figure out how to get only the mixins on the classpath to load in dev
@@ -74,12 +76,10 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 						"lexforge16.CameraMixin",
 						"lexforge16.MouseHandlerMixin"
 				);
-			case "LexForge13":
+			case "LexForge12":
 				return Arrays.asList(
-						"lexforge13.MouseHelperMixin",
-						"lexforge13.ActiveRenderInfoMixin",
-						"lexforge13.GameRendererMixin",
-						"lexforge13.RenderManagerMixin"
+						"lexforge12.EntityRendererMixin",
+						"lexforge12.ActiveRenderInfoMixin"
 				);
 			case "Fabric":
 				return Arrays.asList(

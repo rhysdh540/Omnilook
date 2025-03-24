@@ -21,6 +21,10 @@ val ap: Configuration by configurations.creating {
     isCanBeResolved = true
 }
 
+repositories {
+    maven("https://maven.cleanroommc.com/") // mixinbooter
+}
+
 dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
     compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
@@ -36,6 +40,13 @@ dependencies {
             "fabric_api_version"()
         )
     )
+
+    sourceSets.lexforge12.implementationConfigurationName(
+        "zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}"
+    )
+
+    sourceSets.lexforge12.compileOnlyConfigurationName("org.spongepowered:mixin:${"mixin_version"()}")
+    sourceSets.lexforge12.compileOnlyConfigurationName("org.ow2.asm:asm-tree:${"asm_version"()}")
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -74,6 +85,10 @@ val mergeJars by tasks.registering(Jar::class) {
     manifest.attributes(
         "MixinConfigs" to "omnilook.mixins.json",
         "Fabric-Loom-Mixin-Remap-Type" to "static",
+
+        "FMLCorePluginContainsFMLMod" to true,
+        "ForceLoadAsMod" to true,
+        "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
     )
 }
 
@@ -87,7 +102,7 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
     group = "build"
     archiveClassifier = ""
 
-    json(JsonShrinkingType.MINIFY)
+    json(JsonShrinkingType.MINIFY) { it.endsWith(".json") || it == "mcmod.info" }
     process(EntryProcessors.minifyClass())
 }
 
@@ -104,6 +119,7 @@ tasks.assemble {
 tasks.withType<RemapJarTask> {
     mixinRemap {
         disableRefmap()
+        enableMixinExtra()
     }
 }
 
@@ -118,11 +134,15 @@ mc(sourceSets.neoforge) {
 
 mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
-    mods.remap(configurations.getByName(sourceSet.implementationConfigurationName))
+    remapImplementation()
 }
 
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge16)
+forge(sourceSets.lexforge12, mojmap = false) {
+    remapImplementation()
+}
+
 // endregion
 
 // region helpers
@@ -131,6 +151,7 @@ val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
 val SourceSetContainer.fabric get() = maybeCreate("fabric")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
+val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
@@ -164,9 +185,14 @@ fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.(
 
         if (!mojmap) {
             mappings {
-                mcp(channel = "snapshot", version = "${key}_mcp_version"() + "-" + minecraft.version)
+                searge()
+                mcp(channel = "snapshot", version = "${key}_mcp_version"())
             }
         }
+
+        block()
     }
 }
+
+fun MinecraftConfig.remapImplementation() = mods.remap(configurations.getByName(sourceSet.implementationConfigurationName))
 // endregion

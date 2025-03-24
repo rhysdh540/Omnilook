@@ -20,7 +20,7 @@ public abstract class CameraMixin {
 	@Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
 	private void hookRotation(Camera thiz, float yRot, float xRot) {
 		Omnilook o = Omnilook.getInstance();
-		o.updateKey();
+		o.update();
 
 		if (o.isEnabled()) {
 			xRot = o.getXRot();
