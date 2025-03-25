@@ -62,6 +62,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			}
 		} else if(classExists("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
 			platform = "Fabric";
+		} else if(classExists("org.dimdev.rift.Rift")) {
+			platform = "Rift";
 		} else if(classExists("net.minecraft.command.ICommand")) {
 			platform = "LexForge12";
 		} else {
@@ -99,6 +101,12 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				return Arrays.asList(
 						"fabric.CameraMixin",
 						"fabric.MouseHandlerMixin"
+				);
+			case "Rift":
+				return Arrays.asList(
+						"rift.MouseHelperMixin",
+						"rift.GameRendererMixin",
+						"rift.ActiveRenderInfoMixin"
 				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
