@@ -50,6 +50,9 @@ dependencies {
 
     sourceSets.lexforge12.compileOnlyConfigurationName("org.spongepowered:mixin:${"mixin_version"()}")
     sourceSets.lexforge12.compileOnlyConfigurationName("org.ow2.asm:asm-tree:${"asm_version"()}")
+
+    sourceSets.lexforge13.compileOnlyConfigurationName("org.spongepowered:mixin:${"mixin_version"()}")
+    sourceSets.lexforge13.compileOnlyConfigurationName("org.ow2.asm:asm-tree:${"asm_version"()}")
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -181,6 +184,8 @@ forge(sourceSets.lexforge12, mojmap = false) {
     remapImplementation()
 }
 
+forge(sourceSets.lexforge13, mojmap = false)
+
 // endregion
 
 // region helpers
@@ -190,6 +195,7 @@ val SourceSetContainer.fabric get() = maybeCreate("fabric")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
+val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
