@@ -28,6 +28,7 @@ val ap: Configuration by configurations.creating {
 repositories {
     maven("https://maven.cleanroommc.com/") // mixinbooter
     unimined.modrinthMaven()
+    unimined.wagYourMaven("releases")
 }
 
 // region unimined
@@ -51,7 +52,7 @@ mc(sourceSets.rift, mojmap = false) {
         mcp("snapshot", "rift_mcp_version"())
     }
 
-    rift {}
+    //rift {}
 
     minecraftRemapper.config {
         ignoreConflicts(true)
@@ -74,17 +75,18 @@ dependencies {
             "fabric_api_version"()
         ))
 
-        lexforge12.modImplementation(
-            "zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}"
-        )
+        lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
 
         lexforge12.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         lexforge12.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
-        lexforge12.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
+        lexforge12.compileOnly("io.github.llamalad7:mixinextras-common:0.5.0-rc.1")
 
         rift.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         rift.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
         rift.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
+
+        rift.implementation("net.minecraft:launchwrapper:1.12")
+        rift.modImplementation("org.dimdev:rift:1.13.2")
     }
 }
 
@@ -146,8 +148,8 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
     process { name, bytes ->
         if (!name.endsWith(".class")) return@process bytes
 
-        val cn = ClassReader(bytes).let {
-            ClassNode().also { cn -> it.accept(cn, ClassReader.SKIP_DEBUG) }
+        val cn = ClassNode().also {
+            ClassReader(bytes).accept(it, ClassReader.SKIP_DEBUG)
         }
         cn.methods.removeAll {
             it.signature = null
