@@ -64,47 +64,37 @@ public abstract class Omnilook {
 	}
 
 	/**
-	 * Updates the freelook camera state.
+	 * Updates the freelook camera state based on the keybind's state.
 	 */
 	public void update() {
 		if(getCameraType() != 1 && enabled) {
-			disable();
+			setEnabled(false);
 		}
 
 		if(Config.toggleMode) {
 			if(isKeyClicked()) {
-				if(enabled) {
-					disable();
-				} else {
-					enable();
-				}
+				setEnabled(enabled);
 			}
 		} else {
 			boolean held = isKeyDown();
-			if(held && !enabled) {
-				enable();
-			} else if(!held && enabled) {
-				disable();
+			if(held != enabled) {
+				setEnabled(held);
 			}
 		}
 	}
 
-	public void enable() {
-		if(enabled) return;
-
-		lastCameraType = getCameraType();
-		setCameraType(1);
-		enabled = true;
-
-		this.xRot = getMCXRot();
-		this.yRot = getMCYRot();
-	}
-
-	public void disable() {
-		if(!enabled) return;
-
-		setCameraType(lastCameraType);
-		enabled = false;
+	/**
+	 * Toggles the freelook camera state.
+	 */
+	public void setEnabled(boolean enabled) {
+		if(enabled) {
+			setCameraType(lastCameraType);
+			this.enabled = false;
+		} else {
+			lastCameraType = getCameraType();
+			setCameraType(1);
+			this.enabled = true;
+		}
 
 		this.xRot = getMCXRot();
 		this.yRot = getMCYRot();
