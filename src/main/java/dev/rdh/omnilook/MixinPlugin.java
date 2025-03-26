@@ -113,7 +113,9 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				return Arrays.asList(
 						"rift.MouseHelperMixin",
 						"rift.GameRendererMixin",
-						"rift.ActiveRenderInfoMixin"
+						"rift.ActiveRenderInfoMixin",
+						"rift.RenderManagerMixin",
+						"rift.WorldRendererMixin"
 				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);

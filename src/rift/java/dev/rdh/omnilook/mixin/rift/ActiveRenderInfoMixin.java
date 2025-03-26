@@ -14,7 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 
 @Mixin(ActiveRenderInfo.class)
 public class ActiveRenderInfoMixin {
-	@Inject(method = "updateRenderInfo", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;rotationX:F"))
+	@Inject(method = "updateRenderInfo", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;rotationX:F", ordinal = 0))
 	private static void hookRotation(EntityPlayer entityPlayer, boolean bl, float farPlane, CallbackInfo ci,
 									 @Local(ordinal = 2) LocalFloatRef pitch, @Local(ordinal = 3) LocalFloatRef yaw) {
 		Omnilook o = Omnilook.getInstance();

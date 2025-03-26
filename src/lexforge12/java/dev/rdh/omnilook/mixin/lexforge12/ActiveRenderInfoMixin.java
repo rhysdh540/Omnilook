@@ -18,7 +18,7 @@ public class ActiveRenderInfoMixin {
 	@Inject(method = {
 			"updateRenderInfo(Lnet/minecraft/entity/Entity;Z)V",
 			"updateRenderInfo(Lnet/minecraft/entity/player/EntityPlayer;Z)V",
-	}, at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;rotationX:F"))
+	}, at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;rotationX:F", ordinal = 0))
 	private static void hookRotation(@Coerce Entity entity, boolean thirdPerson, CallbackInfo ci,
 									 @Local(ordinal = 2) LocalFloatRef pitch, @Local(ordinal = 3) LocalFloatRef yaw) {
 		Omnilook o = Omnilook.getInstance();
