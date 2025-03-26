@@ -8,7 +8,9 @@ import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
 import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
+import xyz.wagyourtail.unimined.util.OSUtils
 import xyz.wagyourtail.unimined.util.withSourceSet
+
 
 plugins {
     id("java")
@@ -40,9 +42,22 @@ mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
+mc(sourceSets.legacyFabric, mojmap = false) {
+    legacyFabric { loader("fabricloader_version"()) }
+
+    mappings {
+        searge()
+        mcp(channel = "snapshot", version = "legacyfabric_mcp_version"())
+    }
+
+    armNatives()
+}
+
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge12, mojmap = false)
+forge(sourceSets.lexforge12, mojmap = false) {
+    armNatives()
+}
 
 mc(sourceSets.rift, mojmap = false) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
@@ -73,6 +88,13 @@ dependencies {
         fabric.modImplementation(fabricApi.fabricModule(
             "fabric-key-binding-api-v1",
             "fabric_api_version"()
+        ))
+
+        fabric.implementation("ca.weblite:java-objc-bridge:1.1")
+
+        legacyFabric.modImplementation(fabricApi.legacyFabricModule(
+            "legacy-fabric-keybindings-api-v1-common",
+            "legacyfabric_api_version"()
         ))
 
         lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
@@ -210,13 +232,14 @@ val SourceSetContainer.fabric get() = maybeCreate("fabric")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
+val SourceSetContainer.legacyFabric get() = maybeCreate("legacyFabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
 
 fun mc(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -> Unit = {}) {
-    val key = sourceSet.name
+    val key = sourceSet.name.lowercase()
     unimined.minecraft(sourceSet) {
         combineWith(sourceSets.main)
         version = "${key}_minecraft_version"()
@@ -235,7 +258,7 @@ fun mc(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -
 }
 
 fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -> Unit = {}) {
-    val key = sourceSet.name
+    val key = sourceSet.name.lowercase()
     mc(sourceSet, mojmap) {
         minecraftForge {
             loader("${key}_version"())
@@ -250,6 +273,18 @@ fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.(
         }
 
         block()
+    }
+}
+
+fun MinecraftConfig.armNatives() {
+    if (OSUtils.oSId != OSUtils.OSX) return
+    configurations.getByName("minecraftLibraries".withSourceSet(sourceSet)).resolutionStrategy{
+        dependencySubstitution {
+            substitute(module("org.lwjgl.lwjgl:lwjgl")).using(module("org.lwjgl.lwjgl:lwjgl:2.9.4+legacyfabric.8"))
+            substitute(module("org.lwjgl.lwjgl:lwjgl_util")).using(module("org.lwjgl.lwjgl:lwjgl_util:2.9.4+legacyfabric.8"))
+            substitute(module("com.mojang:text2speech:1.10.3")).using(module("com.mojang:text2speech:1.11.3"))
+            force("org.lwjgl.lwjgl:lwjgl-platform:2.9.4+legacyfabric.8")
+        }
     }
 }
 
