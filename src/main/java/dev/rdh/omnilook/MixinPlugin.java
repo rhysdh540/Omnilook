@@ -112,10 +112,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			case "Rift":
 				return Arrays.asList(
 						"rift.MouseHelperMixin",
-						"rift.GameRendererMixin",
-						"rift.ActiveRenderInfoMixin",
-						"rift.RenderManagerMixin",
-						"rift.WorldRendererMixin"
+						"rift.GameRendererMixin"
 				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
@@ -127,7 +124,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		return mixinClassName.contains(platform.toLowerCase());
 	}
 
-	// <editor-fold desc="Unused" defaultstate="collapsed">
+	//region Unused
 	@Override
 	public String getRefMapperConfig() {
 		return null;
@@ -144,5 +141,5 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
-	// </editor-fold>
+	//endregion
 }

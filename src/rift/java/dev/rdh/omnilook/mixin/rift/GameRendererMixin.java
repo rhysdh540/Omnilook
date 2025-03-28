@@ -1,39 +1,42 @@
 package dev.rdh.omnilook.mixin.rift;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import dev.rdh.omnilook.Omnilook;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
 
+// this is extremely scuffed but all the other ways i tried either did nothing or broke the camera spectacularly
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
-	@ModifyExpressionValue(method = "orientCamera", at = {
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationYaw:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationYaw:F"),
-	})
-	private float modifyYaw(float value) {
+	@Inject(method = "orientCamera", at = @At("HEAD"))
+	private void a(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch) {
 		Omnilook o = Omnilook.getInstance();
+		o.update();
 		if (o.isEnabled()) {
-			GlStateManager.rotatef(o.getYRot(), 0, -1, 0);
-			return o.getYRot();
+			Entity entity = Minecraft.getInstance().getRenderViewEntity();
+			pitch.set(entity.rotationPitch);
+			yaw.set(entity.rotationYaw);
+
+			entity.rotationPitch = o.getXRot();
+			entity.rotationYaw = o.getYRot();
 		}
-		return value;
 	}
 
-	@ModifyExpressionValue(method = "orientCamera", at = {
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationPitch:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationPitch:F"),
-	})
-	private float modifyPitch(float value) {
+	@Inject(method = "orientCamera", at = @At("TAIL"))
+	private void b(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch) {
 		Omnilook o = Omnilook.getInstance();
 		if (o.isEnabled()) {
-			GlStateManager.rotatef(o.getXRot(), -1, 0, 0);
-			return o.getXRot();
+			Entity entity = Minecraft.getInstance().getRenderViewEntity();
+			entity.rotationPitch = pitch.get();
+			entity.rotationYaw = yaw.get();
 		}
-		return value;
 	}
 }
