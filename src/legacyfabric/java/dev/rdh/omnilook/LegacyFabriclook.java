@@ -13,7 +13,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
-public class LegacyFabriclook extends Omnilook implements ClientModInitializer {
+public class LegacyFabriclook extends Omnilook {
 	public final KeyBinding key;
 	private final MethodHandle getRenderViewEntity;
 
@@ -22,11 +22,6 @@ public class LegacyFabriclook extends Omnilook implements ClientModInitializer {
 		Field f = MixinPlugin.field(Minecraft.class, "field_10309", "field_6279", "renderViewEntity");
 		f.setAccessible(true);
 		getRenderViewEntity = MethodHandles.lookup().unreflectGetter(f);
-	}
-
-	@Override
-	public void onInitializeClient() {
-
 	}
 
 	@Override
