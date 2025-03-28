@@ -17,6 +17,9 @@ public final class Config {
 
 	static void thread() {
 		Path parent = Omnilook.getInstance().getConfigDir();
+		if(!Files.exists(parent)) {
+			Files.createDirectories(parent);
+		}
 		Path file = parent.resolve("omnilook.properties");
 		Semaphore semaphore = new Semaphore(1);
 		long nextTime = 0;

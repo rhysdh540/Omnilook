@@ -30,7 +30,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				// continue
 			}
 		}
-		throw new NoSuchFieldError("No such field in class " + clazz.getName() + ": " + Arrays.toString(names));
+		throw new NoSuchFieldException("No such field in class " + clazz.getName() + ": " + Arrays.toString(names));
 	}
 	// endregion
 
@@ -60,8 +60,12 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			}
 		} else if(classExists("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
 			platform = "Fabric";
+		} else if(classExists("org.dimdev.rift.Rift")) {
+			platform = "Rift";
 		} else if(classExists("net.minecraft.command.ICommand")) {
 			platform = "LexForge12";
+		} else if(classExists("net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
+			platform = "LegacyFabric";
 		} else {
 			throw new IllegalStateException("Unsupported platform");
 		}
@@ -104,6 +108,16 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 						"fabric.CameraMixin",
 						"fabric.MouseHandlerMixin"
 				);
+			case "LegacyFabric":
+				return Arrays.asList(
+						"legacyfabric.EntityRendererMixin",
+						"legacyfabric.ActiveRenderInfoMixin"
+				);
+			case "Rift":
+				return Arrays.asList(
+						"rift.MouseHelperMixin",
+						"rift.GameRendererMixin"
+				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
 		}
@@ -114,7 +128,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		return mixinClassName.contains(platform.toLowerCase());
 	}
 
-	// <editor-fold desc="Unused" defaultstate="collapsed">
+	//region Unused
 	@Override
 	public String getRefMapperConfig() {
 		return null;
@@ -131,5 +145,5 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 	@Override
 	public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
-	// </editor-fold>
+	//endregion
 }

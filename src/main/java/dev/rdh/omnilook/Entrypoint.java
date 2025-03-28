@@ -29,12 +29,13 @@ public final class Entrypoint {
 	}
 
 	public static void fabric() {
-		String classname;
-		String platform = MixinPlugin.getPlatform();
-		if(platform.equals("Fabric")) {
+		String classname = MixinPlugin.getPlatform();
+		if(classname.equals("Fabric")) {
 			classname = "dev.rdh.omnilook.Fabriclook";
+		} else if(classname.equals("LegacyFabric")) {
+			classname = "dev.rdh.omnilook.LegacyFabriclook";
 		} else {
-			throw new IllegalStateException("Unexpected platform: " + platform);
+			throw new IllegalStateException("Unexpected platform: " + classname);
 		}
 
 		ClientModInitializer cmi = (ClientModInitializer) Class.forName(classname).getDeclaredConstructor().newInstance();
