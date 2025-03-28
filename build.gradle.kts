@@ -30,6 +30,7 @@ val ap: Configuration by configurations.creating {
 repositories {
     maven("https://maven.cleanroommc.com/") // mixinbooter
     unimined.modrinthMaven()
+    unimined.wagYourMaven("releases")
 }
 
 // region unimined
@@ -56,6 +57,21 @@ forge(sourceSets.lexforge)
 forge(sourceSets.lexforge16)
 forge(sourceSets.lexforge12, mojmap = false) {
     armNatives()
+}
+
+mc(sourceSets.rift, mojmap = false) {
+    minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
+
+    mappings {
+        searge()
+        mcp("snapshot", "rift_mcp_version"())
+    }
+
+    //rift {}
+
+    minecraftRemapper.config {
+        ignoreConflicts(true)
+    }
 }
 // endregion
 
@@ -85,7 +101,14 @@ dependencies {
 
         lexforge12.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         lexforge12.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
-        lexforge12.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
+        lexforge12.compileOnly("io.github.llamalad7:mixinextras-common:0.5.0-rc.1")
+
+        rift.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
+        rift.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
+        rift.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
+
+        rift.implementation("net.minecraft:launchwrapper:1.12")
+        rift.modImplementation("org.dimdev:rift:1.13.2")
     }
 }
 
@@ -147,8 +170,8 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
     process { name, bytes ->
         if (!name.endsWith(".class")) return@process bytes
 
-        val cn = ClassReader(bytes).let {
-            ClassNode().also { cn -> it.accept(cn, ClassReader.SKIP_DEBUG) }
+        val cn = ClassNode().also {
+            ClassReader(bytes).accept(it, ClassReader.SKIP_DEBUG)
         }
         cn.methods.removeAll {
             it.signature = null
@@ -210,6 +233,7 @@ val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
 val SourceSetContainer.legacyFabric get() = maybeCreate("legacyFabric")
+val SourceSetContainer.rift get() = maybeCreate("rift")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
