@@ -104,6 +104,10 @@ dependencies {
         lexforge12.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
         lexforge12.compileOnly("io.github.llamalad7:mixinextras-common:0.5.0-rc.1")
 
+        lexforge13.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
+        lexforge13.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
+        lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
+
         rift.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         rift.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
         rift.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")

@@ -11,10 +11,7 @@ import dev.rdh.omnilook.Omnilook;
 
 import net.minecraft.client.renderer.EntityRenderer;
 
-@Mixin(
-		value = EntityRenderer.class,
-		targets = "net.minecraft.client.renderer.GameRenderer" // 1.13
-)
+@Mixin(value = EntityRenderer.class)
 public class EntityRendererMixin {
 	@Dynamic
 	@WrapWithCondition(method = {
@@ -24,7 +21,7 @@ public class EntityRendererMixin {
 			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;turn(FF)V"), // 1.8+
 			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityClientPlayerMP;func_70082_c(FF)V") // 1.7.10-
 	}, require = 0) // not required on 1.13
-	private boolean onTurn(@Coerce Object instance, float yaw, float pitch, boolean renderWorldIn) {
+	private boolean onTurn(@Coerce Object instance, float yaw, float pitch) {
 		return Omnilook.getInstance().updateCamera(-pitch, yaw);
 	}
 

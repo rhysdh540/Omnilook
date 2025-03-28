@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.entity.Entity;
 
 @Mixin(GameRenderer.class)
-public class EntityRendererMixin {
+public class GameRendererMixin {
 	@SuppressWarnings("DiscouragedShift")
 	@Inject(method = "orientCamera", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/Minecraft;getRenderViewEntity()Lnet/minecraft/entity/Entity;", shift = At.Shift.AFTER))
 	private void modify(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch, @Local Entity entity) {
