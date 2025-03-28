@@ -24,7 +24,7 @@ public class ActiveRenderInfoMixin {
 		Omnilook o = Omnilook.getInstance();
 		o.update();
 
-		if (o.isEnabled()) {
+		if(o.isEnabled()) {
 			pitch.set(o.getXRot());
 			yaw.set(o.getYRot());
 		}
