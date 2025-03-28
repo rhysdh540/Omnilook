@@ -43,7 +43,7 @@ mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
-mc(sourceSets.legacyFabric, mojmap = false) {
+mc(sourceSets.legacyfabric, mojmap = false) {
     legacyFabric { loader("fabricloader_version"()) }
 
     mappings {
@@ -236,7 +236,7 @@ val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
 val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
-val SourceSetContainer.legacyFabric get() = maybeCreate("legacyFabric")
+val SourceSetContainer.legacyfabric get() = maybeCreate("legacyfabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
