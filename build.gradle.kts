@@ -116,20 +116,21 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
         val cn = ClassReader(bytes).let {
             ClassNode().also { cn -> it.accept(cn, ClassReader.SKIP_DEBUG) }
         }
-        cn.methods.removeAll {
-            it.signature = null
-            it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
-        }
 
         cn.signature = null
+        cn.methods.forEach { it.signature = null }
+        cn.fields.forEach { it.signature = null }
 
         if (cn.invisibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Mixin;" } == true) {
             cn.methods.removeAll { it.name == "<init>" && it.instructions.size() <= 3 }
-        }
 
-        cn.fields.removeAll {
-            it.signature = null
-            it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+            cn.fields.removeAll {
+                it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+            }
+
+            cn.methods.removeAll {
+                it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+            }
         }
 
         cn.toBytes()

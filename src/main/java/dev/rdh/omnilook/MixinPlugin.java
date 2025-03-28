@@ -90,8 +90,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				);
 			case "LexForge13":
 				return Arrays.asList(
-//						"lexforge16.MouseHandlerMixin",
-						"lexforge12.EntityRendererMixin",
+						"lexforge16.MouseHandlerMixin",
+						"lexforge13.EntityRendererMixin",
 						"lexforge12.ActiveRenderInfoMixin"
 				);
 			case "LexForge12":
