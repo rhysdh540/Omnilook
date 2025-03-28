@@ -21,7 +21,7 @@ jobs:
             cache-read-only: false
 
       -   name: do the build
-          run: ./gradlew assemble
+          run: ./gradlew assemble --stacktrace
           continue-on-error: true
 
       -   name: upload artifacts
@@ -29,4 +29,10 @@ jobs:
           with:
             name: omnilook-artifacts-v${{ github.run_number }}
             path: |
-              build/libs/*.jar
+              build/libs/*
+      -   name: upload dev artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: omnilook-dev-artifacts-v${{ github.run_number }}
+            path: |
+              build/devlibs/*
