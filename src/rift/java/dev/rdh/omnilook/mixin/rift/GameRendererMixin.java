@@ -16,8 +16,9 @@ import net.minecraft.entity.Entity;
 // this is extremely scuffed but all the other ways i tried either did nothing or broke the camera spectacularly
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
+	@SuppressWarnings("DiscouragedShift")
 	@Inject(method = "orientCamera", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/Minecraft;getRenderViewEntity()Lnet/minecraft/entity/Entity;", shift = At.Shift.AFTER))
-	private void a(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch, @Local Entity entity) {
+	private void modify(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch, @Local Entity entity) {
 		Omnilook o = Omnilook.getInstance();
 		o.update();
 		if (o.isEnabled()) {
@@ -30,7 +31,7 @@ public class GameRendererMixin {
 	}
 
 	@Inject(method = "orientCamera", at = @At("TAIL"))
-	private void b(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch, @Local Entity entity) {
+	private void reset(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch, @Local Entity entity) {
 		Omnilook o = Omnilook.getInstance();
 		if (o.isEnabled()) {
 			entity.rotationPitch = pitch.get();
