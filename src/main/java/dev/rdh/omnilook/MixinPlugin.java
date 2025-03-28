@@ -1,8 +1,12 @@
 package dev.rdh.omnilook;
 
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.Version;
 import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+
+import net.minecraftforge.versions.forge.ForgeVersion;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -47,7 +51,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		if(classExists("net.neoforged.fml.common.Mod")) {
 			platform = "NeoForge";
 		} else if(classExists("net.minecraftforge.versions.forge.ForgeVersion")) {
-			String forgeVersion = (String) Class.forName("net.minecraftforge.versions.forge.ForgeVersion").getMethod("getVersion").invoke(null);
+			String forgeVersion = ForgeVersion.getVersion();
 			int major = Integer.parseInt(forgeVersion.substring(0, forgeVersion.indexOf('.')));
 			if(major >= 37) {
 				platform = "LexForge";
@@ -58,14 +62,18 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			} else {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
-		} else if(classExists("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
-			platform = "Fabric";
+		} else if(classExists("net.fabricmc.loader.api.FabricLoader")) {
+			Version version = FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion();
+			int cmp = version.compareTo(Version.parse("1.14.4"));
+			if(cmp >= 0) {
+				platform = "Fabric";
+			} else {
+				platform = "LegacyFabric";
+			}
 		} else if(classExists("org.dimdev.rift.Rift")) {
 			platform = "Rift";
 		} else if(classExists("net.minecraft.command.ICommand")) {
 			platform = "LexForge12";
-		} else if(classExists("net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
-			platform = "LegacyFabric";
 		} else {
 			throw new IllegalStateException("Unsupported platform");
 		}

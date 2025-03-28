@@ -2,7 +2,7 @@ package dev.rdh.omnilook;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -27,7 +27,7 @@ public class LegacyFabriclook extends Omnilook implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		KeyBindingHelper.registerKeyBinding(key);
+		Minecraft.getMinecraft().gameSettings.keyBindings = ArrayUtils.add(Minecraft.getMinecraft().gameSettings.keyBindings, key);
 	}
 
 	@Override

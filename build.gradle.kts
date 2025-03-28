@@ -30,6 +30,7 @@ val ap: Configuration by configurations.creating {
 repositories {
     maven("https://maven.cleanroommc.com/") // mixinbooter
     unimined.modrinthMaven()
+    unimined.fabricMaven()
     unimined.wagYourMaven("releases")
 }
 
@@ -80,6 +81,7 @@ dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
     compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
     compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
+    compileOnly("net.fabricmc:fabric-loader:${"fabricloader_version"()}")
     compileOnly(sourceSets.stubs.output)
 
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
@@ -92,11 +94,6 @@ dependencies {
         ))
 
         fabric.implementation("ca.weblite:java-objc-bridge:1.1")
-
-        legacyFabric.modImplementation(fabricApi.legacyFabricModule(
-            "legacy-fabric-keybindings-api-v1-common",
-            "legacyfabric_api_version"()
-        ))
 
         lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
 
