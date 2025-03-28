@@ -2,7 +2,6 @@ package dev.rdh.omnilook;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -15,7 +14,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 
 public class LegacyFabriclook extends Omnilook implements ClientModInitializer {
-	private final KeyBinding key;
+	public final KeyBinding key;
 	private final MethodHandle getRenderViewEntity;
 
 	public LegacyFabriclook() {
@@ -27,7 +26,7 @@ public class LegacyFabriclook extends Omnilook implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		KeyBindingHelper.registerKeyBinding(key);
+
 	}
 
 	@Override
