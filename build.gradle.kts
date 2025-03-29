@@ -1,4 +1,4 @@
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage", "VulnerableLibrariesLocal")
 
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
@@ -16,6 +16,7 @@ import xyz.wagyourtail.unimined.util.withSourceSet
 
 plugins {
     id("java")
+    id("idea")
     id("xyz.wagyourtail.unimined") version ("1.3.14-SNAPSHOT")
     id("org.taumc.gradle.compression") version ("0.3.28")
 }
@@ -23,6 +24,11 @@ plugins {
 group = "dev.rdh"
 version = "0.1"
 base.archivesName = project.name.lowercase()
+
+idea.module {
+    isDownloadSources = true
+    isDownloadJavadoc = true
+}
 
 val ap: Configuration by configurations.creating {
     isCanBeConsumed = false
@@ -35,6 +41,7 @@ repositories {
     unimined.fabricMaven()
     unimined.wagYourMaven("releases")
     unimined.spongeMaven()
+    maven("https://repo.mumfrey.com/content/repositories/snapshots")
 }
 
 // region unimined
@@ -78,6 +85,13 @@ mc(sourceSets.rift, mojmap = false) {
         ignoreConflicts(true)
     }
 }
+
+mc(sourceSets.liteloader, mojmap = false) {
+    mappings {
+        searge()
+        mcp("snapshot", "liteloader_mcp_version"())
+    }
+}
 // endregion
 
 dependencies {
@@ -111,6 +125,10 @@ dependencies {
         rift.implementation("org.spongepowered:mixin:${"rift_mixin_version"()}")
         rift.implementation("net.minecraft:launchwrapper:1.12")
         rift.modImplementation("org.dimdev:rift:${"rift_minecraft_version"()}")
+
+        liteloader.implementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
+        liteloader.implementation("net.minecraft:launchwrapper:1.12")
+        liteloader.implementation("org.spongepowered:mixin:${"liteloader_mixin_version"()}")
     }
 }
 
@@ -150,10 +168,6 @@ val mergeJars by tasks.registering(Jar::class) {
     manifest.attributes(
         "MixinConfigs" to "omnilook.mixins.json",
         "Fabric-Loom-Mixin-Remap-Type" to "static",
-
-        "FMLCorePluginContainsFMLMod" to true,
-        "ForceLoadAsMod" to true,
-        "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
     )
 }
 
@@ -238,6 +252,7 @@ val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
 val SourceSetContainer.legacyfabric get() = maybeCreate("legacyfabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")
+val SourceSetContainer.liteloader get() = maybeCreate("liteloader")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
