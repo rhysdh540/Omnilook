@@ -74,24 +74,14 @@ forge(sourceSets.lexforge12, mojmap = false) {
 mc(sourceSets.rift, mojmap = false) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
-    mappings {
-        searge()
-        mcp("snapshot", "rift_mcp_version"())
-    }
-
-    //rift {}
+    rift {}
 
     minecraftRemapper.config {
         ignoreConflicts(true)
     }
 }
 
-mc(sourceSets.liteloader, mojmap = false) {
-    mappings {
-        searge()
-        mcp("snapshot", "liteloader_mcp_version"())
-    }
-}
+mc(sourceSets.liteloader, mojmap = false)
 // endregion
 
 dependencies {
@@ -121,10 +111,6 @@ dependencies {
         lexforge13.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         lexforge13.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
         lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
-
-        rift.implementation("org.spongepowered:mixin:${"rift_mixin_version"()}")
-        rift.implementation("net.minecraft:launchwrapper:1.12")
-        rift.modImplementation("org.dimdev:rift:${"rift_minecraft_version"()}")
 
         liteloader.implementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
         liteloader.implementation("net.minecraft:launchwrapper:1.12")
@@ -265,33 +251,31 @@ fun mc(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -
         runs.config("server") { enabled = false }
         runs.all { jvmArgs("-Dmixin.debug.export=true") }
 
+        block()
+
         if (mojmap) {
             mappings {
                 mojmap()
                 parchment(version = "${key}_parchment_version"())
             }
+        } else {
+            mappings {
+                searge()
+                mcp(channel = "snapshot", version = "${key}_mcp_version"())
+            }
         }
-
-        block()
     }
 }
 
 fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -> Unit = {}) {
     val key = sourceSet.name.lowercase()
     mc(sourceSet, mojmap) {
+        block()
+
         minecraftForge {
             loader("${key}_version"())
             mixinConfig("omnilook.mixins.json")
         }
-
-        if (!mojmap) {
-            mappings {
-                searge()
-                mcp(channel = "snapshot", version = "${key}_mcp_version"())
-            }
-        }
-
-        block()
     }
 }
 
