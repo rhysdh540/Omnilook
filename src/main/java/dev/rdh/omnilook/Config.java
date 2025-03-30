@@ -29,13 +29,7 @@ public final class Config {
 		WatchService watchService = FileSystems.getDefault().newWatchService();
 		parent.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
 		while (true) {
-			WatchKey key;
-			try {
-				key = watchService.take();
-			} catch (Throwable e) {
-				Omnilook.log.error("Error in config: ", e);
-				return;
-			}
+			WatchKey key = watchService.take();
 
 			for(WatchEvent<?> pollEvent : key.pollEvents()) {
 				try {
@@ -52,13 +46,13 @@ public final class Config {
 					break;
 				} catch (IOException e) {
 					if(!(e instanceof NoSuchFileException)) {
-						Omnilook.log.error("Error in config: ", e);
+						OmniLog.error("Error in config: ", e);
 					}
 				}
 			}
 
 			if(!key.reset()) {
-				Omnilook.log.error("Config watch key is invalid");
+				OmniLog.error("Config watch key is invalid");
 				return;
 			}
 		}
@@ -71,7 +65,7 @@ public final class Config {
 		if(Files.exists(file)) {
 			props.load(Files.newBufferedReader(file));
 		} else {
-			Omnilook.log.info("Config file not found; rewriting...");
+			OmniLog.warn("Config file not found; rewriting...");
 			forceRewrite = true;
 		}
 
@@ -89,7 +83,7 @@ public final class Config {
 					" toggleMode: if true, pressing the keybind toggles freelook, otherwise it must be held"
 			);
 		}
-		Omnilook.log.info("Config loaded: " + props);
+		OmniLog.info("Config loaded: " + props);
 		semaphore.release();
 	}
 }
