@@ -97,6 +97,8 @@ public abstract class Omnilook {
 			setCameraType(lastCameraType);
 		}
 
+		OmniLog.info("Omnilook enabled: " + enabled);
+
 		this.xRot = getMCXRot();
 		this.yRot = getMCYRot();
 	}
