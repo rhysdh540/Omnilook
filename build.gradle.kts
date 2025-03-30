@@ -78,6 +78,19 @@ mc(sourceSets.rift, mappings = seargeMcp) {
 }
 
 mc(sourceSets.liteloader, mappings = seargeMcp)
+mc(sourceSets.modloader, mappings = Mappings {
+    mcp("legacy", "${it}_mcp_version"())
+    stub.withMappings("searge", "mcp") {
+        c("ModLoader", "net/minecraft/src/ModLoader", "net/minecraft/src/ModLoader")
+        c("BaseMod", "net/minecraft/src/BaseMod", "net/minecraft/src/BaseMod")
+    }
+}) {
+    side("client")
+
+    jarMod {
+        transforms("omnilook.transform")
+    }
+}
 // endregion
 
 dependencies {
@@ -116,6 +129,8 @@ dependencies {
         liteloader.implementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
         liteloader.implementation("net.minecraft:launchwrapper:1.12")
         liteloader.implementation("org.spongepowered:mixin:${"liteloader_mixin_version"()}")
+
+        modloader.configuration("jarMod")("risugami:modloader:${"modloader_minecraft_version"()}")
     }
 }
 
@@ -240,6 +255,7 @@ val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
 val SourceSetContainer.legacyfabric get() = maybeCreate("legacyfabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")
 val SourceSetContainer.liteloader get() = maybeCreate("liteloader")
+val SourceSetContainer.modloader get() = maybeCreate("modloader")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
