@@ -67,14 +67,10 @@ mc(sourceSets.babric, mappings = Mappings {
 
 mc(sourceSets.legacyfabric, mappings = seargeMcp) {
     legacyFabric { loader("fabricloader_version"()) }
-
-    mappings {
-        searge()
-        mcp(channel = "snapshot", version = "legacyfabric_mcp_version"())
-    }
 }
 
 forge(sourceSets.lexforge)
+forge(sourceSets.lexforge20)
 forge(sourceSets.lexforge16)
 forge(sourceSets.lexforge13, mappings = seargeMcp)
 forge(sourceSets.lexforge12, mappings = seargeMcp)
@@ -273,6 +269,7 @@ val SourceSetContainer.main get() = getByName("main")
 val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
 val SourceSetContainer.fabric get() = maybeCreate("fabric")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
+val SourceSetContainer.lexforge20 get() = maybeCreate("lexforge20")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
 val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")

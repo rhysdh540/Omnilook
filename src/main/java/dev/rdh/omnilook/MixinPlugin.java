@@ -71,8 +71,10 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		} else if(classExists("net.minecraftforge.versions.forge.ForgeVersion")) {
 			String forgeVersion = ForgeVersion.getVersion();
 			int major = Integer.parseInt(forgeVersion.substring(0, forgeVersion.indexOf('.')));
-			if(major >= 37) {
+			if(major >= 50) {
 				platform = "LexForge";
+			} else if(major >= 37) {
+				platform = "LexForge20";
 			} else if(major >= 26) {
 				platform = "LexForge16";
 			} else if(major == 25) {
@@ -125,6 +127,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				return Arrays.asList(
 						"lexforge.CameraMixin",
 						"lexforge.MouseHandlerMixin"
+				);
+			case "LexForge20":
+				return Arrays.asList(
+						"lexforge20.CameraMixin",
+						"lexforge20.MouseHandlerMixin"
 				);
 			case "LexForge16":
 				return Arrays.asList(

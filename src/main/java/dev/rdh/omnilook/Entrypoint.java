@@ -15,11 +15,13 @@ public final class Entrypoint {
 		String classname = MixinPlugin.getPlatform();
 		if(classname.equals("LexForge")) {
 			classname = "dev.rdh.omnilook.Forgelook";
+		} else if(classname.equals("LexForge20")) {
+			classname = "dev.rdh.omnilook.Forgelook20";
 		} else if(classname.equals("LexForge16") || classname.equals("LexForge13")) {
 			classname = "dev.rdh.omnilook.Forgelook16";
 		} else if(classname.equals("LexForge12")) {
 			classname = "dev.rdh.omnilook.Forgelook12";
-		} if(classname.equals("Fabric")) {
+		} else if(classname.equals("Fabric")) {
 			classname = "dev.rdh.omnilook.Fabriclook";
 		} else if(classname.equals("LegacyFabric")) {
 			classname = "dev.rdh.omnilook.LegacyFabriclook";
