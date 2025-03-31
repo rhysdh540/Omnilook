@@ -23,6 +23,8 @@ public final class Entrypoint {
 			classname = "dev.rdh.omnilook.Fabriclook";
 		} else if(classname.equals("LegacyFabric")) {
 			classname = "dev.rdh.omnilook.LegacyFabriclook";
+		} else if(classname.equals("Babric")) {
+			classname = "dev.rdh.omnilook.Babriclook";
 		} else {
 			throw new IllegalStateException("Unexpected platform: " + classname);
 		}

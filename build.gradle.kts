@@ -42,6 +42,7 @@ repositories {
     unimined.wagYourMaven("releases")
     unimined.spongeMaven()
     maven("https://repo.mumfrey.com/content/repositories/snapshots")
+    maven("https://maven.wispforest.io")
 }
 
 // region unimined
@@ -51,6 +52,17 @@ mc(sourceSets.neoforge) {
 
 mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
+}
+
+mc(sourceSets.babric, mappings = Mappings {
+    mapping("me.alphamode:nostalgia:${minecraft.version}+build.${"babric_nostalgia_version"()}:v2", "nostalgia") {
+        outputs("nostalgia", true) { listOf("intermediary") }
+        mapNamespace("named", "nostalgia")
+        sourceNamespace("intermediary")
+        renest()
+    }
+}) {
+    babric { loader("babric_loader_version"()) }
 }
 
 mc(sourceSets.legacyfabric, mappings = seargeMcp) {
@@ -240,6 +252,7 @@ val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
 val SourceSetContainer.legacyfabric get() = maybeCreate("legacyfabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")
 val SourceSetContainer.liteloader get() = maybeCreate("liteloader")
+val SourceSetContainer.babric get() = maybeCreate("babric")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
