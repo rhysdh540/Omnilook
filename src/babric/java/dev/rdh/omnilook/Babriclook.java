@@ -11,7 +11,8 @@ import java.nio.file.Path;
 
 public class Babriclook extends Omnilook {
 	public final KeyMapping key;
-	public boolean keyWasDown = false;
+	private boolean keyWasPressed = false;
+	private boolean keyPressed = false;
 	public final Minecraft mc;
 
 	public Babriclook() {
@@ -24,11 +25,10 @@ public class Babriclook extends Omnilook {
 	@Override
 	public void update() {
 		if(isKeyDown()) {
-			if(!keyWasDown) {
-				keyWasDown = true;
-			}
+			keyPressed = !keyWasPressed;
+			keyWasPressed = true;
 		} else {
-			keyWasDown = false;
+			keyPressed = keyWasPressed = false;
 		}
 
 		super.update();
@@ -61,7 +61,7 @@ public class Babriclook extends Omnilook {
 
 	@Override
 	protected boolean isKeyClicked() {
-		return !keyWasDown && Keyboard.isKeyDown(key.key);
+		return keyPressed;
 	}
 
 	@Override
