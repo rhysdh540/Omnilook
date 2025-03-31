@@ -90,6 +90,18 @@ mc(sourceSets.rift, mappings = seargeMcp) {
 }
 
 mc(sourceSets.liteloader, mappings = seargeMcp)
+
+unimined.reIndev(sourceSets.reindev) {
+    combineWith(sourceSets.main)
+    version = "reindev_version"()
+    side("client")
+    runs.all { jvmArgs("-Dmixin.debug.export=true") }
+
+    foxLoader {
+        loader()
+        modId = "omnilook"
+    }
+}
 // endregion
 
 dependencies {
@@ -128,6 +140,12 @@ dependencies {
         liteloader.implementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
         liteloader.implementation("net.minecraft:launchwrapper:1.12")
         liteloader.implementation("org.spongepowered:mixin:${"liteloader_mixin_version"()}")
+
+        // reindev might be a little broken
+        reindev.implementation("org.semver4j:semver4j:5.3.0")
+        reindev.implementation("net.fabricmc:sponge-mixin:0.15.0+mixin.0.8.7")
+        reindev.implementation("io.github.llamalad7:mixinextras-common:0.4.0")
+        reindev.implementation("org.apache.commons:commons-lang3:3.3.2")
     }
 }
 
@@ -161,12 +179,21 @@ val mergeJars by tasks.registering(Jar::class) {
     group = "build"
     archiveClassifier = "dev"
     from(sourceSets.main.output)
+    from(sourceSets.reindev.output)
 
     destinationDirectory = layout.buildDirectory.dir("libs")
 
     manifest.attributes(
         "MixinConfigs" to "omnilook.mixins.json",
         "Fabric-Loom-Mixin-Remap-Type" to "static",
+
+        // reindev stuff
+        "ModId" to "omnilook",
+        "ModName" to "Omnilook",
+        "ModVersion" to project.version,
+        "ModDesc" to "funny look around mod",
+        "ClientMod" to "dev.rdh.omnilook.FoxlookMod",
+        "ClientMixin" to "omnilook.mixins.json",
     )
 }
 
@@ -253,6 +280,7 @@ val SourceSetContainer.legacyfabric get() = maybeCreate("legacyfabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")
 val SourceSetContainer.liteloader get() = maybeCreate("liteloader")
 val SourceSetContainer.babric get() = maybeCreate("babric")
+val SourceSetContainer.reindev get() = maybeCreate("reindev")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
