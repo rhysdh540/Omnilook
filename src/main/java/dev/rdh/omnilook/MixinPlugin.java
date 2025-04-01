@@ -52,6 +52,9 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		if(classExists("org.apache.logging.log4j.Logger")) {
 			org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("Omnilook");
 			OmniLog.init("log4j", logger::info, logger::warn, logger::error, logger::error);
+		} else if(classExists("org.slf4j.Logger")) {
+			org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("Omnilook");
+			OmniLog.init("slf4j", logger::info, logger::warn, logger::error, logger::error);
 		} else {
 			// there's probably a better way of doing this but it works for now
 			OmniLog.init(
