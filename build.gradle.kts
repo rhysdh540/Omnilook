@@ -112,11 +112,6 @@ dependencies {
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
     sourceSets {
-        fabric.modImplementation(fabricApi.fabricModule(
-            "fabric-key-binding-api-v1",
-            "fabric_api_version"()
-        ))
-
         legacyfabric.modImplementation(fabricApi.legacyFabricModule(
             "legacy-fabric-keybindings-api-v1-common",
             "legacyfabric_api_version"()

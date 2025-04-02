@@ -14,7 +14,7 @@ import dev.rdh.omnilook.Omnilook;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 
-import java.util.List;
+import java.util.ArrayList;
 
 @Mixin(GameSettings.class)
 public class GameSettingsMixin {
@@ -28,7 +28,7 @@ public class GameSettingsMixin {
 
 		LegacyFabriclook lfl = (LegacyFabriclook) Omnilook.getInstanceOrNull();
 		if(lfl != null) {
-			List<KeyBinding> kbs = Lists.newArrayList(this.keyBindings);
+			ArrayList<KeyBinding> kbs = Lists.newArrayList(this.keyBindings);
 			kbs.remove(lfl.key);
 			kbs.add(lfl.key);
 			this.keyBindings = kbs.toArray(new KeyBinding[0]);
