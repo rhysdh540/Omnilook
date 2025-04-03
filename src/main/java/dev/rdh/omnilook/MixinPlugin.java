@@ -85,10 +85,16 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			} else {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
-		} else if(classExists("net.fabricmc.loader.api.FabricLoader")) {
+		} else fabric: if(classExists("net.fabricmc.loader.api.FabricLoader")) {
 			Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer("minecraft");
 			if(!mod.isPresent()) {
-				throw new IllegalStateException("Minecraft mod not present?");
+				mod = FabricLoader.getInstance().getModContainer("cosmicreach");
+				if(mod.isPresent()) {
+					platform = "CosmicReach";
+					break fabric;
+				} else {
+					throw new IllegalStateException("Minecraft and Cosmic Reach mods not present?");
+				}
 			}
 			Version version = mod.get().getMetadata().getVersion();
 			int cmp = version.compareTo(Version.parse("1.14.4"));
@@ -181,6 +187,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			case "FoxLoader":
 				return Arrays.asList(
 						"foxloader.EntityRendererMixin"
+				);
+			case "CosmicReach":
+				return Arrays.asList(
+						"cosmicreach.PlayerControllerMixin",
+						"cosmicreach.KeybindsMenuMixin"
 				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);

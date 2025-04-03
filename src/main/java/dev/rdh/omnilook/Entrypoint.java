@@ -27,6 +27,8 @@ public final class Entrypoint {
 			classname = "dev.rdh.omnilook.LegacyFabriclook";
 		} else if(classname.equals("Babric")) {
 			classname = "dev.rdh.omnilook.Babriclook";
+		} else if(classname.equals("CosmicReach")) {
+			classname = "dev.rdh.omnilook.Cosmiclook";
 		} else {
 			throw new IllegalStateException("Unexpected platform: " + classname);
 		}
