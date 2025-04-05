@@ -18,14 +18,14 @@ val ap: Configuration by configurations.creating {
 
 dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
-    compileOnly("org.spongepowered:mixin:0.8.5")
-    compileOnly("org.ow2.asm:asm-tree:9.7.1")
+    compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
+    compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
 
 
-    ap("systems.manifold:manifold-exceptions:2025.1.5")
-    ap("systems.manifold:manifold-rt:2025.1.5")
+    ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
+    ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
-    "modernImplementation"(fabricApi.fabricModule("fabric-key-binding-api-v1", "0.115.3+1.21.1"))
+    "modernImplementation"(fabricApi.fabricModule("fabric-key-binding-api-v1", "modern_fabricapi_version"()))
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -89,29 +89,29 @@ java {
 // region unimined
 unimined.minecraft(sourceSets.neoforge) {
     combineWith(sourceSets.main)
-    version = "1.21.1"
-    neoForge { loader(125) }
+    version = "neoforge_minecraft_version"()
+    neoForge { loader("neoforge_version"()) }
 
     runs.config("server") { enabled = false }
     runs.all { jvmArgs("-Dmixin.debug.export=true") }
 
     mappings {
         mojmap()
-        parchment(version = "2024.11.17")
+        parchment(version = "neoforge_parchment_version"())
     }
 }
 
 unimined.minecraft(sourceSets.modern) {
     combineWith(sourceSets.main)
-    version = "1.21.1"
-    fabric { loader("0.16.0") }
+    version = "modern_minecraft_version"()
+    fabric { loader("modern_fabricloader_version"()) }
 
     runs.config("server") { enabled = false }
     runs.all { jvmArgs("-Dmixin.debug.export=true") }
 
     mappings {
         mojmap()
-        parchment(version = "2024.11.17")
+        parchment(version = "modern_parchment_version"())
     }
 
     mods.remap(configurations.getByName("modernImplementation"))
@@ -119,9 +119,9 @@ unimined.minecraft(sourceSets.modern) {
 
 unimined.minecraft(sourceSets.lexforge) {
     combineWith(sourceSets.main)
-    version = "1.20.1"
+    version = "lexforge_minecraft_version"()
     minecraftForge {
-        loader("47.4.0")
+        loader("lexforge_version"())
         mixinConfig("omnilook.mixins.json")
     }
 
@@ -130,7 +130,7 @@ unimined.minecraft(sourceSets.lexforge) {
 
     mappings {
         mojmap()
-        parchment(version = "2023.09.03")
+        parchment(version = "lexforge_parchment_version"())
     }
 }
 // endregion
@@ -145,6 +145,7 @@ val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 fun setupSourceSets() {
     sourceSets.neoforge
     sourceSets.modern
+    sourceSets.lexforge
 }
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
