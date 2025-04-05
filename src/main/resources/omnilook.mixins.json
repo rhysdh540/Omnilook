@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "plugin": "dev.rdh.omnilook.MixinConfigPlugin",
+  "package": "dev.rdh.omnilook.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "Modern_CameraMixin",
+    "Modern_MouseHandlerMixin",
+
+    "NeoForge_MouseHandlerMixin",
+
+    "LexForge_CameraMixin",
+    "LexForge_MouseHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
