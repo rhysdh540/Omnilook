@@ -3,6 +3,7 @@ package dev.rdh.omnilook;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Path;
 import java.util.Objects;
 
 public abstract class Omnilook {
@@ -26,6 +27,10 @@ public abstract class Omnilook {
 		log.info("Omnilook initialized with {}", getClass().getName());
 
 		instance = this;
+
+		Thread configThread = new Thread(Config::thread, "Omnilook Config Watcher");
+		configThread.setDaemon(true);
+		configThread.start();
 	}
 	// endregion
 
@@ -59,8 +64,6 @@ public abstract class Omnilook {
 		return true;
 	}
 
-	private static boolean toggleMode = true; // TODO: config
-
 	/**
 	 * Updates the freelook camera state.
 	 *
@@ -68,7 +71,7 @@ public abstract class Omnilook {
 	 * @param held whether the key is held this tick
 	 */
 	public void updateKey(boolean clicked, boolean held) {
-		if (toggleMode) {
+		if (Config.toggleMode) {
 			if(!clicked) return;
 
 			if(enabled) {
@@ -117,6 +120,8 @@ public abstract class Omnilook {
 	// endregion
 
 	// region impl
+	public abstract Path getConfigDir();
+
 	protected abstract void setCameraType(int cameraType);
 
 	protected abstract int getCameraType();

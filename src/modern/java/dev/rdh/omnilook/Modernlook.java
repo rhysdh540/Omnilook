@@ -16,6 +16,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 
 public final class Modernlook extends Omnilook implements ClientModInitializer {
 	public final KeyMapping key;
@@ -65,6 +66,11 @@ public final class Modernlook extends Omnilook implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		KeyBindingHelper.registerKeyBinding(key);
+	}
+
+	@Override
+	public Path getConfigDir() {
+		return FabricLoader.getInstance().getConfigDir();
 	}
 
 	@Override
