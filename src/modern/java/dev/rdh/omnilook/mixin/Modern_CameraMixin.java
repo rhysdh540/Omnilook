@@ -15,9 +15,7 @@ public abstract class Modern_CameraMixin {
 	@ModifyArgs(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
 	private void hookRotation(Args args) {
 		Modernlook fl = (Modernlook) Omnilook.getInstance();
-		if (fl.key.consumeClick()) {
-			fl.toggle();
-		}
+		fl.updateKey(fl.key.consumeClick(), fl.key.isDown());
 
 		if (fl.isEnabled()) {
 			args.setAll(fl.getYRot(), fl.getXRot());
