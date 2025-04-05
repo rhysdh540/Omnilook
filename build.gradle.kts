@@ -44,6 +44,15 @@ tasks.withType<JavaCompile> {
     options.release = 8
 }
 
+tasks.withType<ProcessResources> {
+    filteringCharset = "UTF-8"
+    inputs.property("version", project.version)
+
+    filesMatching("**/*") {
+        expand("version" to project.version)
+    }
+}
+
 val mergeJars by tasks.registering(Jar::class) {
     group = "build"
     archiveClassifier.set("")
@@ -122,15 +131,6 @@ unimined.minecraft(sourceSets.lexforge) {
     mappings {
         mojmap()
         parchment(version = "2023.09.03")
-    }
-}
-
-tasks.withType<ProcessResources> {
-    filteringCharset = "UTF-8"
-    inputs.property("version", project.version)
-
-    filesMatching("**/*") {
-        expand("version" to project.version)
     }
 }
 // endregion
