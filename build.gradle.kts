@@ -70,10 +70,6 @@ val mergeJars by tasks.registering(Jar::class) {
     )
 }
 
-tasks.assemble {
-    dependsOn(mergeJars)
-}
-
 afterEvaluate {
     mergeJars.configure {
         tasks.withType<RemapJarTask>().forEach { from(zipTree(it.asJar.archiveFile)) }
@@ -90,6 +86,10 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
 
 val compressJar2 = tau.compression.compress<AdvzipTask>(compressJar1) {
     level = DeflateAlgorithm.INSANE
+}
+
+tasks.assemble {
+    dependsOn(mergeJars, compressJar2)
 }
 
 // endregion
