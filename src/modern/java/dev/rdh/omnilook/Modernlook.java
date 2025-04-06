@@ -24,7 +24,7 @@ public final class Modernlook extends Omnilook implements ClientModInitializer {
 	private final MethodHandle[] xyRotHandles;
 
 	public Modernlook() {
-		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.CATEGORY_MISC);
+		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
 
 		MethodHandles.Lookup lookup = MethodHandles.lookup();
 		MappingResolver mr = FabricLoader.getInstance().getMappingResolver();

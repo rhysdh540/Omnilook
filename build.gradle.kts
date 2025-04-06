@@ -24,6 +24,7 @@ dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
     compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
     compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
+    compileOnly(sourceSets.stubs.output)
 
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
@@ -106,58 +107,55 @@ java {
 
 // region unimined
 unimined.minecraft(sourceSets.neoforge) {
-    combineWith(sourceSets.main)
-    version = "neoforge_minecraft_version"()
+    configureDefaults("neoforge")
     neoForge { loader("neoforge_version"()) }
-
-    runs.config("server") { enabled = false }
-    runs.all { jvmArgs("-Dmixin.debug.export=true") }
-
-    mappings {
-        mojmap()
-        parchment(version = "neoforge_parchment_version"())
-    }
 }
 
 unimined.minecraft(sourceSets.modern) {
-    combineWith(sourceSets.main)
-    version = "modern_minecraft_version"()
+    configureDefaults("modern")
     fabric { loader("modern_fabricloader_version"()) }
-
-    runs.config("server") { enabled = false }
-    runs.all { jvmArgs("-Dmixin.debug.export=true") }
-
-    mappings {
-        mojmap()
-        parchment(version = "modern_parchment_version"())
-    }
 
     mods.remap(configurations.getByName("modernImplementation"))
 }
 
 unimined.minecraft(sourceSets.lexforge) {
-    combineWith(sourceSets.main)
-    version = "lexforge_minecraft_version"()
+    configureDefaults("lexforge")
     minecraftForge {
         loader("lexforge_version"())
         mixinConfig("omnilook.mixins.json")
     }
+}
 
-    runs.config("server") { enabled = false }
-    runs.all { jvmArgs("-Dmixin.debug.export=true") }
-
-    mappings {
-        mojmap()
-        parchment(version = "lexforge_parchment_version"())
+unimined.minecraft(sourceSets.lexforge16) {
+    configureDefaults("lexforge16")
+    minecraftForge {
+        loader("lexforge16_version"())
+        mixinConfig("omnilook.mixins.json")
     }
 }
 // endregion
 
-// region funny kotlin stuff
+// region helpers
 val SourceSetContainer.main get() = getByName("main")
 val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
 val SourceSetContainer.modern get() = maybeCreate("modern")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
+val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
+val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
+
+fun xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig.configureDefaults(key: String, mojmap: Boolean = true) {
+    combineWith(sourceSets.main)
+    version = "${key}_minecraft_version"()
+    runs.config("server") { enabled = false }
+    runs.all { jvmArgs("-Dmixin.debug.export=true") }
+
+    if (mojmap) {
+        mappings {
+            mojmap()
+            parchment(version = "${key}_parchment_version"())
+        }
+    }
+}
 // endregion

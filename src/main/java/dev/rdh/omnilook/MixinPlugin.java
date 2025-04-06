@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 public final class MixinPlugin implements IMixinConfigPlugin {
-	private String platform;
+	private static String platform;
 
 	public static boolean classExists(String className) {
 		try {
@@ -20,8 +20,16 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		}
 	}
 
+	public static String getPlatform() {
+		return platform;
+	}
+
 	@Override
 	public void onLoad(String mixinPackage) {
+		if(platform != null) {
+			throw new IllegalStateException("onLoad called twice");
+		}
+
 		if(classExists("net.neoforged.fml.common.Mod")) {
 			platform = "NeoForge";
 		} else if(classExists("net.minecraftforge.versions.forge.ForgeVersion")) {
@@ -29,8 +37,10 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			int major = Integer.parseInt(forgeVersion.substring(0, forgeVersion.indexOf('.')));
 			if(major >= 37) {
 				platform = "LexForge";
+			} else if(major >= 26) {
+				platform = "LexForge16";
 			} else {
-				throw new IllegalStateException("Forge 1.16- not supported yet");
+				throw new IllegalStateException("Forge 1.14- not supported yet");
 			}
 		} else if (classExists("net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
 			platform = "Modern";
@@ -55,13 +65,18 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 						"LexForge_CameraMixin",
 						"LexForge_MouseHandlerMixin"
 				);
+			case "LexForge16":
+				return Arrays.asList(
+						"LexForge16_CameraMixin",
+						"LexForge16_MouseHandlerMixin"
+				);
 			case "Modern":
 				return Arrays.asList(
 						"Modern_CameraMixin",
 						"Modern_MouseHandlerMixin"
 				);
 			default:
-				throw new IllegalStateException("Unsupported platform");
+				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
 		}
 	}
 

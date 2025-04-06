@@ -8,7 +8,7 @@ https://github.com/user-attachments/assets/cb2b3255-b664-4bfd-8992-07aef30071f3
 
 - NeoForge: 1.20.4 and above (must use NF 20.4.195+)
 - Fabric: 1.14 and above (requires Fabric Keybinding API v1)
-- MinecraftForge: 1.17.1 to 1.20.4
+- MinecraftForge: 1.14.4 to 1.20.5 (mixin isn't available before 1.14.4 unfortunately)
 
 More version support is always planned!
 
