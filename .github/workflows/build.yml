@@ -9,6 +9,9 @@ jobs:
       -   name: checkout
           uses: actions/checkout@v4
 
+      -   name: install advzip
+          run: sudo apt-get install -y advancecomp
+
       -   name: setup java
           uses: actions/setup-java@v4
           with:
