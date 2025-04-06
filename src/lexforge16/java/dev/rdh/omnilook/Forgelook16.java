@@ -12,16 +12,19 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.world.entity.Entity;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 
 // forge switched runtime mappings from mcp to srg in 1.16.5
 public final class Forgelook16 extends Omnilook {
-	public final KeyMapping key;
+	private final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
+	private final MethodHandle getCamEntity;
 
 	public Forgelook16() {
 		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
@@ -29,6 +32,7 @@ public final class Forgelook16 extends Omnilook {
 		if(FMLEnvironment.dist != Dist.CLIENT) {
 			log.error("Omnilook is a client-side mod and cannot be loaded on a server.");
 			cameraTypeHandles = null;
+			getCamEntity = null;
 			return;
 		}
 
@@ -53,6 +57,10 @@ public final class Forgelook16 extends Omnilook {
 
 		cameraTypeHandles = new MethodHandle[] {g, s};
 
+		Field cameraEntity = Minecraft.class.getDeclaredField(ObfuscationReflectionHelper.remapName(Domain.FIELD, "field_175622_Z"));
+		cameraEntity.setAccessible(true);
+		getCamEntity = lookup.unreflectGetter(cameraEntity);
+
 		Minecraft.getInstance().options.keyMappings = ArrayUtils.add(Minecraft.getInstance().options.keyMappings, key);
 	}
 
@@ -73,11 +81,21 @@ public final class Forgelook16 extends Omnilook {
 
 	@Override
 	protected float getMCXRot() {
-		return Minecraft.getInstance().cameraEntity.xRot;
+		return ((Entity) getCamEntity.invoke(Minecraft.getInstance())).xRot;
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return Minecraft.getInstance().cameraEntity.yRot;
+		return ((Entity) getCamEntity.invoke(Minecraft.getInstance())).yRot;
+	}
+
+	@Override
+	protected boolean isKeyClicked() {
+		return key.consumeClick();
+	}
+
+	@Override
+	protected boolean isKeyDown() {
+		return key.isDown();
 	}
 }

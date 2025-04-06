@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 
 public final class Modernlook extends Omnilook implements ClientModInitializer {
-	public final KeyMapping key;
+	private final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
 	private final MethodHandle[] xyRotHandles;
 
@@ -91,5 +91,15 @@ public final class Modernlook extends Omnilook implements ClientModInitializer {
 	@Override
 	protected float getMCYRot() {
 		return (float) xyRotHandles[1].invokeExact(Minecraft.getInstance().cameraEntity);
+	}
+
+	@Override
+	protected boolean isKeyClicked() {
+		return key.consumeClick();
+	}
+
+	@Override
+	protected boolean isKeyDown() {
+		return key.isDown();
 	}
 }
