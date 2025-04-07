@@ -49,20 +49,18 @@ public abstract class Omnilook {
 	 * @param yRot the change in y rotation
 	 * @return whether the regular minecraft camera should be updated
 	 */
-	public boolean update(float xRot, float yRot) {
-		if(enabled) {
-			xRot = this.xRot + xRot * 0.15F;
-			if(xRot < -90.0F) {
-				xRot = -90.0F;
-			} else if(xRot > 90.0F) {
-				xRot = 90.0F;
-			}
-			this.xRot = xRot;
-			this.yRot += yRot * 0.15F;
-			return false;
-		}
+	public boolean updateCamera(float xRot, float yRot) {
+		if(!enabled) return true;
 
-		return true;
+		xRot = this.xRot + xRot * 0.15F;
+		if(xRot < -90.0F) {
+			xRot = -90.0F;
+		} else if(xRot > 90.0F) {
+			xRot = 90.0F;
+		}
+		this.xRot = xRot;
+		this.yRot += yRot * 0.15F;
+		return false;
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package dev.rdh.omnilook.mixin;
+package dev.rdh.omnilook.mixin.neoforge;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,9 +10,9 @@ import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
 
 @Mixin(MouseHandler.class)
-public final class NeoForge_MouseHandlerMixin {
+public final class MouseHandlerMixin {
 	@WrapWithCondition(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"))
 	private boolean update(LocalPlayer instance, double yRot, double xRot) {
-		return Omnilook.getInstance().update((float) xRot, (float) yRot);
+		return Omnilook.getInstance().updateCamera((float) xRot, (float) yRot);
 	}
 }

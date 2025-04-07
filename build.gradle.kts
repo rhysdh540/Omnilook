@@ -3,12 +3,13 @@ import org.taumc.gradle.compression.JsonShrinkingType
 import org.taumc.gradle.compression.entryprocessing.EntryProcessors
 import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
+import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
 
 plugins {
     id("java")
-    id("xyz.wagyourtail.unimined") version("1.3.13")
-    id("org.taumc.gradle.compression") version("0.3.28")
+    id("xyz.wagyourtail.unimined") version ("1.3.13")
+    id("org.taumc.gradle.compression") version ("0.3.28")
 }
 
 group = "dev.rdh"
@@ -29,9 +30,12 @@ dependencies {
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
-    sourceSets.modern.implementationConfigurationName(fabricApi.fabricModule("fabric-key-binding-api-v1", "modern_fabricapi_version"()))
-    sourceSets.lexforge13.compileOnlyConfigurationName("org.spongepowered:mixin:${"mixin_version"()}")
-    sourceSets.lexforge13.compileOnlyConfigurationName(sourceSets.lexforge16.output)
+    sourceSets.fabric.implementationConfigurationName(
+        fabricApi.fabricModule(
+            "fabric-key-binding-api-v1",
+            "fabric_api_version"()
+        )
+    )
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -108,68 +112,60 @@ java {
 }
 
 // region unimined
-unimined.minecraft(sourceSets.neoforge) {
-    configureDefaults("neoforge")
+mc(sourceSets.neoforge) {
     neoForge { loader("neoforge_version"()) }
 }
 
-unimined.minecraft(sourceSets.modern) {
-    configureDefaults("modern")
-    fabric { loader("modern_fabricloader_version"()) }
-
-    mods.remap(configurations.getByName("modernImplementation"))
+mc(sourceSets.fabric) {
+    fabric { loader("fabricloader_version"()) }
+    mods.remap(configurations.getByName(sourceSet.implementationConfigurationName))
 }
 
-unimined.minecraft(sourceSets.lexforge) {
-    configureDefaults("lexforge")
-    minecraftForge {
-        loader("lexforge_version"())
-        mixinConfig("omnilook.mixins.json")
-    }
-}
-
-unimined.minecraft(sourceSets.lexforge16) {
-    configureDefaults("lexforge16")
-    minecraftForge {
-        loader("lexforge16_version"())
-        mixinConfig("omnilook.mixins.json")
-    }
-}
-
-unimined.minecraft(sourceSets.lexforge13) {
-    configureDefaults("lexforge13", mojmap = false)
-    minecraftForge {
-        loader("lexforge13_version"())
-        mixinConfig("omnilook.mixins.json")
-    }
-
-    mappings {
-        mcp(channel = "snapshot", version = "lexforge13_mcp_version"() + "-" + minecraft.version)
-    }
-}
+forge(sourceSets.lexforge)
+forge(sourceSets.lexforge16)
 // endregion
 
 // region helpers
 val SourceSetContainer.main get() = getByName("main")
 val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
-val SourceSetContainer.modern get() = maybeCreate("modern")
+val SourceSetContainer.fabric get() = maybeCreate("fabric")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
-val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
 
-fun xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig.configureDefaults(key: String, mojmap: Boolean = true) {
-    combineWith(sourceSets.main)
-    version = "${key}_minecraft_version"()
-    runs.config("server") { enabled = false }
-    runs.all { jvmArgs("-Dmixin.debug.export=true") }
+fun mc(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -> Unit = {}) {
+    val key = sourceSet.name
+    unimined.minecraft(sourceSet) {
+        combineWith(sourceSets.main)
+        version = "${key}_minecraft_version"()
+        runs.config("server") { enabled = false }
+        runs.all { jvmArgs("-Dmixin.debug.export=true") }
 
-    if (mojmap) {
-        mappings {
-            mojmap()
-            parchment(version = "${key}_parchment_version"())
+        if (mojmap) {
+            mappings {
+                mojmap()
+                parchment(version = "${key}_parchment_version"())
+            }
+        }
+
+        block()
+    }
+}
+
+fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -> Unit = {}) {
+    val key = sourceSet.name
+    mc(sourceSet, mojmap) {
+        minecraftForge {
+            loader("${key}_version"())
+            mixinConfig("omnilook.mixins.json")
+        }
+
+        if (!mojmap) {
+            mappings {
+                mcp(channel = "snapshot", version = "${key}_mcp_version"() + "-" + minecraft.version)
+            }
         }
     }
 }
