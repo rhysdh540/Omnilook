@@ -18,12 +18,7 @@ public class Forgelook12 extends Omnilook {
 
 	public Forgelook12() {
 		key = new KeyBinding(KEYBINDING_NAME, Keyboard.KEY_GRAVE, KEYBINDING_CATEGORY);
-		Field f;
-		try {
-			f = Minecraft.class.getDeclaredField("field_175622_Z");
-		} catch (NoSuchFieldException e) {
-			f = Minecraft.class.getDeclaredField("field_71451_h");
-		}
+		Field f = MixinPlugin.field(Minecraft.class, "field_175622_Z", "field_71451_h", "renderViewEntity");
 		f.setAccessible(true);
 		getRenderViewEntity = MethodHandles.lookup().unreflectGetter(f);
 	}
