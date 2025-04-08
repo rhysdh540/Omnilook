@@ -30,7 +30,7 @@ public final class Neolook extends Omnilook {
 	}
 
 	void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
-		this.updateKey();
+		this.update();
 
 		if (this.isEnabled()) {
 			event.setPitch(getXRot());

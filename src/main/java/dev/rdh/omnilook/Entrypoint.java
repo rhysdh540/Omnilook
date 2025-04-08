@@ -2,43 +2,43 @@ package dev.rdh.omnilook;
 
 import net.fabricmc.api.ClientModInitializer;
 
-import net.minecraftforge.fml.common.Mod;
-
-@Mod(
+@net.minecraftforge.fml.common.Mod(
 		value = Omnilook.ID,
-		modid = Omnilook.ID
+		modid = Omnilook.ID,
+		useMetadata = true
 )
+@cpw.mods.fml.common.Mod(
+		modid = Omnilook.ID,
+		useMetadata = true
+)
+@SuppressWarnings("IfCanBeSwitch")
+
 public final class Entrypoint {
 	public Entrypoint() {
-		String classname;
-		if(MixinPlugin.getPlatform().equals("LexForge")) {
+		String classname = MixinPlugin.getPlatform();
+		if(classname.equals("LexForge")) {
 			classname = "dev.rdh.omnilook.Forgelook";
-		} else if(MixinPlugin.getPlatform().equals("LexForge16")) {
+		} else if(classname.equals("LexForge16")) {
 			classname = "dev.rdh.omnilook.Forgelook16";
+		} else if(classname.equals("LexForge12")) {
+			classname = "dev.rdh.omnilook.Forgelook12";
 		} else {
-			throw new IllegalStateException("Unexpected platform: " + MixinPlugin.getPlatform());
+			throw new IllegalStateException("Unexpected platform: " + classname);
 		}
 
-		try {
-			Class.forName(classname).getDeclaredConstructor().newInstance();
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
-		}
+		Class.forName(classname).getDeclaredConstructor().newInstance();
 	}
 
 	public static void fabric() {
 		String classname;
-		if(MixinPlugin.getPlatform().equals("Fabric")) {
+		String platform = MixinPlugin.getPlatform();
+		if(platform.equals("Fabric")) {
 			classname = "dev.rdh.omnilook.Fabriclook";
 		} else {
-			throw new IllegalStateException("Unexpected platform: " + MixinPlugin.getPlatform());
+			throw new IllegalStateException("Unexpected platform: " + platform);
 		}
 
-		try {
-			ClientModInitializer cmi = (ClientModInitializer) Class.forName(classname).getDeclaredConstructor().newInstance();
-			cmi.onInitializeClient();
-		} catch (ReflectiveOperationException e) {
-			throw new RuntimeException(e);
-		}
+		ClientModInitializer cmi = (ClientModInitializer) Class.forName(classname).getDeclaredConstructor().newInstance();
+		cmi.onInitializeClient();
 	}
 }
