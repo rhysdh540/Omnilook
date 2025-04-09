@@ -12,7 +12,7 @@ license = "Unlicense"
 
 [[dependencies.omnilook]]
     modId = "forge"
-    mandatory = true
+    mandatory = false
     versionRange = "[25,)"
     ordering = "NONE"
     side = "CLIENT"

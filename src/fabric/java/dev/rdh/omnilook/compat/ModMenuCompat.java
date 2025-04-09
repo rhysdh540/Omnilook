@@ -1,4 +1,4 @@
-package dev.rdh.omnilook.fabric.compat;
+package dev.rdh.omnilook.compat;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -10,7 +10,7 @@ public class ModMenuCompat implements ModMenuApi {
 	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory() {
 		if(MixinPlugin.classExists("dev.isxander.yacl3.api.YetAnotherConfigLib")) {
-			return YaclConfigProvider::make;
+			return FabricYACLScreen::make;
 		}
 
 		OmniLog.error("No screen providers found");

@@ -1,17 +1,16 @@
-package dev.rdh.omnilook.fabric.compat;
+package dev.rdh.omnilook.compat;
 
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
-
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import dev.rdh.omnilook.Config;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public final class YaclConfigProvider {
+public class NeoForgeYACLScreen {
 	public static Screen make(Screen parent) {
 		return YetAnotherConfigLib.createBuilder()
 				.title(Component.literal("Omnilook"))
