@@ -12,7 +12,6 @@ import net.fabricmc.api.ClientModInitializer;
 		useMetadata = true
 )
 @SuppressWarnings("IfCanBeSwitch")
-
 public final class Entrypoint {
 	public Entrypoint() {
 		String classname = MixinPlugin.getPlatform();
