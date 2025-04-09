@@ -8,10 +8,12 @@ import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
 import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
+import xyz.wagyourtail.unimined.util.withSourceSet
+
 
 plugins {
     id("java")
-    id("xyz.wagyourtail.unimined") version ("1.3.13")
+    id("xyz.wagyourtail.unimined") version ("1.3.14-SNAPSHOT")
     id("org.taumc.gradle.compression") version ("0.3.28")
 }
 
@@ -26,7 +28,22 @@ val ap: Configuration by configurations.creating {
 
 repositories {
     maven("https://maven.cleanroommc.com/") // mixinbooter
+    unimined.modrinthMaven()
 }
+
+// region unimined
+mc(sourceSets.neoforge) {
+    neoForge { loader("neoforge_version"()) }
+}
+
+mc(sourceSets.fabric) {
+    fabric { loader("fabricloader_version"()) }
+}
+
+forge(sourceSets.lexforge)
+forge(sourceSets.lexforge16)
+forge(sourceSets.lexforge12, mojmap = false)
+// endregion
 
 dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
@@ -37,19 +54,20 @@ dependencies {
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
-    sourceSets.fabric.implementationConfigurationName(
-        fabricApi.fabricModule(
+    sourceSets {
+        fabric.modImplementation(fabricApi.fabricModule(
             "fabric-key-binding-api-v1",
             "fabric_api_version"()
+        ))
+
+        lexforge12.modImplementation(
+            "zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}"
         )
-    )
 
-    sourceSets.lexforge12.implementationConfigurationName(
-        "zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}"
-    )
-
-    sourceSets.lexforge12.compileOnlyConfigurationName("org.spongepowered:mixin:${"mixin_version"()}")
-    sourceSets.lexforge12.compileOnlyConfigurationName("org.ow2.asm:asm-tree:${"asm_version"()}")
+        lexforge12.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
+        lexforge12.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
+        lexforge12.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
+    }
 }
 
 tasks.withType<AbstractArchiveTask> {
@@ -165,24 +183,6 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-// region unimined
-mc(sourceSets.neoforge) {
-    neoForge { loader("neoforge_version"()) }
-}
-
-mc(sourceSets.fabric) {
-    fabric { loader("fabricloader_version"()) }
-    remapImplementation()
-}
-
-forge(sourceSets.lexforge)
-forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge12, mojmap = false) {
-    remapImplementation()
-}
-
-// endregion
-
 // region helpers
 val SourceSetContainer.main get() = getByName("main")
 val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
@@ -232,5 +232,6 @@ fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.(
     }
 }
 
-fun MinecraftConfig.remapImplementation() = mods.remap(configurations.getByName(sourceSet.implementationConfigurationName))
+val SourceSet.compileOnly get() = configurations.getByName(compileOnlyConfigurationName)
+val SourceSet.modImplementation get() = configurations.getByName("modImplementation".withSourceSet(this))
 // endregion
