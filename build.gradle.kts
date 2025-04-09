@@ -131,6 +131,17 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
 
         cn.toBytes()
     }
+
+    // TODO: make this more robust
+    process { name, bytes ->
+        if (!name.endsWith(".toml")) return@process bytes
+        return@process String(bytes).lineSequence()
+            .filterNot { it.isBlank() } // remove blank lines
+            .map { it.substringBefore('#') } // remove comments
+            .map { it.trim() } // remove leading and trailing whitespaces
+            .map { it.replace(Regex("\\s*=\\s*"), "=") } // remove whitespaces around '='
+            .joinToString("\n").toByteArray()
+    }
 }
 
 val compressJar2 = tau.compression.compress<AdvzipTask>(compressJar1) {
