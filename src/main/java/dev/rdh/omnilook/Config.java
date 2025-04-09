@@ -14,17 +14,17 @@ import java.util.concurrent.Semaphore;
 
 public final class Config {
 	public static boolean toggleMode = true;
+	private static final Semaphore semaphore = new Semaphore(1);
+	private static final Path FILE = Omnilook.getInstance().getConfigDir().resolve("omnilook.properties");
 
 	static void thread() {
-		Path parent = Omnilook.getInstance().getConfigDir();
+		Path parent = FILE.getParent();
 		if(!Files.exists(parent)) {
 			Files.createDirectories(parent);
 		}
-		Path file = parent.resolve("omnilook.properties");
-		Semaphore semaphore = new Semaphore(1);
 		long nextTime = 0;
 
-		loadConfig(file, semaphore, true);
+		loadConfig(true);
 
 		WatchService watchService = FileSystems.getDefault().newWatchService();
 		parent.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE);
@@ -34,13 +34,13 @@ public final class Config {
 			for(WatchEvent<?> pollEvent : key.pollEvents()) {
 				try {
 					Path changed = parent.resolve((Path) pollEvent.context());
-					if(!Files.isSameFile(changed, file)) continue;
+					if(!Files.isSameFile(changed, FILE)) continue;
 
 					long currentTime = System.currentTimeMillis();
 					if(currentTime <= nextTime || !semaphore.tryAcquire()) continue;
 					semaphore.release();
 
-					loadConfig(file, semaphore, false);
+					loadConfig(false);
 
 					nextTime = currentTime + 500L;
 					break;
@@ -58,12 +58,21 @@ public final class Config {
 		}
 	}
 
-	private static void loadConfig(Path file, Semaphore semaphore, boolean forceRewrite) {
+	public static void saveConfig() {
+		Properties props = new Properties();
+		props.setProperty("toggleMode", Boolean.toString(toggleMode));
+
+		props.store(Files.newBufferedWriter(FILE), " Omnilook Configuration\n" +
+				" toggleMode: if true, pressing the keybind toggles freelook, otherwise it must be held"
+		);
+	}
+
+	private static void loadConfig(boolean forceRewrite) {
 		semaphore.acquireUninterruptibly();
 		Properties props = new Properties();
 
-		if(Files.exists(file)) {
-			props.load(Files.newBufferedReader(file));
+		if(Files.exists(FILE)) {
+			props.load(Files.newBufferedReader(FILE));
 		} else {
 			OmniLog.warn("Config file not found; rewriting...");
 			forceRewrite = true;
@@ -79,9 +88,7 @@ public final class Config {
 		//endregion
 
 		if (forceRewrite) {
-			props.store(Files.newBufferedWriter(file), " Omnilook Configuration\n" +
-					" toggleMode: if true, pressing the keybind toggles freelook, otherwise it must be held"
-			);
+			saveConfig();
 		}
 		OmniLog.info("Config loaded: " + props);
 		semaphore.release();

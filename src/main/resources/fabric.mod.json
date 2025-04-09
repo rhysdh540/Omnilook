@@ -14,7 +14,8 @@
 
   "environment": "client",
   "entrypoints": {
-    "client": ["dev.rdh.omnilook.Entrypoint::fabric"]
+    "client": ["dev.rdh.omnilook.Entrypoint::fabric"],
+    "modmenu": ["dev.rdh.omnilook.fabric.compat.ModMenuCompat"]
   },
   "mixins": ["omnilook.mixins.json"],
 

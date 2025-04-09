@@ -155,7 +155,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			case "Fabric":
 				return Arrays.asList(
 						"fabric.CameraMixin",
-						"fabric.MouseHandlerMixin"
+						"fabric.MouseHandlerMixin",
+						"fabric.OptionsMixin"
 				);
 			case "LegacyFabric":
 				return Arrays.asList(
