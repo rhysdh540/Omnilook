@@ -1,8 +1,11 @@
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.tree.ClassNode
 import org.taumc.gradle.compression.DeflateAlgorithm
 import org.taumc.gradle.compression.JsonShrinkingType
 import org.taumc.gradle.compression.entryprocessing.EntryProcessors
 import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
+import org.taumc.gradle.compression.util.toBytes
 import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
 
@@ -104,6 +107,30 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
 
     json(JsonShrinkingType.MINIFY) { it.endsWith(".json") || it == "mcmod.info" }
     process(EntryProcessors.minifyClass())
+    process { name, bytes ->
+        if (!name.endsWith(".class")) return@process bytes
+
+        val cn = ClassReader(bytes).let {
+            ClassNode().also { cn -> it.accept(cn, ClassReader.SKIP_DEBUG) }
+        }
+        cn.methods.removeAll {
+            it.signature = null
+            it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+        }
+
+        cn.signature = null
+
+        if (cn.invisibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Mixin;" } == true) {
+            cn.methods.removeAll { it.name == "<init>" && it.instructions.size() <= 3 }
+        }
+
+        cn.fields.removeAll {
+            it.signature = null
+            it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+        }
+
+        cn.toBytes()
+    }
 }
 
 val compressJar2 = tau.compression.compress<AdvzipTask>(compressJar1) {
