@@ -30,7 +30,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				// continue
 			}
 		}
-		throw new NoSuchFieldError("No such field in class " + clazz.getName() + ": " + Arrays.toString(names));
+		throw new NoSuchFieldException("No such field in class " + clazz.getName() + ": " + Arrays.toString(names));
 	}
 	// endregion
 
@@ -64,6 +64,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			platform = "Fabric";
 		} else if(classExists("net.minecraft.command.ICommand")) {
 			platform = "LexForge12";
+		} else if(classExists("net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
+			platform = "LegacyFabric";
 		} else {
 			throw new IllegalStateException("Unsupported platform");
 		}
@@ -99,6 +101,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				return Arrays.asList(
 						"fabric.CameraMixin",
 						"fabric.MouseHandlerMixin"
+				);
+			case "LegacyFabric":
+				return Arrays.asList(
+						"legacyfabric.EntityRendererMixin",
+						"legacyfabric.ActiveRenderInfoMixin"
 				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
