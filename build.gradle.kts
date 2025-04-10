@@ -74,6 +74,8 @@ dependencies {
             "fabric_api_version"()
         ))
 
+        fabric.implementation("ca.weblite:java-objc-bridge:1.1")
+
         legacyFabric.modImplementation(fabricApi.legacyFabricModule(
             "legacy-fabric-keybindings-api-v1-common",
             "legacyfabric_api_version"()
@@ -262,6 +264,7 @@ fun MinecraftConfig.armNatives() {
     }
 }
 
+val SourceSet.implementation get() = configurations.getByName(implementationConfigurationName)
 val SourceSet.compileOnly get() = configurations.getByName(compileOnlyConfigurationName)
 val SourceSet.modImplementation get() = configurations.getByName("modImplementation".withSourceSet(this))
 // endregion
