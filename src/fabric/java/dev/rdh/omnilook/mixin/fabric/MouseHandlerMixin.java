@@ -12,7 +12,7 @@ import net.minecraft.client.player.LocalPlayer;
 
 @Mixin(MouseHandler.class)
 public abstract class MouseHandlerMixin {
-	@Dynamic
+	@Dynamic("multiversion")
 	@WrapWithCondition(method = {
 			"turnPlayer(D)V", // 1.20.5+
 			"method_1606()V" // 1.20.4-

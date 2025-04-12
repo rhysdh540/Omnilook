@@ -55,6 +55,7 @@ mc(sourceSets.legacyFabric, mojmap = false) {
 
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge16)
+forge(sourceSets.lexforge13, mojmap = false)
 forge(sourceSets.lexforge12, mojmap = false) {
     armNatives()
 }
@@ -102,6 +103,10 @@ dependencies {
         lexforge12.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         lexforge12.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
         lexforge12.compileOnly("io.github.llamalad7:mixinextras-common:0.5.0-rc.1")
+
+        lexforge13.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
+        lexforge13.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
+        lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
 
         rift.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         rift.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
@@ -173,20 +178,21 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
         val cn = ClassNode().also {
             ClassReader(bytes).accept(it, ClassReader.SKIP_DEBUG)
         }
-        cn.methods.removeAll {
-            it.signature = null
-            it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
-        }
 
         cn.signature = null
+        cn.methods.forEach { it.signature = null }
+        cn.fields.forEach { it.signature = null }
 
         if (cn.invisibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Mixin;" } == true) {
             cn.methods.removeAll { it.name == "<init>" && it.instructions.size() <= 3 }
-        }
 
-        cn.fields.removeAll {
-            it.signature = null
-            it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+            cn.fields.removeAll {
+                it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+            }
+
+            cn.methods.removeAll {
+                it.visibleAnnotations?.any { it.desc == "Lorg/spongepowered/asm/mixin/Shadow;" } == true && it.visibleAnnotations.size == 1
+            }
         }
 
         cn.toBytes()
@@ -231,6 +237,7 @@ val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
 val SourceSetContainer.fabric get() = maybeCreate("fabric")
 val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
+val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
 val SourceSetContainer.legacyFabric get() = maybeCreate("legacyFabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")

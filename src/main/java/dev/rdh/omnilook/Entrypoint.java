@@ -17,7 +17,7 @@ public final class Entrypoint {
 		String classname = MixinPlugin.getPlatform();
 		if(classname.equals("LexForge")) {
 			classname = "dev.rdh.omnilook.Forgelook";
-		} else if(classname.equals("LexForge16")) {
+		} else if(classname.equals("LexForge16") || classname.equals("LexForge13")) {
 			classname = "dev.rdh.omnilook.Forgelook16";
 		} else if(classname.equals("LexForge12")) {
 			classname = "dev.rdh.omnilook.Forgelook12";

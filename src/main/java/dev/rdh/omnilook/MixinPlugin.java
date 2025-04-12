@@ -54,9 +54,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			} else if(major >= 26) {
 				platform = "LexForge16";
 			} else if(major == 25) {
-				// soon :(
 				platform = "LexForge13";
-				throw new IllegalStateException("Forge 1.13 not supported yet :(");
 			} else {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
@@ -93,6 +91,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				return Arrays.asList(
 						"lexforge16.CameraMixin",
 						"lexforge16.MouseHandlerMixin"
+				);
+			case "LexForge13":
+				return Arrays.asList(
+						"lexforge16.MouseHandlerMixin",
+						"lexforge13.GameRendererMixin"
 				);
 			case "LexForge12":
 				return Arrays.asList(
