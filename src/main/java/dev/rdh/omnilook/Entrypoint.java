@@ -1,7 +1,5 @@
 package dev.rdh.omnilook;
 
-import net.fabricmc.api.ClientModInitializer;
-
 @net.minecraftforge.fml.common.Mod(
 		value = Omnilook.ID,
 		modid = Omnilook.ID,
@@ -21,16 +19,7 @@ public final class Entrypoint {
 			classname = "dev.rdh.omnilook.Forgelook16";
 		} else if(classname.equals("LexForge12")) {
 			classname = "dev.rdh.omnilook.Forgelook12";
-		} else {
-			throw new IllegalStateException("Unexpected platform: " + classname);
-		}
-
-		Class.forName(classname).getDeclaredConstructor().newInstance();
-	}
-
-	public static void fabric() {
-		String classname = MixinPlugin.getPlatform();
-		if(classname.equals("Fabric")) {
+		} if(classname.equals("Fabric")) {
 			classname = "dev.rdh.omnilook.Fabriclook";
 		} else if(classname.equals("LegacyFabric")) {
 			classname = "dev.rdh.omnilook.LegacyFabriclook";
@@ -38,7 +27,10 @@ public final class Entrypoint {
 			throw new IllegalStateException("Unexpected platform: " + classname);
 		}
 
-		ClientModInitializer cmi = (ClientModInitializer) Class.forName(classname).getDeclaredConstructor().newInstance();
-		cmi.onInitializeClient();
+		Class.forName(classname).getDeclaredConstructor().newInstance();
+	}
+
+	public void fabric() {
+		// no-op, fabric will call the constructor above and that does the actual stuff
 	}
 }

@@ -18,7 +18,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
-public final class Fabriclook extends Omnilook implements ClientModInitializer {
+public final class Fabriclook extends Omnilook {
 	private final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
 	private final MethodHandle[] xyRotHandles;
@@ -61,10 +61,7 @@ public final class Fabriclook extends Omnilook implements ClientModInitializer {
 				lookup.unreflectGetter(xRotField),
 				lookup.unreflectGetter(yRotField)
 		};
-	}
 
-	@Override
-	public void onInitializeClient() {
 		KeyBindingHelper.registerKeyBinding(key);
 	}
 
