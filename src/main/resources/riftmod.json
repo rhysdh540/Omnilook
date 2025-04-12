@@ -1,0 +1,11 @@
+{
+  "id": "omnilook",
+  "name": "Omnilook",
+  "authors": ["rdh"],
+  "url": "https://github.com/rhysdh540/Omnilook",
+  "description": "funny look around mod",
+  "version": "${version}",
+  "listeners": [
+    "dev.rdh.omnilook.Riftlook"
+  ]
+}

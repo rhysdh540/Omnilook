@@ -89,14 +89,15 @@ public abstract class Omnilook {
 	 * @param enabled the new state
 	 */
 	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 		if(enabled) {
 			lastCameraType = getCameraType();
 			setCameraType(1);
-			this.enabled = true;
 		} else {
 			setCameraType(lastCameraType);
-			this.enabled = false;
 		}
+
+		log.info("Omnilook enabled: " + enabled);
 
 		this.xRot = getMCXRot();
 		this.yRot = getMCYRot();
