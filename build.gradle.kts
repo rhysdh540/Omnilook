@@ -30,6 +30,7 @@ val ap: Configuration by configurations.creating {
 repositories {
     maven("https://maven.cleanroommc.com/") // mixinbooter
     unimined.modrinthMaven()
+    unimined.fabricMaven()
     unimined.wagYourMaven("releases")
 }
 
@@ -42,7 +43,7 @@ mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
-mc(sourceSets.legacyFabric, mojmap = false) {
+mc(sourceSets.legacyfabric, mojmap = false) {
     legacyFabric { loader("fabricloader_version"()) }
 
     mappings {
@@ -80,6 +81,7 @@ dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
     compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
     compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
+    compileOnly("net.fabricmc:fabric-loader:${"fabricloader_version"()}")
     compileOnly(sourceSets.stubs.output)
 
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
@@ -92,11 +94,6 @@ dependencies {
         ))
 
         fabric.implementation("ca.weblite:java-objc-bridge:1.1")
-
-        legacyFabric.modImplementation(fabricApi.legacyFabricModule(
-            "legacy-fabric-keybindings-api-v1-common",
-            "legacyfabric_api_version"()
-        ))
 
         lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
 
@@ -239,7 +236,7 @@ val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
 val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
 val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
 val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
-val SourceSetContainer.legacyFabric get() = maybeCreate("legacyFabric")
+val SourceSetContainer.legacyfabric get() = maybeCreate("legacyfabric")
 val SourceSetContainer.rift get() = maybeCreate("rift")
 val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
