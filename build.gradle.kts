@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
 import org.taumc.gradle.compression.DeflateAlgorithm
@@ -32,6 +34,7 @@ repositories {
     unimined.modrinthMaven()
     unimined.fabricMaven()
     unimined.wagYourMaven("releases")
+    unimined.spongeMaven()
 }
 
 // region unimined
@@ -105,12 +108,9 @@ dependencies {
         lexforge13.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
         lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
 
-        rift.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
-        rift.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
-        rift.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
-
+        rift.implementation("org.spongepowered:mixin:${"rift_mixin_version"()}")
         rift.implementation("net.minecraft:launchwrapper:1.12")
-        rift.modImplementation("org.dimdev:rift:1.13.2")
+        rift.modImplementation("org.dimdev:rift:${"rift_minecraft_version"()}")
     }
 }
 

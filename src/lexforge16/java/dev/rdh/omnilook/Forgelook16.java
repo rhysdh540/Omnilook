@@ -20,7 +20,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
-// forge switched runtime mappings from mcp to srg in 1.16.5
+// forge switched runtime mappings in 1.16.5
 public final class Forgelook16 extends Omnilook {
 	private final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
