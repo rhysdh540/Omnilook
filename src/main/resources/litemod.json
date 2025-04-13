@@ -1,0 +1,9 @@
+{
+  "name": "omnilook",
+  "displayName": "Omnilook",
+  "version": "${version}",
+  "revision": 0,
+  "mcversion": "1.12.2",
+  "author": "rdh",
+  "mixinConfigs": ["omnilook.mixins.json"]
+}

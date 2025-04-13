@@ -1,6 +1,7 @@
 package dev.rdh.omnilook;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -11,6 +12,7 @@ import net.minecraftforge.versions.forge.ForgeVersion;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public final class MixinPlugin implements IMixinConfigPlugin {
@@ -63,7 +65,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
 		} else if(classExists("net.fabricmc.loader.api.FabricLoader")) {
-			Version version = FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion();
+			Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer("minecraft");
+			if(!mod.isPresent()) {
+				throw new IllegalStateException("Minecraft mod not present?");
+			}
+			Version version = mod.get().getMetadata().getVersion();
 			int cmp = version.compareTo(Version.parse("1.14.4"));
 			if(cmp >= 0) {
 				platform = "Fabric";
@@ -72,6 +78,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			}
 		} else if(classExists("org.dimdev.rift.Rift")) {
 			platform = "Rift";
+		} else if(classExists("com.mumfrey.liteloader.LiteMod")) {
+			platform = "LiteLoader";
 		} else if(classExists("net.minecraft.command.ICommand")) {
 			platform = "LexForge12";
 		} else {
@@ -125,6 +133,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 						"rift.MouseHelperMixin",
 						"rift.GameRendererMixin"
 				);
+			case "LiteLoader":
+				return Arrays.asList(
+						"liteloader.EntityRendererMixin",
+						"liteloader.ActiveRenderInfoMixin"
+				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
 		}
@@ -146,11 +159,18 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 	}
 
 	@Override
-	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+	public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
 
 	@Override
-	public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+	}
+
+	// compat with old mixin (liteloader)
+	public void preApply(String targetClassName, org.spongepowered.asm.lib.tree.ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+	}
+
+	public void postApply(String targetClassName, org.spongepowered.asm.lib.tree.ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
 	//endregion
 }
