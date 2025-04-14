@@ -50,6 +50,23 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			throw new IllegalStateException("onLoad called twice");
 		}
 
+		if(classExists("org.apache.logging.log4j.Logger")) {
+			org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("Omnilook");
+			OmniLog.init("log4j", logger::info, logger::warn, logger::error, logger::error);
+		} else {
+			// there's probably a better way of doing this but it works for now
+			OmniLog.init(
+					"System.out.println",
+					s -> System.out.println("[Omnilook/INFO] " + s),
+					s -> System.out.println("[Omnilook/WARN] " + s),
+					s -> System.err.println("[Omnilook/ERROR] " + s),
+					(s, e) -> {
+						System.err.println("[Omnilook/ERROR] " + s);
+						e.printStackTrace();
+					}
+			);
+		}
+
 		if(classExists("net.neoforged.fml.common.Mod")) {
 			platform = "NeoForge";
 		} else if(classExists("net.minecraftforge.versions.forge.ForgeVersion")) {
@@ -86,7 +103,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			throw new IllegalStateException("Unsupported platform");
 		}
 
-		Omnilook.log.info("Omnilook mixin plugin detected platform: " + platform);
+		OmniLog.info("Omnilook mixin plugin detected platform: " + platform);
 	}
 
 	// this is really jank but it's the best way I can figure out how to get only the mixins on the classpath to load in dev
@@ -126,7 +143,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			case "LegacyFabric":
 				return Arrays.asList(
 						"legacyfabric.EntityRendererMixin",
-						"legacyfabric.ActiveRenderInfoMixin"
+						"legacyfabric.ActiveRenderInfoMixin",
+						"legacyfabric.GameSettingsMixin"
 				);
 			case "Rift":
 				return Arrays.asList(

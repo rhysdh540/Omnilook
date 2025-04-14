@@ -100,6 +100,11 @@ dependencies {
             "fabric_api_version"()
         ))
 
+        legacyfabric.modImplementation(fabricApi.legacyFabricModule(
+            "legacy-fabric-keybindings-api-v1-common",
+            "legacyfabric_api_version"()
+        ))
+
         fabric.implementation("ca.weblite:java-objc-bridge:1.1")
 
         lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")

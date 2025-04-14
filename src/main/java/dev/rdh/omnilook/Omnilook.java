@@ -1,14 +1,10 @@
 package dev.rdh.omnilook;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.nio.file.Path;
 import java.util.Objects;
 
 public abstract class Omnilook {
 	public static final String ID = "omnilook";
-	public static final Logger log = LogManager.getLogger(ID);
 
 	protected static final String KEYBINDING_NAME = "key.omnilook.toggle";
 	protected static final String KEYBINDING_CATEGORY = "key.categories.misc";
@@ -20,12 +16,16 @@ public abstract class Omnilook {
 		return Objects.requireNonNull(instance, "Omnilook has not been initialized");
 	}
 
+	public static Omnilook getInstanceOrNull() {
+		return instance;
+	}
+
 	protected Omnilook() {
 		if(instance != null) {
 			throw new IllegalStateException("Omnilook has already been initialized");
 		}
 
-		log.info("Omnilook initialized with " + getClass().getName());
+		OmniLog.info("Omnilook initialized with " + getClass().getName());
 
 		instance = this;
 
