@@ -8,9 +8,9 @@ import org.taumc.gradle.compression.entryprocessing.EntryProcessors
 import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
+import xyz.wagyourtail.unimined.api.mapping.MappingsConfig
 import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
-import xyz.wagyourtail.unimined.util.OSUtils
 import xyz.wagyourtail.unimined.util.withSourceSet
 
 
@@ -53,25 +53,21 @@ mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
-mc(sourceSets.legacyfabric, mojmap = false) {
+mc(sourceSets.legacyfabric, mappings = seargeMcp) {
     legacyFabric { loader("fabricloader_version"()) }
 
     mappings {
         searge()
         mcp(channel = "snapshot", version = "legacyfabric_mcp_version"())
     }
-
-    armNatives()
 }
 
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge13, mojmap = false)
-forge(sourceSets.lexforge12, mojmap = false) {
-    armNatives()
-}
+forge(sourceSets.lexforge13, mappings = seargeMcp)
+forge(sourceSets.lexforge12, mappings = seargeMcp)
 
-mc(sourceSets.rift, mojmap = false) {
+mc(sourceSets.rift, mappings = seargeMcp) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
     rift {}
@@ -81,7 +77,7 @@ mc(sourceSets.rift, mojmap = false) {
     }
 }
 
-mc(sourceSets.liteloader, mojmap = false)
+mc(sourceSets.liteloader, mappings = seargeMcp)
 // endregion
 
 dependencies {
@@ -248,7 +244,27 @@ val SourceSetContainer.stubs get() = maybeCreate("stubs")
 
 operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
 
-fun mc(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -> Unit = {}) {
+class Mappings(private val action: MappingsConfig.(key: String) -> Unit) {
+    operator fun invoke(key: String): MappingsConfig.() -> Unit = {
+        action(key)
+    }
+}
+
+val mojmap
+    get() = Mappings {
+        mojmap()
+        parchment(version = "${it}_parchment_version"())
+    }
+
+val seargeMcp
+    get() = Mappings {
+        searge()
+        val channel = project.findProperty("${it}_mcp_channel")?.toString() ?: "snapshot"
+        mcp(channel, version = "${it}_mcp_version"())
+    }
+
+
+fun mc(sourceSet: SourceSet, mappings: Mappings = mojmap, block: MinecraftConfig.() -> Unit = {}) {
     val key = sourceSet.name.lowercase()
     unimined.minecraft(sourceSet) {
         combineWith(sourceSets.main)
@@ -258,23 +274,15 @@ fun mc(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -
 
         block()
 
-        if (mojmap) {
-            mappings {
-                mojmap()
-                parchment(version = "${key}_parchment_version"())
-            }
-        } else {
-            mappings {
-                searge()
-                mcp(channel = "snapshot", version = "${key}_mcp_version"())
-            }
+        mappings {
+            mappings(key)()
         }
     }
 }
 
-fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.() -> Unit = {}) {
+fun forge(sourceSet: SourceSet, mappings: Mappings = mojmap, block: MinecraftConfig.() -> Unit = {}) {
     val key = sourceSet.name.lowercase()
-    mc(sourceSet, mojmap) {
+    mc(sourceSet, mappings) {
         block()
 
         minecraftForge {
@@ -284,19 +292,8 @@ fun forge(sourceSet: SourceSet, mojmap: Boolean = true, block: MinecraftConfig.(
     }
 }
 
-fun MinecraftConfig.armNatives() {
-    if (OSUtils.oSId != OSUtils.OSX) return
-    configurations.getByName("minecraftLibraries".withSourceSet(sourceSet)).resolutionStrategy{
-        dependencySubstitution {
-            substitute(module("org.lwjgl.lwjgl:lwjgl")).using(module("org.lwjgl.lwjgl:lwjgl:2.9.4+legacyfabric.8"))
-            substitute(module("org.lwjgl.lwjgl:lwjgl_util")).using(module("org.lwjgl.lwjgl:lwjgl_util:2.9.4+legacyfabric.8"))
-            substitute(module("com.mojang:text2speech:1.10.3")).using(module("com.mojang:text2speech:1.11.3"))
-            force("org.lwjgl.lwjgl:lwjgl-platform:2.9.4+legacyfabric.8")
-        }
-    }
-}
-
-val SourceSet.implementation get() = configurations.getByName(implementationConfigurationName)
-val SourceSet.compileOnly get() = configurations.getByName(compileOnlyConfigurationName)
-val SourceSet.modImplementation get() = configurations.getByName("modImplementation".withSourceSet(this))
+fun SourceSet.configuration(name: String) = configurations.getByName(name.withSourceSet(this))
+val SourceSet.implementation get() = configuration(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
+val SourceSet.compileOnly get() = configuration(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME)
+val SourceSet.modImplementation get() = configuration("modImplementation")
 // endregion
