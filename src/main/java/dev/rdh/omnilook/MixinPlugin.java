@@ -101,6 +101,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			platform = "Rift";
 		} else if(classExists("com.mumfrey.liteloader.LiteMod")) {
 			platform = "LiteLoader";
+		} else if(classExists("com.fox2code.foxloader.loader.Mod")) {
+			platform = "FoxLoader";
 		} else if(classExists("net.minecraft.command.ICommand")) {
 			platform = "LexForge12";
 		} else {
@@ -164,6 +166,10 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				return Arrays.asList(
 						"liteloader.EntityRendererMixin",
 						"liteloader.ActiveRenderInfoMixin"
+				);
+			case "FoxLoader":
+				return Arrays.asList(
+						"foxloader.EntityRendererMixin"
 				);
 			default:
 				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);

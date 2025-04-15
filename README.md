@@ -2,7 +2,11 @@
 
 A simple freelook/perspective mod for Minecraft.
 
+<details>
+<summary>Showcase</summary>
+
 https://github.com/user-attachments/assets/cb2b3255-b664-4bfd-8992-07aef30071f3
+</details>
 
 ## Version support
 
@@ -14,7 +18,8 @@ https://github.com/user-attachments/assets/cb2b3255-b664-4bfd-8992-07aef30071f3
 | Quilt                   | 1.14.4+           | Same as above. Fabric API seems to be broken on Quilt before 1.14.4.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Babric                  | b1.7.3            | the default <code>`</code> keybind seems to be a little jank on such an old version of Minecraft, rebinding would probably be a good idea                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Rift                    | 1.13.2            | *Might* work on older versions but I haven't tested                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| LiteLoader              | 1.12.2            | Same as above. I'd like to have more version support but since LiteLoader uses official/obfuscated mappings, it's hard to support multiple versions.                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| LiteLoader              | 1.12.2            | Same as above. I'd like to have more version support but since LiteLoader uses official/obfuscated mappings, it's hard to support multiple versions at once.                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ReIndev/FoxLoader       | 2.8.1 (or latest) |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 More version support is always planned!
 
