@@ -61,13 +61,11 @@ fun Project.forge(sourceSet: SourceSet, key: String = sourceSet.name.lowercase()
 // because you can't enable context receivers in buildscripts :(
 context(Project)
 @Suppress("NOTHING_TO_INLINE", "CONTEXT_RECEIVERS_DEPRECATED")
-inline operator fun String.invoke(): String {
-    return rootProject.properties[this] as? String ?: error("Property $this not found")
-}
+inline operator fun String.invoke() = prop(this)
 
 // for when you're not in a Project context
 fun Project.prop(name: String): String {
-    return name()
+    return rootProject.properties[name] as? String ?: error("Property $this not found")
 }
 
 val SourceSet.implementation get() = this.implementationConfigurationName
