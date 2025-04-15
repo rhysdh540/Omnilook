@@ -4,7 +4,11 @@ import cpw.mods.modlauncher.api.INameMappingService.Domain;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
+import dev.rdh.omnilook.compat.LexForge16Screens;
+
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.ExtensionPoint;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -60,6 +64,11 @@ public final class Forgelook16 extends Omnilook {
 		Field cameraEntity = Minecraft.class.getDeclaredField(ObfuscationReflectionHelper.remapName(Domain.FIELD, "field_175622_Z"));
 		cameraEntity.setAccessible(true);
 		getCamEntity = lookup.unreflectGetter(cameraEntity);
+
+		ModLoadingContext.get().registerExtensionPoint(
+				ExtensionPoint.CONFIGGUIFACTORY,
+				() -> LexForge16Screens::make
+		);
 
 		Minecraft.getInstance().options.keyMappings = ArrayUtils.add(Minecraft.getInstance().options.keyMappings, key);
 	}

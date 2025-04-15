@@ -3,7 +3,10 @@ package dev.rdh.omnilook;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
+import dev.rdh.omnilook.compat.LexForge20Screens;
+
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraft.client.CameraType;
@@ -22,6 +25,8 @@ public final class Forgelook20 extends Omnilook {
 			OmniLog.error("Omnilook is a client-side mod and cannot be loaded on a server.");
 			return;
 		}
+
+		MinecraftForge.registerConfigScreen(LexForge20Screens::make);
 
 		// this is kind of jank but RegisterKeyMappingsEvent doesn't exist until like 1.19
 		// and ClientRegistry (the old way to do it) changed packages a lot
