@@ -3,7 +3,6 @@ package dev.rdh.omnilook;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
-import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
@@ -91,7 +90,12 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			if(cmp >= 0) {
 				platform = "Fabric";
 			} else {
-				platform = "LegacyFabric";
+				cmp = version.compareTo(Version.parse("1.0.0-beta.7.3"));
+				if(cmp > 0) {
+					platform = "LegacyFabric";
+				} else {
+					platform = "Babric";
+				}
 			}
 		} else if(classExists("org.dimdev.rift.Rift")) {
 			platform = "Rift";
@@ -146,6 +150,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 						"legacyfabric.ActiveRenderInfoMixin",
 						"legacyfabric.GameSettingsMixin"
 				);
+			case "Babric":
+				return Arrays.asList(
+						"babric.GameRendererMixin",
+						"babric.OptionsMixin"
+				);
 			case "Rift":
 				return Arrays.asList(
 						"rift.MouseHelperMixin",
@@ -177,11 +186,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 	}
 
 	@Override
-	public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+	public void preApply(String targetClassName, org.objectweb.asm.tree.ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
 
 	@Override
-	public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+	public void postApply(String targetClassName, org.objectweb.asm.tree.ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
 
 	// compat with old mixin (liteloader)
