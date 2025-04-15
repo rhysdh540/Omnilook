@@ -11,7 +11,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import org.lwjgl.glfw.GLFW;
 
 import dev.rdh.omnilook.compat.NeoForgeConfigScreen;
-import dev.rdh.omnilook.compat.NeoForgeYACLScreen;
+import dev.rdh.omnilook.compat.NeoForgeScreens;
 
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
@@ -48,7 +48,11 @@ public final class Neolook extends Omnilook {
 
 	public static Screen makeConfigScreen(Object arg, Screen parent) {
 		if (MixinPlugin.classExists("dev.isxander.yacl3.api.YetAnotherConfigLib")) {
-			return NeoForgeYACLScreen.make(parent);
+			return NeoForgeScreens.yacl(parent);
+		}
+
+		if (MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
+			return NeoForgeScreens.cloth(parent);
 		}
 
 		OmniLog.warn("No screen providers found");

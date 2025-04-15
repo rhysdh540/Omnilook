@@ -56,6 +56,10 @@ repositories {
         forRepository { maven("https://maven.isxander.dev/releases") }
         filter { includeGroup("dev.isxander") }
     }
+    exclusiveContent {
+        forRepository { maven("https://maven.shedaniel.me") }
+        filter { includeGroupAndSubgroups("me.shedaniel") }
+    }
 }
 
 val SourceSetContainer.main by sourceSets.getting
@@ -150,12 +154,14 @@ dependencies {
 
         fabric.implementation("ca.weblite:java-objc-bridge:1.1")
         fabric.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
+        fabric.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
         fabric.modImplementation("com.terraformersmc:modmenu:11.0.3")
 
         neoforge.implementation("ca.weblite:java-objc-bridge:1.1")
         neoforge.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
             exclude("thedarkcolour", "kotlinforforge-neoforge")
         }
+        neoforge.modImplementation("me.shedaniel.cloth:cloth-config-forge:15.0.140")
 
         lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
 
