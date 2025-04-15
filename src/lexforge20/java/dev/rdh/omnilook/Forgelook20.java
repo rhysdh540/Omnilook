@@ -1,10 +1,9 @@
 package dev.rdh.omnilook;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraft.client.CameraType;
@@ -13,10 +12,10 @@ import net.minecraft.client.Minecraft;
 
 import java.nio.file.Path;
 
-public final class Forgelook extends Omnilook {
+public final class Forgelook20 extends Omnilook {
 	private final KeyMapping key;
 
-	public Forgelook() {
+	public Forgelook20() {
 		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
 
 		if(FMLEnvironment.dist != Dist.CLIENT) {
@@ -24,12 +23,9 @@ public final class Forgelook extends Omnilook {
 			return;
 		}
 
-		// TODO: figure out how to get the FMLJavaModLoadingContext instance without get()
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterKeyMappings);
-	}
-
-	void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
-		event.register(key);
+		// this is kind of jank but RegisterKeyMappingsEvent doesn't exist until like 1.19
+		// and ClientRegistry (the old way to do it) changed packages a lot
+		Minecraft.getInstance().options.keyMappings = ArrayUtils.add(Minecraft.getInstance().options.keyMappings, key);
 	}
 
 	@Override
