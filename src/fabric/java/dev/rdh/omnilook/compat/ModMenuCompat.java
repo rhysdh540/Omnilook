@@ -3,6 +3,7 @@ package dev.rdh.omnilook.compat;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
+import dev.rdh.omnilook.Config;
 import dev.rdh.omnilook.MixinPlugin;
 import dev.rdh.omnilook.OmniLog;
 
@@ -18,6 +19,9 @@ public class ModMenuCompat implements ModMenuApi {
 		}
 
 		OmniLog.error("No screen providers found");
-		return ModMenuApi.super.getModConfigScreenFactory();
+		return parent -> {
+			Config.openTextEditor();
+			return null;
+		};
 	}
 }
