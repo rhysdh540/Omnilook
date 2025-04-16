@@ -3,6 +3,7 @@ package dev.rdh.omnilook;
 @net.minecraftforge.fml.common.Mod(
 		value = Omnilook.ID,
 		modid = Omnilook.ID,
+		guiFactory = "dev.rdh.omnilook.config.LexForge12Screen",
 		useMetadata = true
 )
 @cpw.mods.fml.common.Mod(

@@ -227,6 +227,11 @@ val mergeJars by tasks.registering(Jar::class) {
         "MixinConfigs" to "omnilook.mixins.json",
         "Fabric-Loom-Mixin-Remap-Type" to "static",
 
+        // old forge stuff
+        "FMLCorePluginContainsFMLMod" to true,
+        "ForceLoadAsMod" to true,
+        "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
+
         // reindev stuff
         "ModId" to "omnilook",
         "ModName" to "Omnilook",
