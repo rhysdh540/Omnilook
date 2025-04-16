@@ -56,17 +56,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("Omnilook");
 			OmniLog.init("slf4j", logger::info, logger::warn, logger::error, logger::error);
 		} else {
-			// there's probably a better way of doing this but it works for now
-			OmniLog.init(
-					"System.out.println",
-					s -> System.out.println("[Omnilook/INFO] " + s),
-					s -> System.out.println("[Omnilook/WARN] " + s),
-					s -> System.err.println("[Omnilook/ERROR] " + s),
-					(s, e) -> {
-						System.err.println("[Omnilook/ERROR] " + s);
-						e.printStackTrace();
-					}
-			);
+			OmniLog.initFallback();
 		}
 
 		if(classExists("net.neoforged.fml.common.Mod")) {
