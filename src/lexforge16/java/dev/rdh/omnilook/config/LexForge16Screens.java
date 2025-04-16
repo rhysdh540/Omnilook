@@ -1,4 +1,7 @@
-package dev.rdh.omnilook.compat;
+package dev.rdh.omnilook.config;
+
+import me.shedaniel.clothconfig2.api.ConfigBuilder;
+import me.shedaniel.clothconfig2.api.ConfigCategory;
 
 import dev.rdh.omnilook.Config;
 import dev.rdh.omnilook.MixinPlugin;
@@ -8,10 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import me.shedaniel.clothconfig2.api.ConfigBuilder;
-import me.shedaniel.clothconfig2.api.ConfigCategory;
-
-public class LexForge20Screens {
+public class LexForge16Screens {
 	public static Screen cloth(Screen parent) {
 		ConfigBuilder b = ConfigBuilder.create()
 				.setTitle(Component.nullToEmpty("Omnilook"))
@@ -31,13 +31,12 @@ public class LexForge20Screens {
 		return b.build();
 	}
 
-	public static Screen make(Screen parent) {
+	public static Screen make(Minecraft mc, Screen parent) {
 		if (MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
 			return cloth(parent);
 		}
 
 		OmniLog.warn("No screen providers found");
-		Config.openTextEditor();
 		return null;
 	}
 }

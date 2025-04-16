@@ -4,7 +4,7 @@ import cpw.mods.modlauncher.api.INameMappingService.Domain;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
-import dev.rdh.omnilook.compat.LexForge16Screens;
+import dev.rdh.omnilook.config.LexForge16Screens;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ExtensionPoint;
