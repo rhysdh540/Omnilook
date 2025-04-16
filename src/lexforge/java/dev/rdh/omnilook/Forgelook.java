@@ -2,8 +2,9 @@ package dev.rdh.omnilook;
 
 import org.lwjgl.glfw.GLFW;
 
+import dev.rdh.omnilook.config.Config;
+
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;

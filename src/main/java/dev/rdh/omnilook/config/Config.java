@@ -1,4 +1,7 @@
-package dev.rdh.omnilook;
+package dev.rdh.omnilook.config;
+
+import dev.rdh.omnilook.OmniLog;
+import dev.rdh.omnilook.Omnilook;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -16,6 +19,16 @@ public final class Config {
 	public static boolean toggleMode = true;
 	private static final Semaphore semaphore = new Semaphore(1);
 	private static final Path FILE = Omnilook.getInstance().getConfigDir().resolve("omnilook.properties");
+	private static boolean threadStarted = false;
+
+	public static void init() {
+		if(threadStarted) return;
+		threadStarted = true;
+
+		Thread thread = new Thread(Config::thread, "Omnilook Config Watcher");
+		thread.setDaemon(true);
+		thread.start();
+	}
 
 	static void thread() {
 		Path parent = FILE.getParent();

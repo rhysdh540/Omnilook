@@ -3,7 +3,6 @@ package dev.rdh.omnilook.config;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 
-import dev.rdh.omnilook.Config;
 import dev.rdh.omnilook.MixinPlugin;
 import dev.rdh.omnilook.OmniLog;
 

@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.lwjgl.glfw.GLFW;
 
+import dev.rdh.omnilook.config.Config;
 import dev.rdh.omnilook.config.NeoForgeConfigScreenFactory;
 import dev.rdh.omnilook.config.NeoForgeScreens;
 
