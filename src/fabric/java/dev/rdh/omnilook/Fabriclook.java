@@ -1,6 +1,5 @@
 package dev.rdh.omnilook;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 import org.lwjgl.glfw.GLFW;
@@ -18,7 +17,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 
 public final class Fabriclook extends Omnilook {
-	private final KeyMapping key;
+	public final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
 	private final MethodHandle[] xyRotHandles;
 
@@ -61,7 +60,7 @@ public final class Fabriclook extends Omnilook {
 				lookup.unreflectGetter(yRotField)
 		};
 
-		KeyBindingHelper.registerKeyBinding(key);
+		Minecraft.getInstance().options.load();
 	}
 
 	@Override
