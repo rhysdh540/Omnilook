@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage", "VulnerableLibrariesLocal")
 
+import Mappings.Companion.seargeMcp
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
 import org.taumc.gradle.compression.DeflateAlgorithm
@@ -8,17 +9,12 @@ import org.taumc.gradle.compression.entryprocessing.EntryProcessors
 import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
-import xyz.wagyourtail.unimined.api.mapping.MappingsConfig
-import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
-import xyz.wagyourtail.unimined.util.withSourceSet
-
 
 plugins {
-    id("java")
     id("idea")
-    id("xyz.wagyourtail.unimined") version ("1.3.14-SNAPSHOT")
-    id("org.taumc.gradle.compression") version ("0.3.28")
+    id("xyz.wagyourtail.unimined")
+    id("org.taumc.gradle.compression")
 }
 
 group = "dev.rdh"
@@ -44,6 +40,24 @@ repositories {
     maven("https://repo.mumfrey.com/content/repositories/snapshots")
     maven("https://maven.wispforest.io")
 }
+
+val SourceSetContainer.main by sourceSets.getting
+val SourceSetContainer.stubs by sourceSets.creating
+
+val SourceSetContainer.fabric by sourceSets.creating
+val SourceSetContainer.babric by sourceSets.creating
+val SourceSetContainer.legacyfabric by sourceSets.creating
+
+val SourceSetContainer.neoforge by sourceSets.creating
+val SourceSetContainer.lexforge by sourceSets.creating
+val SourceSetContainer.lexforge20 by sourceSets.creating
+val SourceSetContainer.lexforge16 by sourceSets.creating
+val SourceSetContainer.lexforge13 by sourceSets.creating
+val SourceSetContainer.lexforge12 by sourceSets.creating
+
+val SourceSetContainer.rift by sourceSets.creating
+val SourceSetContainer.liteloader by sourceSets.creating
+val SourceSetContainer.reindev by sourceSets.creating
 
 // region unimined
 mc(sourceSets.neoforge) {
@@ -189,9 +203,11 @@ val mergeJars by tasks.registering(Jar::class) {
     )
 }
 
-afterEvaluate {
-    mergeJars.configure {
-        tasks.withType<RemapJarTask>().forEach { from(zipTree(it.asJar.archiveFile)) }
+allprojects {
+    afterEvaluate {
+        mergeJars.configure {
+            tasks.withType<RemapJarTask>().forEach { from(zipTree(it.asJar.archiveFile)) }
+        }
     }
 }
 
@@ -260,74 +276,4 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-// region helpers
-val SourceSetContainer.main get() = getByName("main")
-val SourceSetContainer.neoforge get() = maybeCreate("neoforge")
-val SourceSetContainer.fabric get() = maybeCreate("fabric")
-val SourceSetContainer.lexforge get() = maybeCreate("lexforge")
-val SourceSetContainer.lexforge20 get() = maybeCreate("lexforge20")
-val SourceSetContainer.lexforge16 get() = maybeCreate("lexforge16")
-val SourceSetContainer.lexforge13 get() = maybeCreate("lexforge13")
-val SourceSetContainer.lexforge12 get() = maybeCreate("lexforge12")
-val SourceSetContainer.legacyfabric get() = maybeCreate("legacyfabric")
-val SourceSetContainer.rift get() = maybeCreate("rift")
-val SourceSetContainer.liteloader get() = maybeCreate("liteloader")
-val SourceSetContainer.babric get() = maybeCreate("babric")
-val SourceSetContainer.reindev get() = maybeCreate("reindev")
-val SourceSetContainer.stubs get() = maybeCreate("stubs")
-
-operator fun String.invoke(): String = rootProject.properties[this] as? String ?: error("Property $this not found")
-
-class Mappings(private val action: MappingsConfig.(key: String) -> Unit) {
-    operator fun invoke(key: String): MappingsConfig.() -> Unit = {
-        action(key)
-    }
-}
-
-val mojmap
-    get() = Mappings {
-        mojmap()
-        parchment(version = "${it}_parchment_version"())
-    }
-
-val seargeMcp
-    get() = Mappings {
-        searge()
-        val channel = project.findProperty("${it}_mcp_channel")?.toString() ?: "snapshot"
-        mcp(channel, version = "${it}_mcp_version"())
-    }
-
-
-fun mc(sourceSet: SourceSet, mappings: Mappings = mojmap, block: MinecraftConfig.() -> Unit = {}) {
-    val key = sourceSet.name.lowercase()
-    unimined.minecraft(sourceSet) {
-        combineWith(sourceSets.main)
-        version = "${key}_minecraft_version"()
-        runs.config("server") { enabled = false }
-        runs.all { jvmArgs("-Dmixin.debug.export=true") }
-
-        block()
-
-        mappings {
-            mappings(key)()
-        }
-    }
-}
-
-fun forge(sourceSet: SourceSet, mappings: Mappings = mojmap, block: MinecraftConfig.() -> Unit = {}) {
-    val key = sourceSet.name.lowercase()
-    mc(sourceSet, mappings) {
-        block()
-
-        minecraftForge {
-            loader("${key}_version"())
-            mixinConfig("omnilook.mixins.json")
-        }
-    }
-}
-
-fun SourceSet.configuration(name: String) = configurations.getByName(name.withSourceSet(this))
-val SourceSet.implementation get() = configuration(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
-val SourceSet.compileOnly get() = configuration(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME)
-val SourceSet.modImplementation get() = configuration("modImplementation")
-// endregion
+operator fun String.invoke() = prop(this)

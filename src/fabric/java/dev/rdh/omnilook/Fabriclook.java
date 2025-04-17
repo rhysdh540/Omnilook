@@ -59,8 +59,6 @@ public final class Fabriclook extends Omnilook {
 				lookup.unreflectGetter(xRotField),
 				lookup.unreflectGetter(yRotField)
 		};
-
-		Minecraft.getInstance().options.load();
 	}
 
 	@Override
