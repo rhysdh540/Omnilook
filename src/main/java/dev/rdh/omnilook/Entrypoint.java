@@ -8,6 +8,7 @@ package dev.rdh.omnilook;
 )
 @cpw.mods.fml.common.Mod(
 		modid = Omnilook.ID,
+		guiFactory = "dev.rdh.omnilook.config.LexForge7Screen",
 		useMetadata = true
 )
 @SuppressWarnings("IfCanBeSwitch")
