@@ -32,13 +32,30 @@ val ap: Configuration by configurations.creating {
 }
 
 repositories {
-    maven("https://maven.cleanroommc.com/") // mixinbooter
     unimined.modrinthMaven()
     unimined.fabricMaven()
     unimined.wagYourMaven("releases")
     unimined.spongeMaven()
-    maven("https://repo.mumfrey.com/content/repositories/snapshots")
-    maven("https://maven.wispforest.io")
+    exclusiveContent {
+        forRepository { maven("https://repo.mumfrey.com/content/repositories/snapshots") }
+        filter { includeModule("com.mumfrey", "liteloader") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.cleanroommc.com") }
+        filter { includeGroup("zone.rong") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.wispforest.io") }
+        filter { includeModule("me.alphamode", "nostalgia") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.terraformersmc.com/releases") }
+        filter { includeGroup("com.terraformersmc") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.isxander.dev/releases") }
+        filter { includeGroup("dev.isxander") }
+    }
 }
 
 val SourceSetContainer.main by sourceSets.getting
@@ -132,6 +149,13 @@ dependencies {
         ))
 
         fabric.implementation("ca.weblite:java-objc-bridge:1.1")
+        fabric.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
+        fabric.modImplementation("com.terraformersmc:modmenu:11.0.3")
+
+        neoforge.implementation("ca.weblite:java-objc-bridge:1.1")
+        neoforge.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
+            exclude("thedarkcolour", "kotlinforforge-neoforge")
+        }
 
         lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
 
