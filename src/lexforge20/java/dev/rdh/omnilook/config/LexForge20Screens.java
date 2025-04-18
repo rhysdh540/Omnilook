@@ -1,6 +1,5 @@
 package dev.rdh.omnilook.config;
 
-import dev.rdh.omnilook.Config;
 import dev.rdh.omnilook.MixinPlugin;
 import dev.rdh.omnilook.OmniLog;
 

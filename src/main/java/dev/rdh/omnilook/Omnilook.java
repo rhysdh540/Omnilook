@@ -1,5 +1,7 @@
 package dev.rdh.omnilook;
 
+import dev.rdh.omnilook.config.Config;
+
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -29,9 +31,7 @@ public abstract class Omnilook {
 
 		instance = this;
 
-		Thread configThread = new Thread(Config::thread, "Omnilook Config Watcher");
-		configThread.setDaemon(true);
-		configThread.start();
+		Config.init();
 	}
 	// endregion
 
