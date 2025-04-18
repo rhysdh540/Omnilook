@@ -11,6 +11,7 @@ import net.minecraftforge.versions.forge.ForgeVersion;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 	// endregion
 
 	public static String getPlatform() {
-		return platform;
+		return Objects.requireNonNull(platform, "Platform not set");
 	}
 
 	@Override
@@ -202,9 +203,11 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 	}
 
 	// compat with old mixin (liteloader)
+	@SuppressWarnings("unused")
 	public void preApply(String targetClassName, org.spongepowered.asm.lib.tree.ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
 
+	@SuppressWarnings("unused")
 	public void postApply(String targetClassName, org.spongepowered.asm.lib.tree.ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
 	}
 	//endregion

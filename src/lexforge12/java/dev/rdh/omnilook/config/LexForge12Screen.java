@@ -1,0 +1,69 @@
+package dev.rdh.omnilook.config;
+
+import com.google.common.collect.ImmutableMap;
+
+import dev.rdh.omnilook.Omnilook;
+
+import net.minecraftforge.common.config.ConfigElement;
+import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fml.client.IModGuiFactory;
+import net.minecraftforge.fml.client.config.GuiConfig;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+
+public class LexForge12Screen extends GuiConfig implements IModGuiFactory {
+	private final Map<Property, Consumer<String>> configs =
+			ImmutableMap.<Property, Consumer<String>>builder()
+					.put(new Property("Toggle Mode", String.valueOf(Config.toggleMode), Property.Type.BOOLEAN),
+							(value) -> Config.toggleMode = Boolean.parseBoolean(value))
+					.build();
+
+	public LexForge12Screen(GuiScreen parent) {
+		super(parent, Omnilook.ID, "Omnilook");
+
+		for(Property prop : configs.keySet()) {
+			configElements.add(new ConfigElement(prop));
+		}
+
+	}
+
+	@Override
+	public void onGuiClosed() {
+		super.onGuiClosed();
+		for(Map.Entry<Property, Consumer<String>> entry : configs.entrySet()) {
+			Property property = entry.getKey();
+			Consumer<String> consumer = entry.getValue();
+			String value = property.getString();
+			consumer.accept(value);
+		}
+		Config.saveConfig();
+	}
+
+	public LexForge12Screen() {
+		super(null, null, null);
+	}
+
+	@Override
+	public void initialize(Minecraft mc) {
+		// no-op
+	}
+
+	@Override
+	public boolean hasConfigGui() {
+		return true;
+	}
+
+	@Override
+	public GuiScreen createConfigGui(GuiScreen guiScreen) {
+		return new LexForge12Screen(guiScreen);
+	}
+
+	@Override
+	public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
+		return null;
+	}
+}

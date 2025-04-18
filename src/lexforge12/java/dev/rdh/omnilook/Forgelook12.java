@@ -2,6 +2,8 @@ package dev.rdh.omnilook;
 
 import org.lwjgl.input.Keyboard;
 
+
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -21,6 +23,8 @@ public class Forgelook12 extends Omnilook {
 		Field f = MixinPlugin.field(Minecraft.class, "field_175622_Z", "field_71451_h", "renderViewEntity");
 		f.setAccessible(true);
 		getRenderViewEntity = MethodHandles.lookup().unreflectGetter(f);
+
+		ClientRegistry.registerKeyBinding(key);
 	}
 
 	@Override
