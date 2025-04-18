@@ -93,4 +93,21 @@ public final class Config {
 		OmniLog.info("Config loaded: " + props);
 		semaphore.release();
 	}
+
+	public static void openTextEditor() {
+		String os = System.getProperty("os.name").toLowerCase();
+		ProcessBuilder pb = new ProcessBuilder().inheritIO();
+		if (os.contains("mac")) {
+			pb.command("open", "-t", FILE.toString());
+		} else if (os.contains("win")) {
+			pb.command("rundll32", "url.dll,FileProtocolHandler", FILE.toString());
+		} else if (os.contains("nix") || os.contains("nux")) {
+			pb.command("xdg-open", FILE.toString());
+		} else {
+			OmniLog.error("Unsupported OS: " + os);
+			return;
+		}
+
+		pb.start();
+	}
 }

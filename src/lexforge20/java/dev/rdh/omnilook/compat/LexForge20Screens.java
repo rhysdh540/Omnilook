@@ -37,6 +37,7 @@ public class LexForge20Screens {
 		}
 
 		OmniLog.warn("No screen providers found");
+		Config.openTextEditor();
 		return null;
 	}
 }

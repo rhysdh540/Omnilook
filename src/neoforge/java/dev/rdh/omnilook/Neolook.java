@@ -56,6 +56,7 @@ public final class Neolook extends Omnilook {
 		}
 
 		OmniLog.warn("No screen providers found");
+		Config.openTextEditor();
 		return null;
 	}
 
