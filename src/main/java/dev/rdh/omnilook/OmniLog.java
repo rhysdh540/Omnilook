@@ -22,6 +22,19 @@ public final class OmniLog {
 		info("OmniLog initialized with " + backendName + " backend");
 	}
 
+	// there's probably a better way of doing this but it works for now
+	public static void initFallback() {
+		init("fallback",
+				s -> System.out.println("[Omnilook/INFO] " + s),
+				s -> System.out.println("[Omnilook/WARN] " + s),
+				s -> System.err.println("[Omnilook/ERROR] " + s),
+				(s, e) -> {
+					System.err.println("[Omnilook/ERROR] " + s);
+					e.printStackTrace();
+				}
+		);
+	}
+
 	public static void info(String message) {
 		info.accept(message);
 	}
