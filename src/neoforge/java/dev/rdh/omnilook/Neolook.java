@@ -10,8 +10,8 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.lwjgl.glfw.GLFW;
 
-import dev.rdh.omnilook.compat.NeoForgeConfigScreen;
-import dev.rdh.omnilook.compat.NeoForgeScreens;
+import dev.rdh.omnilook.config.NeoForgeConfigScreenFactory;
+import dev.rdh.omnilook.config.NeoForgeScreens;
 
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
@@ -36,7 +36,7 @@ public final class Neolook extends Omnilook {
 		Object extension;
 		try {
 			extensionPoint = Class.forName("net.neoforged.neoforge.client.gui.IConfigScreenFactory");
-			extension = new NeoForgeConfigScreen();
+			extension = new NeoForgeConfigScreenFactory();
 		} catch (ClassNotFoundException e) {
 			extensionPoint = Class.forName("net.neoforged.neoforge.client.ConfigScreenHandler$ConfigScreenFactory");
 			extension = extensionPoint.getDeclaredConstructor(BiFunction.class)

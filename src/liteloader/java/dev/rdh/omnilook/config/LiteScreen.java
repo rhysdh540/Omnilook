@@ -1,7 +1,9 @@
-package dev.rdh.omnilook;
+package dev.rdh.omnilook.config;
 
 import com.mumfrey.liteloader.modconfig.AbstractConfigPanel;
 import com.mumfrey.liteloader.modconfig.ConfigPanelHost;
+
+import dev.rdh.omnilook.Config;
 
 import net.minecraft.client.gui.GuiButton;
 

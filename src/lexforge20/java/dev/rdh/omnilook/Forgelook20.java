@@ -3,7 +3,7 @@ package dev.rdh.omnilook;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
-import dev.rdh.omnilook.compat.LexForge20Screens;
+import dev.rdh.omnilook.config.LexForge20Screens;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;

@@ -6,6 +6,8 @@ import com.mumfrey.liteloader.core.LiteLoader;
 import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import org.lwjgl.input.Keyboard;
 
+import dev.rdh.omnilook.config.LiteScreen;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.launchwrapper.Launch;

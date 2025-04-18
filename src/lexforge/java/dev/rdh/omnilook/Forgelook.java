@@ -3,7 +3,9 @@ package dev.rdh.omnilook;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ConfigScreenHandler.ConfigScreenFactory;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -26,6 +28,11 @@ public final class Forgelook extends Omnilook {
 
 		// TODO: figure out how to get the FMLJavaModLoadingContext instance without get()
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegisterKeyMappings);
+
+		MinecraftForge.registerConfigScreen(parent -> {
+			Config.openTextEditor();
+			return null;
+		});
 	}
 
 	void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
