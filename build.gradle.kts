@@ -163,6 +163,10 @@ dependencies {
         }
         neoforge.modImplementation("me.shedaniel.cloth:cloth-config-forge:15.0.140")
 
+        lexforge20.modImplementation("me.shedaniel.cloth:cloth-config-forge:11.1.136")
+
+        lexforge16.modImplementation("me.shedaniel.cloth:cloth-config-forge:4.17.132")
+
         lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
 
         lexforge12.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
