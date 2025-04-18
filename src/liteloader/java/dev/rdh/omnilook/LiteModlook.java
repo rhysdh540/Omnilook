@@ -1,7 +1,9 @@
 package dev.rdh.omnilook;
 
+import com.mumfrey.liteloader.Configurable;
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.core.LiteLoader;
+import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
@@ -12,7 +14,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 // liteloader forces mods to start their entrypoint class name with `LiteMod`, do not change
-public class LiteModlook extends Omnilook implements LiteMod {
+public class LiteModlook extends Omnilook implements LiteMod, Configurable {
 	private final KeyBinding key;
 
 	public LiteModlook() {
@@ -32,6 +34,11 @@ public class LiteModlook extends Omnilook implements LiteMod {
 	@Override
 	public void init(File configPath) {
 		LiteLoader.getInput().registerKeyBinding(key);
+	}
+
+	@Override
+	public Class<? extends ConfigPanel> getConfigPanelClass() {
+		return LiteScreen.class;
 	}
 
 	@Override
