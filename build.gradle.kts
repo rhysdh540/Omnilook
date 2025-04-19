@@ -75,6 +75,7 @@ val SourceSetContainer.lexforge20 by sourceSets.creating
 val SourceSetContainer.lexforge16 by sourceSets.creating
 val SourceSetContainer.lexforge13 by sourceSets.creating
 val SourceSetContainer.lexforge12 by sourceSets.creating
+val SourceSetContainer.lexforge7 by sourceSets.creating
 
 val SourceSetContainer.rift by sourceSets.creating
 val SourceSetContainer.liteloader by sourceSets.creating
@@ -109,6 +110,7 @@ forge(sourceSets.lexforge20)
 forge(sourceSets.lexforge16)
 forge(sourceSets.lexforge13, mappings = seargeMcp)
 forge(sourceSets.lexforge12, mappings = seargeMcp)
+forge(sourceSets.lexforge7, mappings = seargeMcp)
 
 mc(sourceSets.rift, mappings = seargeMcp) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
@@ -212,6 +214,10 @@ tasks.withType<ProcessResources> {
     filesMatching("**/*") {
         expand("version" to project.version)
     }
+}
+
+tasks.named<Jar>("lexforge12Jar") {
+    exclude("cpw/mods/fml/**")
 }
 
 // region mergeJars and compression

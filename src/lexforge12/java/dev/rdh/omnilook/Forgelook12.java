@@ -3,7 +3,6 @@ package dev.rdh.omnilook;
 import org.lwjgl.input.Keyboard;
 
 
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -24,7 +23,11 @@ public class Forgelook12 extends Omnilook {
 		f.setAccessible(true);
 		getRenderViewEntity = MethodHandles.lookup().unreflectGetter(f);
 
-		ClientRegistry.registerKeyBinding(key);
+		try {
+			net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(key);
+		} catch (NoClassDefFoundError e) {
+			cpw.mods.fml.client.registry.ClientRegistry.registerKeyBinding(key);
+		}
 	}
 
 	@Override
