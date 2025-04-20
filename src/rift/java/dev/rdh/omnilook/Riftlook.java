@@ -1,8 +1,9 @@
 package dev.rdh.omnilook;
 
 import org.dimdev.rift.listener.client.KeyBindingAdder;
-import org.dimdev.riftloader.listener.InitializationListener;
 import org.lwjgl.glfw.GLFW;
+
+import dev.rdh.omnilook.config.Config;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
@@ -12,20 +13,22 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 
-public class Riftlook extends Omnilook implements InitializationListener, KeyBindingAdder {
+public class Riftlook extends Omnilook implements KeyBindingAdder {
 	private final KeyBinding key;
 
 	public Riftlook() {
 		key = new KeyBinding(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
+
+		if(MixinPlugin.classExists("me.shedaniel.api.ConfigRegistry")) {
+			Class.forName("me.shedaniel.api.ConfigRegistry")
+					.getDeclaredMethod("registerConfig", String.class, Runnable.class)
+					.invoke(null, Omnilook.ID, (Runnable) Config::openTextEditor);
+		}
 	}
 
 	@Override
 	public Collection<? extends KeyBinding> getKeyBindings() {
 		return Collections.singleton(key);
-	}
-
-	@Override
-	public void onInitialization() {
 	}
 
 	@Override

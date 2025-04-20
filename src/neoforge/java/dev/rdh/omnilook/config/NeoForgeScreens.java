@@ -2,6 +2,7 @@ package dev.rdh.omnilook.config;
 
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 
+import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
@@ -14,7 +15,7 @@ public class NeoForgeScreens {
 	public static Screen yacl(Screen parent) {
 		return YetAnotherConfigLib.createBuilder()
 				.title(Component.literal("Omnilook"))
-				.category(dev.isxander.yacl3.api.ConfigCategory.createBuilder()
+				.category(ConfigCategory.createBuilder()
 						.name(Component.literal("Omnilook"))
 						.option(Option.<Boolean>createBuilder()
 								.name(Component.literal("Toggle Mode"))
@@ -36,8 +37,7 @@ public class NeoForgeScreens {
 				.setSavingRunnable(Config::saveConfig)
 				.setParentScreen(parent);
 
-		me.shedaniel.clothconfig2.api.ConfigCategory category = b.getOrCreateCategory(Component.literal("Omnilook"));
-		category.addEntry(
+		b.getOrCreateCategory(Component.literal("Omnilook")).addEntry(
 				b.entryBuilder()
 						.startBooleanToggle(Component.literal("Toggle Mode"), Config.toggleMode)
 						.setDefaultValue(Config.toggleMode)
