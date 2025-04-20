@@ -179,6 +179,8 @@ dependencies {
         lexforge13.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
         lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
 
+        rift.compileOnly(sourceSets.stubs.output)
+
         liteloader.implementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
         liteloader.implementation("net.minecraft:launchwrapper:1.12")
         liteloader.implementation("org.spongepowered:mixin:${"liteloader_mixin_version"()}")

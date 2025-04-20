@@ -20,9 +20,7 @@ public class Riftlook extends Omnilook implements KeyBindingAdder {
 		key = new KeyBinding(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
 
 		if(MixinPlugin.classExists("me.shedaniel.api.ConfigRegistry")) {
-			Class.forName("me.shedaniel.api.ConfigRegistry")
-					.getDeclaredMethod("registerConfig", String.class, Runnable.class)
-					.invoke(null, Omnilook.ID, (Runnable) Config::openTextEditor);
+			me.shedaniel.api.ConfigRegistry.registerConfig(Omnilook.ID, Config::openTextEditor);
 		}
 	}
 
