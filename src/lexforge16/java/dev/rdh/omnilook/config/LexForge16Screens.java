@@ -1,7 +1,6 @@
 package dev.rdh.omnilook.config;
 
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
-import me.shedaniel.clothconfig2.api.ConfigCategory;
 
 import dev.rdh.omnilook.MixinPlugin;
 import dev.rdh.omnilook.OmniLog;
@@ -17,8 +16,7 @@ public class LexForge16Screens {
 				.setSavingRunnable(Config::saveConfig)
 				.setParentScreen(parent);
 
-		ConfigCategory category = b.getOrCreateCategory(Component.nullToEmpty("Omnilook"));
-		category.addEntry(
+		b.getOrCreateCategory(Component.nullToEmpty("Omnilook")).addEntry(
 				b.entryBuilder()
 						.startBooleanToggle(Component.nullToEmpty("Toggle Mode"), Config.toggleMode)
 						.setDefaultValue(Config.toggleMode)

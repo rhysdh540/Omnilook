@@ -2,6 +2,7 @@ package dev.rdh.omnilook.config;
 
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 
+import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
@@ -15,7 +16,7 @@ public final class FabricScreens {
 	public static Screen yacl(Screen parent) {
 		return YetAnotherConfigLib.createBuilder()
 				.title(Component.nullToEmpty("Omnilook"))
-				.category(dev.isxander.yacl3.api.ConfigCategory.createBuilder()
+				.category(ConfigCategory.createBuilder()
 						.name(Component.nullToEmpty("Omnilook"))
 						.option(Option.<Boolean>createBuilder()
 								.name(Component.nullToEmpty("Toggle Mode"))
@@ -37,8 +38,7 @@ public final class FabricScreens {
 				.setSavingRunnable(Config::saveConfig)
 				.setParentScreen(parent);
 
-		me.shedaniel.clothconfig2.api.ConfigCategory category = b.getOrCreateCategory(Component.nullToEmpty("Omnilook"));
-		category.addEntry(
+		b.getOrCreateCategory(Component.nullToEmpty("Omnilook")).addEntry(
 				b.entryBuilder()
 						.startBooleanToggle(Component.nullToEmpty("Toggle Mode"), Config.toggleMode)
 						.setDefaultValue(Config.toggleMode)

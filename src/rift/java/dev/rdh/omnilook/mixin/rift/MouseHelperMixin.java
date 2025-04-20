@@ -14,7 +14,7 @@ public class MouseHelperMixin {
 	@Redirect(method = "updatePlayerLook", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;rotateTowards(DD)V"))
 	private void update(EntityPlayerSP instance, double yRot, double xRot) {
 		if (Omnilook.getInstance().updateCamera((float) xRot, (float) yRot)) {
-			instance.rotateTowards(xRot, yRot);
+			instance.rotateTowards(yRot, xRot);
 		}
 	}
 }
