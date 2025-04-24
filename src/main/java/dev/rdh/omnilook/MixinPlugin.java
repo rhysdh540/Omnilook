@@ -50,16 +50,6 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			throw new IllegalStateException("onLoad called twice");
 		}
 
-		if(classExists("org.apache.logging.log4j.Logger")) {
-			org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger("Omnilook");
-			OmniLog.init("log4j", logger::info, logger::warn, logger::error, logger::error);
-		} else if(classExists("org.slf4j.Logger")) {
-			org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("Omnilook");
-			OmniLog.init("slf4j", logger::info, logger::warn, logger::error, logger::error);
-		} else {
-			OmniLog.initFallback();
-		}
-
 		if(classExists("net.neoforged.fml.common.Mod")) {
 			platform = "NeoForge";
 		} else if(classExists("net.minecraftforge.versions.forge.ForgeVersion")) {
