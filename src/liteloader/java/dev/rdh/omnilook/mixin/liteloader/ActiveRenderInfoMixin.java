@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import dev.rdh.omnilook.Omnilook;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -16,6 +17,7 @@ public class ActiveRenderInfoMixin {
 		Omnilook o = Omnilook.getInstance();
 		o.update();
 		if(o.isEnabled()) {
+			Minecraft.getMinecraft().renderGlobal.setDisplayListEntitiesDirty();
 			return o.getXRot();
 		}
 		return player.rotationPitch;
