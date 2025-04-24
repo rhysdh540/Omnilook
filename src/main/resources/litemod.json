@@ -1,6 +1,6 @@
 {
   "name": "omnilook",
-  "displayName": "Omnilook",
+  "displayName": "${name}",
   "version": "${version}",
   "revision": 0,
   "mcversion": "1.12.2",

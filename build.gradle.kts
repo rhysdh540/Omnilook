@@ -211,10 +211,18 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<ProcessResources> {
     filteringCharset = "UTF-8"
-    inputs.property("version", project.version)
+
+    val props = mapOf(
+        "version" to project.version,
+        "name" to "mod_name"(),
+        "description" to "mod_description"(),
+        "github" to "mod_github"(),
+    )
+
+    inputs.properties(props)
 
     filesMatching("**/*") {
-        expand("version" to project.version)
+        expand(props)
     }
 }
 
@@ -243,9 +251,9 @@ val mergeJars by tasks.registering(Jar::class) {
 
         // reindev stuff
         "ModId" to "omnilook",
-        "ModName" to "Omnilook",
+        "ModName" to "mod_name"(),
         "ModVersion" to project.version,
-        "ModDesc" to "funny look around mod",
+        "ModDesc" to "mod_description"(),
         "ClientMod" to "dev.rdh.omnilook.FoxlookMod",
         "ClientMixin" to "omnilook.mixins.json",
     )

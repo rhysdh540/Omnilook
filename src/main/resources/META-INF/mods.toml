@@ -1,14 +1,14 @@
 modLoader = "javafml"
 loaderVersion = "[1,)"
-issueTrackerURL = "https://github.com/rhysdh540/Omnilook/issues"
+issueTrackerURL = "${github}/issues"
 license = "Unlicense"
 
 [[mods]]
     modId = "omnilook"
     version = "${version}"
-    displayName = "Omnilook"
+    displayName = "${name}"
     authors = "rdh"
-    description = "funny look around mod"
+    description = "${description}"
 
 [[dependencies.omnilook]]
     modId = "forge"

@@ -3,11 +3,12 @@
   "id": "omnilook",
   "version": "${version}",
 
-  "name": "Omnilook",
-  "description": "funny look around mod",
+  "name": "${name}",
+  "description": "${description}",
   "authors": ["rdh"],
   "contact": {
-    "sources": "https://github.com/rhysdh540/Omnilook"
+    "sources": "${github}",
+    "issues": "${github}/issues"
   },
 
   "license": "Unlicense",
