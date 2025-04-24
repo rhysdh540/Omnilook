@@ -1,9 +1,9 @@
 {
   "id": "omnilook",
-  "name": "Omnilook",
+  "name": "${name}",
   "authors": ["rdh"],
-  "url": "https://github.com/rhysdh540/Omnilook",
-  "description": "funny look around mod",
+  "url": "${github}",
+  "description": "${description}",
   "version": "${version}",
   "listeners": [
     {
