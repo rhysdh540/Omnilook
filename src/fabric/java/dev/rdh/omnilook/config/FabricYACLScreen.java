@@ -1,7 +1,5 @@
 package dev.rdh.omnilook.config;
 
-import me.shedaniel.clothconfig2.api.ConfigBuilder;
-
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
@@ -12,8 +10,8 @@ import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public final class FabricScreens {
-	public static Screen yacl(Screen parent) {
+public final class FabricYACLScreen {
+	public static Screen make(Screen parent) {
 		return YetAnotherConfigLib.createBuilder()
 				.title(Component.nullToEmpty("Omnilook"))
 				.category(ConfigCategory.createBuilder()
@@ -30,23 +28,5 @@ public final class FabricScreens {
 				.save(Config::saveConfig)
 				.build()
 				.generateScreen(parent);
-	}
-
-	public static Screen cloth(Screen parent) {
-		ConfigBuilder b = ConfigBuilder.create()
-				.setTitle(Component.nullToEmpty("Omnilook"))
-				.setSavingRunnable(Config::saveConfig)
-				.setParentScreen(parent);
-
-		b.getOrCreateCategory(Component.nullToEmpty("Omnilook")).addEntry(
-				b.entryBuilder()
-						.startBooleanToggle(Component.nullToEmpty("Toggle Mode"), Config.toggleMode)
-						.setDefaultValue(Config.toggleMode)
-						.setTooltip(Component.nullToEmpty("If true, pressing the keybind toggles freelook, otherwise it must be held"))
-						.setSaveConsumer(value -> Config.toggleMode = value)
-						.build()
-		);
-
-		return b.build();
 	}
 }

@@ -10,11 +10,11 @@ public class ModMenuCompat implements ModMenuApi {
 	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory() {
 		if(MixinPlugin.classExists("dev.isxander.yacl3.api.YetAnotherConfigLib")) {
-			return FabricScreens::yacl;
+			return FabricYACLScreen::make;
 		}
 
 		if(MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
-			return FabricScreens::cloth;
+			return FabricClothScreen::make;
 		}
 
 		OmniLog.error("No screen providers found");
