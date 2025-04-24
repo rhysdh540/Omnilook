@@ -174,6 +174,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		return mixinClassName.contains(platform.toLowerCase());
 	}
 
+	public static void noop() {}
+
 	//region Unused
 	@Override
 	public String getRefMapperConfig() {

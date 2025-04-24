@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import dev.rdh.omnilook.Omnilook;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.entity.Entity;
 
@@ -29,6 +30,8 @@ public class GameRendererMixin {
 
 			entity.rotationPitch = o.getXRot();
 			entity.rotationYaw = o.getYRot();
+
+			Minecraft.getInstance().worldRenderer.setDisplayListEntitiesDirty();
 		}
 	}
 

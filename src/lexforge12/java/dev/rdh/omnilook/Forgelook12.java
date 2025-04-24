@@ -1,15 +1,19 @@
 package dev.rdh.omnilook;
 
 import org.lwjgl.input.Keyboard;
+import org.objectweb.asm.*;
 
 
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.launchwrapper.Launch;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
@@ -63,5 +67,39 @@ public class Forgelook12 extends Omnilook {
 	@Override
 	protected boolean isKeyDown() {
 		return key.isKeyDown();
+	}
+
+	public static MethodHandle getMH_setDisplayListEntitiesDirty() {
+		try {
+			String setDisplayListEntitiesDirty = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(
+					Type.getInternalName(RenderGlobal.class),
+					"func_174979_m",
+					"()V"
+			);
+
+			String renderGlobal = FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(
+					Type.getInternalName(Minecraft.class),
+					"field_71438_f",
+					Type.getDescriptor(RenderGlobal.class)
+			);
+
+			String getMinecraft = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(
+					Type.getInternalName(Minecraft.class),
+					"func_71410_x",
+					Type.getMethodDescriptor(Type.getType(Minecraft.class))
+			);
+
+			return MethodHandles.collectArguments(
+					MethodHandles.lookup().findVirtual(RenderGlobal.class, setDisplayListEntitiesDirty, MethodType.methodType(void.class)),
+					0,
+					MethodHandles.collectArguments(
+							MethodHandles.lookup().findGetter(Minecraft.class, renderGlobal, RenderGlobal.class),
+							0,
+							MethodHandles.lookup().findStatic(Minecraft.class, getMinecraft, MethodType.methodType(Minecraft.class))
+					)
+			);
+		} catch (Throwable e) {
+			return MethodHandles.lookup().findStatic(MixinPlugin.class, "noop", MethodType.methodType(void.class));
+		}
 	}
 }

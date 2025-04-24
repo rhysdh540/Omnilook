@@ -1,16 +1,20 @@
 package dev.rdh.omnilook;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.MappingResolver;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import org.lwjgl.input.Keyboard;
+import org.objectweb.asm.*;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -37,8 +41,6 @@ public class LegacyFabriclook extends Omnilook {
 			}
 			if(mod.get().getMetadata().getVersion().compareTo(Version.parse("1.7.0")) < 0) {
 				throw new IllegalStateException("Omnilook requires Legacy Fabric API on 1.7.0+");
-			} else {
-				Minecraft.getMinecraft().gameSettings.loadOptions(); // force our mixin to run
 			}
 		}
 
@@ -80,5 +82,44 @@ public class LegacyFabriclook extends Omnilook {
 	@Override
 	protected boolean isKeyDown() {
 		return key.isKeyDown();
+	}
+
+	public static MethodHandle getMH_setDisplayListEntitiesDirty() {
+		try {
+			MappingResolver mr = FabricLoader.getInstance().getMappingResolver();
+
+			String setDisplayListEntitiesDirty = mr.mapMethodName(
+					"intermediary",
+					Type.getInternalName(RenderGlobal.class),
+					"method_9917",
+					"()V"
+			);
+
+			String renderGlobal = mr.mapFieldName(
+					"intermediary",
+					Type.getInternalName(Minecraft.class),
+					"field_3804",
+					Type.getDescriptor(RenderGlobal.class)
+			);
+
+			String getMinecraft = mr.mapMethodName(
+					"intermediary",
+					Type.getInternalName(Minecraft.class),
+					"method_2965",
+					Type.getMethodDescriptor(Type.getType(Minecraft.class))
+			);
+
+			return MethodHandles.collectArguments(
+					MethodHandles.lookup().findVirtual(RenderGlobal.class, setDisplayListEntitiesDirty, MethodType.methodType(void.class)),
+					0,
+					MethodHandles.collectArguments(
+							MethodHandles.lookup().findGetter(Minecraft.class, renderGlobal, RenderGlobal.class),
+							0,
+							MethodHandles.lookup().findStatic(Minecraft.class, getMinecraft, MethodType.methodType(Minecraft.class))
+					)
+			);
+		} catch (Throwable e) {
+			return MethodHandles.lookup().findStatic(MixinPlugin.class, "noop", MethodType.methodType(void.class));
+		}
 	}
 }
