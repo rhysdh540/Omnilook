@@ -3,13 +3,16 @@ package dev.rdh.omnilook;
 import net.fabricmc.loader.api.FabricLoader;
 import org.lwjgl.input.Keyboard;
 
+import dev.rdh.omnilook.config.ModMenuScreenProvider;
+
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
-public class Babriclook extends Omnilook {
+public class Babriclook extends Omnilook implements ModMenuScreenProvider<Screen> {
 	public final KeyMapping key;
 	private boolean keyWasPressed = false;
 	private boolean keyPressed = false;

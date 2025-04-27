@@ -21,10 +21,10 @@ group = "dev.rdh"
 version = "0.1"
 base.archivesName = project.name.lowercase()
 
-idea.module {
-    isDownloadSources = true
-    isDownloadJavadoc = true
-}
+//idea.module {
+//    isDownloadSources = true
+//    isDownloadJavadoc = true
+//}
 
 val ap: Configuration by configurations.creating {
     isCanBeConsumed = false
@@ -238,6 +238,10 @@ val mergeJars by tasks.registering(Jar::class) {
     from(sourceSets.reindev.output)
 
     destinationDirectory = layout.buildDirectory.dir("libs")
+
+    from(file("LICENSE")) {
+        into("META-INF")
+    }
 
     manifest.attributes(
         "MixinConfigs" to "omnilook.mixins.json",

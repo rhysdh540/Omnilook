@@ -7,7 +7,10 @@ import net.fabricmc.loader.api.Version;
 import org.lwjgl.input.Keyboard;
 import org.objectweb.asm.*;
 
+import dev.rdh.omnilook.config.ModMenuScreenProvider;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -19,7 +22,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class LegacyFabriclook extends Omnilook {
+public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<GuiScreen> {
 	public final KeyBinding key;
 	private final MethodHandle getRenderViewEntity;
 

@@ -4,10 +4,15 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 import org.lwjgl.glfw.GLFW;
 
+import dev.rdh.omnilook.config.FabricClothScreen;
+import dev.rdh.omnilook.config.FabricYACLScreen;
+import dev.rdh.omnilook.config.ModMenuScreenProvider;
+
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.Entity;
 
 import java.lang.invoke.MethodHandle;
@@ -16,7 +21,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
-public final class Fabriclook extends Omnilook {
+public final class Fabriclook extends Omnilook implements ModMenuScreenProvider<Screen> {
 	public final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
 	private final MethodHandle[] xyRotHandles;
@@ -59,6 +64,19 @@ public final class Fabriclook extends Omnilook {
 				lookup.unreflectGetter(xRotField),
 				lookup.unreflectGetter(yRotField)
 		};
+	}
+
+	@Override
+	public Screen openScreen(Screen parent) {
+		if(MixinPlugin.classExists("dev.isxander.yacl3.api.YetAnotherConfigLib")) {
+			return FabricYACLScreen.make(parent);
+		}
+
+		if(MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
+			return FabricClothScreen.make(parent);
+		}
+
+		return ModMenuScreenProvider.super.openScreen(parent);
 	}
 
 	@Override
