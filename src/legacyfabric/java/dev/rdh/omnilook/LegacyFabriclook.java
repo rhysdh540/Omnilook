@@ -53,6 +53,18 @@ public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<
 	}
 
 	@Override
+	public GuiScreen openScreen(GuiScreen parent) {
+		StackTraceElement[] a = new Throwable().getStackTrace();
+		for(StackTraceElement e : a) {
+			if(e.getClassName().equals("io.github.prospector.modmenu.gui.ModsScreen") && e.getMethodName().equals("method_1044")) {
+				return parent;
+			}
+		}
+
+		return ModMenuScreenProvider.super.openScreen(parent);
+	}
+
+	@Override
 	public Path getConfigDir() {
 		return FabricLoader.getInstance().getConfigDir();
 	}

@@ -209,6 +209,12 @@ tasks.withType<JavaCompile> {
     options.release = 8
 }
 
+tasks.compileJava {
+    doLast {
+        generateModMenuCompat(destinationDirectory)
+    }
+}
+
 tasks.withType<ProcessResources> {
     filteringCharset = "UTF-8"
 

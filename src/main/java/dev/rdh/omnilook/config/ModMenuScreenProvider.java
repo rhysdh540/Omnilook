@@ -6,11 +6,7 @@ import dev.rdh.omnilook.Omnilook;
 public interface ModMenuScreenProvider<S> {
 	default S openScreen(S parent) {
 		Config.openTextEditor();
-		return null;
-	}
-
-	default S openScreen(Object arg1, S parent) {
-		return openScreen(parent);
+		return parent;
 	}
 
 	@SuppressWarnings("unchecked")
