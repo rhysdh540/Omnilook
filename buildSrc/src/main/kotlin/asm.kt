@@ -45,7 +45,16 @@ class FieldConstructor(parent: FieldVisitor) : FieldVisitor(ASM9, parent) {
 }
 
 class MethodConstructor(parent: MethodVisitor) : MethodVisitor(ASM9, parent) {
+    inline fun <reified OType, reified RType> callMethod(opcode: Int, name: String, vararg parameterTypes: Type, isInterface: Boolean = false) =
+        visitMethodInsn(
+            opcode,
+            typeOf<OType>().internalName,
+            name,
+            Type.getMethodDescriptor(typeOf<RType>(), *parameterTypes),
+            isInterface
+        )
 
+    fun ldc(value: Any) = visitLdcInsn(value)
 }
 
 fun constructClass(
@@ -107,6 +116,22 @@ fun constructClass(
     return cw.toByteArray()
 }
 
-inline fun <reified T> typeOf(): Type {
-    return Type.getType(T::class.java)
+inline fun <reified T> typeOf() = when (T::class) {
+    // primitives
+    Boolean::class -> Type.BOOLEAN_TYPE
+    Byte::class -> Type.BYTE_TYPE
+    Char::class -> Type.CHAR_TYPE
+    Short::class -> Type.SHORT_TYPE
+    Int::class -> Type.INT_TYPE
+    Long::class -> Type.LONG_TYPE
+    Float::class -> Type.FLOAT_TYPE
+    Double::class -> Type.DOUBLE_TYPE
+    Void::class -> Type.VOID_TYPE
+
+    // kotlin stuff
+    Unit::class -> Type.VOID_TYPE
+    Nothing::class -> Type.VOID_TYPE
+
+    // normal objects
+    else -> Type.getType(T::class.java)
 }

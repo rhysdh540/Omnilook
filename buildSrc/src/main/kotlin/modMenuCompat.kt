@@ -11,6 +11,7 @@ import java.lang.invoke.MethodHandles
 import java.lang.invoke.MethodType
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 
 // I wish there was a better way to generate classes than like this
 fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
@@ -42,21 +43,9 @@ fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
         )
     ) {
         visitVarInsn(ALOAD, 1)
-        visitMethodInsn(
-            INVOKEVIRTUAL,
-            "java/lang/reflect/Method",
-            "getName",
-            Type.getMethodDescriptor(typeOf<String>()),
-            false
-        )
-        visitLdcInsn("create")
-        visitMethodInsn(
-            INVOKEVIRTUAL,
-            "java/lang/String",
-            "equals",
-            Type.getMethodDescriptor(Type.BOOLEAN_TYPE, typeOf<Object>()),
-            false
-        )
+        callMethod<Method, String>(INVOKEVIRTUAL, "getName")
+        ldc("create")
+        callMethod<String, Boolean>(INVOKEVIRTUAL, "equals", typeOf<Object>())
         val notEqual = Label()
         visitJumpInsn(IFEQ, notEqual)
         // equal
@@ -80,17 +69,7 @@ fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
         visitVarInsn(ALOAD, 1)
         visitVarInsn(ALOAD, 0)
         visitVarInsn(ALOAD, 2)
-        visitMethodInsn(
-            INVOKEVIRTUAL,
-            "java/lang/reflect/Method",
-            "invoke",
-            Type.getMethodDescriptor(
-                typeOf<Object>(),
-                typeOf<Object>(),
-                typeOf<Array<Object>>()
-            ),
-            false
-        )
+        callMethod<Method, Object>(INVOKEVIRTUAL, "invoke", typeOf<Object>(), typeOf<Array<Object>>())
         visitInsn(ARETURN)
     }
 
@@ -104,20 +83,8 @@ fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
         ) {
             visitVarInsn(ALOAD, 0) // this
             // getClass().getClassLoader()
-            visitMethodInsn(
-                INVOKEVIRTUAL,
-                "java/lang/Object",
-                "getClass",
-                Type.getMethodDescriptor(typeOf<Class<*>>()),
-                false
-            )
-            visitMethodInsn(
-                INVOKEVIRTUAL,
-                "java/lang/Class",
-                "getClassLoader",
-                Type.getMethodDescriptor(typeOf<ClassLoader>()),
-                false
-            )
+            callMethod<Object, Class<*>>(INVOKEVIRTUAL, "getClass")
+            callMethod<Class<*>, ClassLoader>(INVOKEVIRTUAL, "getClassLoader")
 
             // new Class[] { ConfigScreenFactory.class }
             visitInsn(ICONST_1)
@@ -167,17 +134,10 @@ fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
                     typeOf<Array<Object>>()
                 )
             )
-            visitMethodInsn(
-                INVOKESTATIC,
-                "java/lang/reflect/Proxy",
-                "newProxyInstance",
-                Type.getMethodDescriptor(
-                    typeOf<Object>(),
-                    typeOf<ClassLoader>(),
-                    typeOf<Array<Class<*>>>(),
-                    typeOf<InvocationHandler>()
-                ),
-                false
+            callMethod<Proxy, Object>(INVOKESTATIC, "newProxyInstance",
+                typeOf<ClassLoader>(),
+                typeOf<Array<Class<*>>>(),
+                typeOf<InvocationHandler>()
             )
             visitTypeInsn(CHECKCAST, csfType.internalName)
             visitInsn(ARETURN)
