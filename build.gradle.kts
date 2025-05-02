@@ -137,6 +137,16 @@ unimined.reIndev(sourceSets.reindev) {
 }
 // endregion
 
+(sourceSets - sourceSets.main).forEach {
+    tasks.named(it.classesTaskName) {
+        group = "platform"
+    }
+
+    tasks.findByName(it.jarTaskName)?.apply {
+        group = "platform"
+    }
+}
+
 dependencies {
     compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
     compileOnly("org.slf4j:slf4j-api:${"slf4j_version"()}")
@@ -230,6 +240,14 @@ tasks.withType<ProcessResources> {
     filesMatching("**/*") {
         expand(props)
     }
+}
+
+val generateMixinList by tasks.registering(GenerateMixinList::class) {
+    group = "build"
+}
+
+tasks.processResources {
+    dependsOn(generateMixinList)
 }
 
 tasks.named<Jar>("lexforge12Jar") {

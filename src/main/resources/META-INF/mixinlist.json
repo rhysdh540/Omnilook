@@ -1,0 +1,47 @@
+{
+    "babric": [
+        "GameRendererMixin",
+        "OptionsMixin"
+    ],
+    "fabric": [
+        "CameraMixin",
+        "OptionsMixin",
+        "MouseHandlerMixin"
+    ],
+    "legacyfabric": [
+        "ActiveRenderInfoMixin",
+        "EntityRendererMixin",
+        "GameSettingsMixin"
+    ],
+    "lexforge": [
+        "CameraMixin",
+        "MouseHandlerMixin"
+    ],
+    "lexforge12": [
+        "ActiveRenderInfoMixin",
+        "EntityRendererMixin"
+    ],
+    "lexforge13": [
+        "ModInfoMixin",
+        "GameRendererMixin"
+    ],
+    "lexforge16": [
+        "CameraMixin",
+        "MouseHandlerMixin"
+    ],
+    "lexforge20": [
+        "CameraMixin",
+        "MouseHandlerMixin"
+    ],
+    "liteloader": [
+        "ActiveRenderInfoMixin",
+        "EntityRendererMixin"
+    ],
+    "neoforge": [
+        "MouseHandlerMixin"
+    ],
+    "rift": [
+        "MouseHelperMixin",
+        "GameRendererMixin"
+    ]
+}
