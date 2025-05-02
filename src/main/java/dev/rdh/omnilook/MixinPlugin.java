@@ -8,15 +8,22 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import net.minecraftforge.versions.forge.ForgeVersion;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 public final class MixinPlugin implements IMixinConfigPlugin {
 	private static String platform;
+	private static Map<String, List<String>> mixins;
 
 	// region Reflection Utilities
 	public static boolean classExists(String className) {
@@ -97,81 +104,47 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		}
 
 		OmniLog.info("Omnilook mixin plugin detected platform: " + platform);
+
+		Reader raw = new InputStreamReader(MixinPlugin.class.getClassLoader().getResourceAsStream("META-INF/mixinlist.json"));
+		Class<?> Gson =
+				classExists("org.spongepowered.include.com.google.gson.Gson")
+						? Class.forName("org.spongepowered.include.com.google.gson.Gson")
+				: classExists("com.google.gson.Gson")
+						? Class.forName("com.google.gson.Gson")
+				: null;
+		if(Gson == null) {
+			throw new IllegalStateException("Gson not found");
+		}
+
+		Object gson = Gson.getConstructor().newInstance();
+		@SuppressWarnings("unchecked")
+		Map<String, List<String>> mixins = (Map<String, List<String>>) Gson.getMethod("fromJson", Reader.class, Class.class).invoke(gson, raw, Map.class);
+		for(String platform : mixins.keySet()) {
+			List<String> list = mixins.get(platform);
+			for(int i = 0; i < list.size(); i++) {
+				list.set(i, platform + "." + list.get(i));
+			}
+		}
+		MixinPlugin.mixins = Collections.unmodifiableMap(mixins);
 	}
 
-	// this is really jank but it's the best way I can figure out how to get only the mixins on the classpath to load in dev
 	@Override
-	@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 	public List<String> getMixins() {
-		switch(platform) {
-			case "NeoForge":
-				return Arrays.asList(
-						"neoforge.MouseHandlerMixin"
-				);
-			case "LexForge":
-				return Arrays.asList(
-						"lexforge.CameraMixin",
-						"lexforge.MouseHandlerMixin"
-				);
-			case "LexForge20":
-				return Arrays.asList(
-						"lexforge20.CameraMixin",
-						"lexforge20.MouseHandlerMixin"
-				);
-			case "LexForge16":
-				return Arrays.asList(
-						"lexforge16.CameraMixin",
-						"lexforge16.MouseHandlerMixin"
-				);
-			case "LexForge13":
-				return Arrays.asList(
-						"lexforge16.MouseHandlerMixin",
-						"lexforge13.GameRendererMixin"
-				);
-			case "LexForge12":
-				return Arrays.asList(
-						"lexforge12.EntityRendererMixin",
-						"lexforge12.ActiveRenderInfoMixin"
-				);
-			case "Fabric":
-				return Arrays.asList(
-						"fabric.CameraMixin",
-						"fabric.MouseHandlerMixin",
-						"fabric.OptionsMixin"
-				);
-			case "LegacyFabric":
-				return Arrays.asList(
-						"legacyfabric.EntityRendererMixin",
-						"legacyfabric.ActiveRenderInfoMixin",
-						"legacyfabric.GameSettingsMixin"
-				);
-			case "Babric":
-				return Arrays.asList(
-						"babric.GameRendererMixin",
-						"babric.OptionsMixin"
-				);
-			case "Rift":
-				return Arrays.asList(
-						"rift.MouseHelperMixin",
-						"rift.GameRendererMixin"
-				);
-			case "LiteLoader":
-				return Arrays.asList(
-						"liteloader.EntityRendererMixin",
-						"liteloader.ActiveRenderInfoMixin"
-				);
-			case "FoxLoader":
-				return Arrays.asList(
-						"foxloader.EntityRendererMixin"
-				);
-			default:
-				throw new IllegalStateException("Mixins not found, what??? Platform: " + platform);
+		if(mixins == null) {
+			throw new IllegalStateException("onLoad not called");
 		}
+		List<String> m = Objects.requireNonNull(
+				mixins.get(getPlatform().toLowerCase()),
+				"Mixins not found for platform: " + platform
+		);
+
+		OmniLog.info("Found mixins: " + m);
+		return m;
 	}
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		return mixinClassName.contains(platform.toLowerCase());
+		return true;
 	}
 
 	public static void noop() {}
