@@ -22,7 +22,7 @@
         "EntityRendererMixin"
     ],
     "lexforge13": [
-        "ModInfoMixin",
+        "GuiModListMixin",
         "GameRendererMixin"
     ],
     "lexforge16": [
