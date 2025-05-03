@@ -299,7 +299,7 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
     group = "build"
     archiveClassifier = ""
 
-    json(JsonShrinkingType.MINIFY) { it.endsWith(".json") || it == "mcmod.info" }
+    json(JsonShrinkingType.MINIFY) { it.endsWith(".json") || it.endsWith(".mcmeta") || it == "mcmod.info" }
     process(EntryProcessors.minifyClass())
     process { name, bytes ->
         if (!name.endsWith(".class")) return@process bytes

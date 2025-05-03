@@ -2,6 +2,7 @@ import groovy.json.JsonOutput
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.get
+import xyz.wagyourtail.unimined.api.unimined
 import xyz.wagyourtail.unimined.util.defaultedMapOf
 import xyz.wagyourtail.unimined.util.sourceSets
 
@@ -11,17 +12,18 @@ abstract class GenerateMixinList : DefaultTask() {
     }
 
     @TaskAction
-    fun generateMixinList() {
+    fun generate() {
         val mixinList = defaultedMapOf<String, MutableList<String>> { mutableListOf() }
 
-        project.sourceSets.forEach { sourceSet ->
-            sourceSet.java.srcDirs.forEach a@{ root ->
+        @Suppress("UnstableApiUsage")
+        for (sourceSet in project.unimined.minecrafts.keys) {
+            for (root in sourceSet.java.srcDirs) {
                 val mixinDir = root.resolve("dev/rdh/omnilook/mixin/${sourceSet.name}")
                 if (!mixinDir.exists()) {
-                    return@a
+                    continue
                 }
 
-                mixinDir.listFiles().forEach { file ->
+                for (file in mixinDir.listFiles()) {
                     assert(file.extension == "java") { "File ${file.name} is not a java file" }
                     val contents = file.readText()
                     assert(contents.contains("@Mixin")) { "File ${file.name} does not contain @Mixin" }
