@@ -2,6 +2,7 @@ import groovy.json.JsonOutput
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.get
+import xyz.wagyourtail.unimined.util.defaultedMapOf
 import xyz.wagyourtail.unimined.util.sourceSets
 
 abstract class GenerateMixinList : DefaultTask() {
@@ -11,7 +12,7 @@ abstract class GenerateMixinList : DefaultTask() {
 
     @TaskAction
     fun generateMixinList() {
-        val mixinList = mutableMapOf<String, MutableList<String>>()
+        val mixinList = defaultedMapOf<String, MutableList<String>> { mutableListOf() }
 
         project.sourceSets.forEach { sourceSet ->
             sourceSet.java.srcDirs.forEach a@{ root ->
@@ -25,7 +26,7 @@ abstract class GenerateMixinList : DefaultTask() {
                     val contents = file.readText()
                     assert(contents.contains("@Mixin")) { "File ${file.name} does not contain @Mixin" }
                     val className = file.nameWithoutExtension
-                    mixinList.computeIfAbsent(sourceSet.name) { mutableListOf() }.add(className)
+                    mixinList[sourceSet.name].add(className)
                 }
             }
         }
