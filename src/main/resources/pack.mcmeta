@@ -1,1 +1,6 @@
-{"pack":{"description":"Omnilook","pack_format":6}}
+{
+  "pack": {
+    "description": "Omnilook",
+    "pack_format": 6
+  }
+}
