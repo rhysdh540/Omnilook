@@ -4,6 +4,7 @@ import cpw.mods.modlauncher.api.INameMappingService.Domain;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
+import dev.rdh.omnilook.config.Config;
 import dev.rdh.omnilook.config.LexForge16Screens;
 
 import net.minecraftforge.api.distmarker.Dist;
@@ -67,7 +68,14 @@ public final class Forgelook16 extends Omnilook {
 
 		ModLoadingContext.get().registerExtensionPoint(
 				ExtensionPoint.CONFIGGUIFACTORY,
-				() -> LexForge16Screens::make
+				() -> (mc, parent) -> {
+					if (MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
+						return LexForge16Screens.cloth(parent);
+					}
+
+					Config.openTextEditor();
+					return parent;
+				}
 		);
 
 		Minecraft.getInstance().options.keyMappings = ArrayUtils.add(Minecraft.getInstance().options.keyMappings, key);

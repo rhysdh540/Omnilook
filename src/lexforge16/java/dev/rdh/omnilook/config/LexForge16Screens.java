@@ -27,13 +27,4 @@ public class LexForge16Screens {
 
 		return b.build();
 	}
-
-	public static Screen make(Minecraft mc, Screen parent) {
-		if (MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
-			return cloth(parent);
-		}
-
-		OmniLog.warn("No screen providers found");
-		return null;
-	}
 }
