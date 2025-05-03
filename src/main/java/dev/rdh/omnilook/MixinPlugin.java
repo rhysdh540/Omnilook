@@ -125,6 +125,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				list.set(i, platform + "." + list.get(i));
 			}
 		}
+		mixins.get("lexforge13").add("lexforge16.MouseHandlerMixin"); // least scuffed 1.13 hack
 		MixinPlugin.mixins = Collections.unmodifiableMap(mixins);
 	}
 
