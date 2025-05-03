@@ -31,6 +31,7 @@ public class GuiModListMixin {
 	@Shadow private ModInfo selectedMod;
 
 	// froge hardcodes false so we have to override it to true
+	// can't do it in ModInfo because it's loaded before mixins are seemingly
 	@ModifyExpressionValue(method = "updateCache", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fml/loading/moddiscovery/ModInfo;hasConfigUI()Z"))
 	private boolean bruh(boolean original) {
 		if(this.selectedMod.getModId().equals(Omnilook.ID)) {
