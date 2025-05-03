@@ -68,6 +68,13 @@ public final class Fabriclook extends Omnilook implements ModMenuScreenProvider<
 
 	@Override
 	public Screen openScreen(Screen parent) {
+		StackTraceElement[] a = new Throwable().getStackTrace();
+		for(StackTraceElement e : a) {
+			if(e.getClassName().equals("com.terraformersmc.modmenu.gui.ModsScreen") && e.getMethodName().equals("method_25426")) {
+				return parent;
+			}
+		}
+
 		if(MixinPlugin.classExists("dev.isxander.yacl3.api.YetAnotherConfigLib")) {
 			return FabricYACLScreen.make(parent);
 		}
