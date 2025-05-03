@@ -28,7 +28,7 @@ public final class OmniLog {
 			warn = s -> System.out.println("[Omnilook/WARN] " + s);
 			error = s -> System.err.println("[Omnilook/ERROR] " + s);
 			errorWithThrowable = (s, e) -> {
-				System.err.println("[Omnilook/ERROR] " + s);
+				error.accept(s);
 				e.printStackTrace();
 			};
 			backendName = "fallback";
@@ -37,19 +37,19 @@ public final class OmniLog {
 		info("OmniLog initialized with " + backendName + " backend");
 	}
 
-	public static void info(String message) {
-		info.accept(message);
+	public static void info(Object message) {
+		info.accept(String.valueOf(message));
 	}
 
-	public static void warn(String message) {
-		warn.accept(message);
+	public static void warn(Object message) {
+		warn.accept(String.valueOf(message));
 	}
 
-	public static void error(String message) {
-		error.accept(message);
+	public static void error(Object message) {
+		error.accept(String.valueOf(message));
 	}
 
-	public static void error(String message, Throwable throwable) {
-		errorWithThrowable.accept(message, throwable);
+	public static void error(Object message, Throwable throwable) {
+		errorWithThrowable.accept(String.valueOf(message), throwable);
 	}
 }
