@@ -8,13 +8,11 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import net.minecraftforge.versions.forge.ForgeVersion;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,6 +49,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		return Objects.requireNonNull(platform, "Platform not set");
 	}
 
+	@SuppressWarnings({"unchecked", "DataFlowIssue", "Java8ListReplaceAll"})
 	@Override
 	public void onLoad(String mixinPackage) {
 		if(platform != null) {
@@ -117,7 +116,6 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		}
 
 		Object gson = Gson.getConstructor().newInstance();
-		@SuppressWarnings("unchecked")
 		Map<String, List<String>> mixins = (Map<String, List<String>>) Gson.getMethod("fromJson", Reader.class, Class.class).invoke(gson, raw, Map.class);
 		for(String platform : mixins.keySet()) {
 			List<String> list = mixins.get(platform);
