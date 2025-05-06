@@ -32,10 +32,7 @@ public class ActiveRenderInfoMixin {
 			pitch.set(o.getXRot());
 			yaw.set(o.getYRot());
 
-			setDisplayListEntitiesDirty.invokeExact();
+			Forgelook12.setDisplayListEntitiesDirty.invokeExact();
 		}
 	}
-
-	@Unique
-	private static final MethodHandle setDisplayListEntitiesDirty = Forgelook12.getMH_setDisplayListEntitiesDirty();
 }

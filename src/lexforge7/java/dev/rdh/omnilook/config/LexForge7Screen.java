@@ -6,6 +6,7 @@ import cpw.mods.fml.client.config.GuiConfig;
 
 import dev.rdh.omnilook.Omnilook;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Property;
 import net.minecraft.client.Minecraft;

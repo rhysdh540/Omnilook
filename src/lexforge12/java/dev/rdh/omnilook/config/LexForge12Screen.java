@@ -35,10 +35,7 @@ public class LexForge12Screen extends GuiConfig implements IModGuiFactory {
 	public void onGuiClosed() {
 		super.onGuiClosed();
 		for(Map.Entry<Property, Consumer<String>> entry : configs.entrySet()) {
-			Property property = entry.getKey();
-			Consumer<String> consumer = entry.getValue();
-			String value = property.getString();
-			consumer.accept(value);
+			entry.getValue().accept(entry.getKey().getString());
 		}
 		Config.saveConfig();
 	}

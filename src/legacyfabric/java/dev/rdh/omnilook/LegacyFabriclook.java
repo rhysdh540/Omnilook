@@ -81,12 +81,12 @@ public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<
 
 	@Override
 	protected float getMCXRot() {
-		return ((Entity) getRenderViewEntity.invoke(Minecraft.getMinecraft())).rotationPitch;
+		return ((Entity) getRenderViewEntity.invokeExact(Minecraft.getMinecraft())).rotationPitch;
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return ((Entity) getRenderViewEntity.invoke(Minecraft.getMinecraft())).rotationYaw;
+		return ((Entity) getRenderViewEntity.invokeExact(Minecraft.getMinecraft())).rotationYaw;
 	}
 
 	@Override
