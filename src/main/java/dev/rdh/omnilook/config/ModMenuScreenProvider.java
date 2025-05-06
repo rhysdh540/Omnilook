@@ -2,18 +2,18 @@ package dev.rdh.omnilook.config;
 
 import dev.rdh.omnilook.Omnilook;
 
-@SuppressWarnings("unused")
 public interface ModMenuScreenProvider<S> {
 	default S openScreen(S parent) {
 		Config.openTextEditor();
 		return parent;
 	}
 
-	@SuppressWarnings("unchecked")
+	// referenced by generated code!
+	@SuppressWarnings({"unchecked", "unused"})
 	static <S> S getScreen(S parent) {
 		Omnilook omnilook = Omnilook.getInstance();
 		if(!(omnilook instanceof ModMenuScreenProvider)) {
-			throw new IllegalStateException("Omnilook.instance is not a ModMenuScreenProvider");
+			throw new IllegalStateException("Omnilook.instance is not a ModMenuScreenProvider (is " + omnilook.getClass().getName() + ")");
 		}
 
 		ModMenuScreenProvider<S> provider = (ModMenuScreenProvider<S>) omnilook;

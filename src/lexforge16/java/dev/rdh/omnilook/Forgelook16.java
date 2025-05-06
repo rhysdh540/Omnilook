@@ -98,12 +98,12 @@ public final class Forgelook16 extends Omnilook {
 
 	@Override
 	protected float getMCXRot() {
-		return ((Entity) getCamEntity.invoke(Minecraft.getInstance())).xRot;
+		return ((Entity) getCamEntity.invokeExact(Minecraft.getInstance())).xRot;
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return ((Entity) getCamEntity.invoke(Minecraft.getInstance())).yRot;
+		return ((Entity) getCamEntity.invokeExact(Minecraft.getInstance())).yRot;
 	}
 
 	@Override
