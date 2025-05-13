@@ -9,8 +9,8 @@ import xyz.wagyourtail.unimined.api.unimined
 import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
 
-class Mappings(private val action: MappingsConfig.(key: String) -> Unit) {
-    operator fun invoke(key: String): MappingsConfig.() -> Unit = {
+class Mappings(private val action: MappingsConfig<*>.(key: String) -> Unit) {
+    operator fun invoke(key: String): MappingsConfig<*>.() -> Unit = {
         action(key)
     }
 

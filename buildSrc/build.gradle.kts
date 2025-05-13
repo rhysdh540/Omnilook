@@ -39,6 +39,7 @@ dependencies {
     implementation("org.ow2.asm:asm-commons:${"asm_version"()}")
     implementation(group = "org.jetbrains", name = "annotations")
 
+    implementation("xyz.wagyourtail.unimined.mapping:unimined-mapping-library-jvm:1.0.2")
     plugin(id = "xyz.wagyourtail.unimined", version = "unimined_version"())
     plugin(id = "org.taumc.gradle.compression", version = "taugradle_version"())
 }

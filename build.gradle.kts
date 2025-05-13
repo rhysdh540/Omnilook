@@ -1,4 +1,6 @@
-@file:Suppress("UnstableApiUsage", "VulnerableLibrariesLocal")
+@file:Suppress("UnstableApiUsage", "VulnerableLibrariesLocal", "HasPlatformType",
+    "MISSING_DEPENDENCY_SUPERCLASS_IN_TYPE_ARGUMENT"
+)
 
 import Mappings.Companion.seargeMcp
 import org.objectweb.asm.ClassReader
@@ -45,10 +47,6 @@ repositories {
         filter { includeGroup("zone.rong") }
     }
     exclusiveContent {
-        forRepository { maven("https://maven.wispforest.io") }
-        filter { includeModule("me.alphamode", "nostalgia") }
-    }
-    exclusiveContent {
         forRepository { maven("https://maven.terraformersmc.com/releases") }
         filter { includeGroup("com.terraformersmc") }
     }
@@ -90,14 +88,7 @@ mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
-mc(sourceSets.babric, mappings = Mappings {
-    mapping("me.alphamode:nostalgia:${minecraft.version}+build.${"babric_nostalgia_version"()}:v2", "nostalgia") {
-        outputs("nostalgia", true) { listOf("intermediary") }
-        mapNamespace("named", "nostalgia")
-        sourceNamespace("intermediary")
-        renest()
-    }
-}) {
+mc(sourceSets.babric, mappings = Mappings { nostalgia("babric_nostalgia_version"()) }) {
     babric { loader("babric_loader_version"()) }
 }
 
@@ -122,7 +113,12 @@ mc(sourceSets.rift, mappings = seargeMcp) {
     }
 }
 
-mc(sourceSets.liteloader, mappings = seargeMcp)
+mc(sourceSets.liteloader, mappings = seargeMcp) {
+    side("client")
+    liteloader {
+        loader("liteloader_version"())
+    }
+}
 
 unimined.reIndev(sourceSets.reindev) {
     combineWith(sourceSets.main)
@@ -169,7 +165,6 @@ dependencies {
         fabric.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
         fabric.modImplementation("com.terraformersmc:modmenu:11.0.3")
 
-        neoforge.implementation("ca.weblite:java-objc-bridge:1.1")
         neoforge.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
             exclude("thedarkcolour", "kotlinforforge-neoforge")
         }
@@ -190,10 +185,6 @@ dependencies {
         lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
 
         rift.compileOnly(sourceSets.stubs.output)
-
-        liteloader.implementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
-        liteloader.implementation("net.minecraft:launchwrapper:1.12")
-        liteloader.implementation("org.spongepowered:mixin:${"liteloader_mixin_version"()}")
 
         // reindev might be a little broken
         reindev.implementation("org.semver4j:semver4j:5.3.0")
@@ -217,6 +208,10 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.add("-Xplugin:Manifold no-bootstrap")
     options.annotationProcessorPath = options.annotationProcessorPath?.plus(ap) ?: ap
     options.release = 8
+
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
 }
 
 tasks.compileJava {
@@ -357,7 +352,7 @@ tasks.withType<RemapJarTask> {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 operator fun String.invoke() = prop(this)
