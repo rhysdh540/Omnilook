@@ -37,6 +37,10 @@ public class Riftlook extends Omnilook implements KeyBindingAdder {
 	@Override
 	protected void setCameraType(int cameraType) {
 		Minecraft.getInstance().gameSettings.thirdPersonView = cameraType;
+
+		Minecraft.getInstance().gameRenderer.loadEntityShader(cameraType == 0 ? Minecraft.getInstance().getRenderViewEntity() : null);
+
+		Minecraft.getInstance().worldRenderer.setDisplayListEntitiesDirty();
 	}
 
 	@Override

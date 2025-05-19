@@ -7,7 +7,6 @@ import org.objectweb.asm.*;
 
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
@@ -80,6 +79,7 @@ public class Forgelook12 extends Omnilook {
 	protected void setCameraType(int cameraType) {
 		Minecraft mc = Minecraft.getMinecraft();
 		mc.gameSettings.thirdPersonView = cameraType;
+		mc.entityRenderer.loadEntityShader(cameraType == 0 ? mc.getRenderViewEntity() : null);
 
 		setDisplayListEntitiesDirty.invokeExact();
 	}
