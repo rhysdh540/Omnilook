@@ -89,6 +89,7 @@ public final class Forgelook16 extends Omnilook {
 	@Override
 	protected void setCameraType(int cameraType) {
 		cameraTypeHandles[1].invokeExact(Minecraft.getInstance().options, cameraType);
+		Minecraft.getInstance().gameRenderer.checkEntityPostEffect(cameraType == 0 ? Minecraft.getInstance().getCameraEntity() : null);
 	}
 
 	@Override

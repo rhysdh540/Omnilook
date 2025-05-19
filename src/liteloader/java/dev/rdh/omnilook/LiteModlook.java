@@ -51,6 +51,9 @@ public class LiteModlook extends Omnilook implements LiteMod, Configurable {
 	@Override
 	protected void setCameraType(int cameraType) {
 		Minecraft.getMinecraft().gameSettings.thirdPersonView = cameraType;
+		Minecraft.getMinecraft().entityRenderer.loadEntityShader(cameraType == 0 ? Minecraft.getMinecraft().getRenderViewEntity() : null);
+
+		Minecraft.getMinecraft().renderGlobal.setDisplayListEntitiesDirty();
 	}
 
 	@Override
