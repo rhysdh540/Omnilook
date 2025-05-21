@@ -5,7 +5,7 @@ A simple freelook/perspective mod for Minecraft.
 <details>
 <summary>Showcase</summary>
 
-https://github.com/user-attachments/assets/cb2b3255-b664-4bfd-8992-07aef30071f3
+https://github.com/user-attachments/assets/e07965e5-5533-4c33-a967-64c89503b833
 </details>
 
 ## Version support
