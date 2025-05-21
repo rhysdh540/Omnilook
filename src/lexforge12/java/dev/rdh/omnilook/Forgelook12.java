@@ -88,8 +88,6 @@ public class Forgelook12 extends Omnilook {
 			);
 		}
 
-		OmniLog.info(l.toString());
-
 		setDisplayListEntitiesDirty = s;
 		loadEntityShader = l;
 	}
@@ -109,7 +107,7 @@ public class Forgelook12 extends Omnilook {
 	protected void setCameraType(int cameraType) {
 		Minecraft mc = Minecraft.getMinecraft();
 		mc.gameSettings.thirdPersonView = cameraType;
-		loadEntityShader.invokeExact((Entity) (cameraType == 0 ? (Entity) getRenderViewEntity.invokeExact(mc) : null));
+		loadEntityShader.invokeExact((Entity) (cameraType == 0 ? (Entity) getRenderViewEntity.invoke(mc) : null));
 
 		setDisplayListEntitiesDirty.invokeExact();
 	}

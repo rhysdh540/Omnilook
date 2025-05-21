@@ -5,5 +5,6 @@
   "revision": 0,
   "mcversion": "1.12.2",
   "author": "rdh",
+  "description": "${description}",
   "mixinConfigs": ["omnilook.mixins.json"]
 }

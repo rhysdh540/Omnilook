@@ -4,6 +4,7 @@
   "description": "${description}",
   "version": "${version}",
   "mcversion": "[1.7.10,1.12.2]",
+  "logoFile": "omnilook.png",
   "url": "${github}",
   "authorList": ["rdh"]
 }]
