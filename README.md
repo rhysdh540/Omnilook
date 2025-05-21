@@ -29,8 +29,9 @@ More version support is always planned!
 > to make it easier to change settings.
 
 ## Credits
-Thanks to [Nolij](https://github.com/Nolij) and his mod [Zume](https://github.com/Nolij/Zume)
+- Thanks to [Nolij](https://github.com/Nolij) and his mod [Zume](https://github.com/Nolij/Zume)
 for the inspiration/idea of large multiversion mods such as this, and many strategies that I use to implement it.
+- Amazing icon by `@Zachachach` on Discord.
 
 
 ## License
