@@ -1,4 +1,4 @@
-package dev.rdh.omnilook.mixin.foxloader;
+package dev.rdh.omnilook.mixin.reindev;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;

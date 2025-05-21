@@ -6,6 +6,7 @@
   "name": "${name}",
   "description": "${description}",
   "authors": ["rdh"],
+  "icon": "omnilook.png",
   "contact": {
     "homepage": "${github}",
     "sources": "${github}",

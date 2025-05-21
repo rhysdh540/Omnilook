@@ -237,7 +237,7 @@ tasks.withType<ProcessResources> {
 
     inputs.properties(props)
 
-    filesMatching("**/*") {
+    filesMatching(listOf("*.json", "mcmod.info", "META-INF/*.toml")) {
         expand(props)
     }
 }

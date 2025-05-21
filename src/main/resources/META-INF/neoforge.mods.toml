@@ -5,6 +5,7 @@ license = "Unlicense"
 
 [[mods]]
     modId = "omnilook"
+    logoFile = "omnilook.png"
     version = "${version}"
     displayName = "${name}"
     authors = "rdh"
@@ -13,14 +14,14 @@ license = "Unlicense"
 [[dependencies.omnilook]]
     modId = "neoforge"
     mandatory = true
-    versionRange = "[20.4.195,)"
+    versionRange = "[21.0.21-beta,)"
     ordering = "AFTER"
     side = "CLIENT"
 
 [[dependencies.omnilook]]
     modId = "minecraft"
     mandatory = true
-    versionRange = "[1.20.4,)"
+    versionRange = "[1.21,)"
     ordering = "AFTER"
     side = "CLIENT"
 

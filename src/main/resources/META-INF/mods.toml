@@ -2,9 +2,11 @@ modLoader = "javafml"
 loaderVersion = "[1,)"
 issueTrackerURL = "${github}/issues"
 license = "Unlicense"
+logoFile = "omnilook.png"
 
 [[mods]]
     modId = "omnilook"
+    logoFile = "omnilook.png"
     version = "${version}"
     displayName = "${name}"
     authors = "rdh"
@@ -12,7 +14,7 @@ license = "Unlicense"
 
 [[dependencies.omnilook]]
     modId = "forge"
-    mandatory = false
+    mandatory = true
     versionRange = "[25,)"
     ordering = "NONE"
     side = "CLIENT"

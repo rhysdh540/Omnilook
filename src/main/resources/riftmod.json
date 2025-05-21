@@ -5,6 +5,7 @@
   "url": "${github}",
   "description": "${description}",
   "version": "${version}",
+  "icon_file": "omnilook.png",
   "listeners": [
     {
       "class": "dev.rdh.omnilook.Riftlook",
