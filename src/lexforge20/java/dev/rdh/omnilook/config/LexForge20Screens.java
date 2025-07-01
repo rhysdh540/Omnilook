@@ -1,7 +1,7 @@
 package dev.rdh.omnilook.config;
 
 import dev.rdh.omnilook.MixinPlugin;
-import dev.rdh.omnilook.OmniLog;
+import dev.rdh.omnilook.Omnilook;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -34,7 +34,7 @@ public class LexForge20Screens {
 			return cloth(parent);
 		}
 
-		OmniLog.warn("No screen providers found");
+		Omnilook.LOGGER.warn("No screen providers found");
 		Config.openTextEditor();
 		return null;
 	}

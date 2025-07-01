@@ -148,8 +148,6 @@ unimined.reIndev(sourceSets.reindev) {
 }
 
 dependencies {
-    compileOnly("org.apache.logging.log4j:log4j-core:${"log4j_version"()}")
-    compileOnly("org.slf4j:slf4j-api:${"slf4j_version"()}")
     compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
     compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
     compileOnly("net.fabricmc:fabric-loader:${"fabricloader_version"()}")

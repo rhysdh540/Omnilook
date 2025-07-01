@@ -102,7 +102,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			throw new IllegalStateException("Unsupported platform");
 		}
 
-		OmniLog.info("Omnilook mixin plugin detected platform: " + platform);
+		Omnilook.LOGGER.info("Omnilook mixin plugin detected platform: {}", platform);
 
 		Reader raw = new InputStreamReader(MixinPlugin.class.getClassLoader().getResourceAsStream("META-INF/mixinlist.json"));
 		Class<?> Gson =
@@ -137,7 +137,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				"Mixins not found for platform: " + platform
 		);
 
-		OmniLog.info("Found mixins: " + m);
+		Omnilook.LOGGER.info("Found mixins: {}", m);
 		return m;
 	}
 

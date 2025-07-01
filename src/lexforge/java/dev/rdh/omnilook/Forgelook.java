@@ -23,7 +23,7 @@ public final class Forgelook extends Omnilook {
 		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
 
 		if(FMLEnvironment.dist != Dist.CLIENT) {
-			OmniLog.error("Omnilook is a client-side mod and cannot be loaded on a server.");
+			Omnilook.LOGGER.error("Omnilook is a client-side mod and cannot be loaded on a server.");
 			return;
 		}
 

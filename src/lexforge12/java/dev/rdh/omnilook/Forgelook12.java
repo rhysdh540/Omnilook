@@ -79,7 +79,7 @@ public class Forgelook12 extends Omnilook {
 					)
 			);
 		} catch (Throwable e) {
-			OmniLog.info("using no-op, because " + e.getMessage());
+			Omnilook.LOGGER.debug("using no-op, because {}", e.getMessage());
 			if(s == null)
 				s = lookup.findStatic(MixinPlugin.class, "noop", MethodType.methodType(void.class));
 			l = MethodHandles.dropArguments(

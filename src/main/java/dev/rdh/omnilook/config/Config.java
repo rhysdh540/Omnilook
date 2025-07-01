@@ -1,6 +1,5 @@
 package dev.rdh.omnilook.config;
 
-import dev.rdh.omnilook.OmniLog;
 import dev.rdh.omnilook.Omnilook;
 
 import java.io.IOException;
@@ -59,13 +58,13 @@ public final class Config {
 					break;
 				} catch (IOException e) {
 					if(!(e instanceof NoSuchFileException)) {
-						OmniLog.error("Error in config: ", e);
+						Omnilook.LOGGER.error("Error in config: ", e);
 					}
 				}
 			}
 
 			if(!key.reset()) {
-				OmniLog.error("Config watch key is invalid");
+				Omnilook.LOGGER.error("Config watch key is invalid");
 				return;
 			}
 		}
@@ -87,7 +86,7 @@ public final class Config {
 		if(Files.exists(FILE)) {
 			props.load(Files.newBufferedReader(FILE));
 		} else {
-			OmniLog.warn("Config file not found; rewriting...");
+			Omnilook.LOGGER.warn("Config file not found; rewriting...");
 			forceRewrite = true;
 		}
 
@@ -103,7 +102,7 @@ public final class Config {
 		if (forceRewrite) {
 			saveConfig();
 		}
-		OmniLog.info("Config loaded: " + props);
+		Omnilook.LOGGER.info("Config loaded: {}", props);
 		semaphore.release();
 	}
 
@@ -117,7 +116,7 @@ public final class Config {
 		} else if (os.contains("nix") || os.contains("nux")) {
 			pb.command("xdg-open", FILE.toString());
 		} else {
-			OmniLog.error("Unsupported OS: " + os);
+			Omnilook.LOGGER.error("Unsupported OS: {}", os);
 			return;
 		}
 

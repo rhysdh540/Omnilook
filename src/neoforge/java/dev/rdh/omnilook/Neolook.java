@@ -57,7 +57,7 @@ public final class Neolook extends Omnilook {
 			return NeoForgeClothScreen.make(parent);
 		}
 
-		OmniLog.warn("No screen providers found");
+		Omnilook.LOGGER.warn("No screen providers found");
 		Config.openTextEditor();
 		return null;
 	}

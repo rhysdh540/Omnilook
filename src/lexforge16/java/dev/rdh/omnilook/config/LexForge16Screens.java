@@ -2,10 +2,6 @@ package dev.rdh.omnilook.config;
 
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 
-import dev.rdh.omnilook.MixinPlugin;
-import dev.rdh.omnilook.OmniLog;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
