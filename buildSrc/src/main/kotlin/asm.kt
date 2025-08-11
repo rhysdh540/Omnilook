@@ -3,6 +3,9 @@ import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes.*
 import org.objectweb.asm.Type
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 
 interface ClassConstructor {
     fun field(
@@ -45,7 +48,7 @@ class FieldConstructor(parent: FieldVisitor) : FieldVisitor(ASM9, parent) {
 }
 
 class MethodConstructor(parent: MethodVisitor) : MethodVisitor(ASM9, parent) {
-    inline fun <reified OType, reified RType> callMethod(opcode: Int, name: String, vararg parameterTypes: Type, isInterface: Boolean = false) =
+    inline fun <reified OType : Any, reified RType : Any> callMethod(opcode: Int, name: String, vararg parameterTypes: Type, isInterface: Boolean = false) =
         visitMethodInsn(
             opcode,
             typeOf<OType>().internalName,
@@ -116,22 +119,34 @@ fun constructClass(
     return cw.toByteArray()
 }
 
-inline fun <reified T> typeOf() = when (T::class) {
-    // primitives
-    Boolean::class -> Type.BOOLEAN_TYPE
-    Byte::class -> Type.BYTE_TYPE
-    Char::class -> Type.CHAR_TYPE
-    Short::class -> Type.SHORT_TYPE
-    Int::class -> Type.INT_TYPE
-    Long::class -> Type.LONG_TYPE
-    Float::class -> Type.FLOAT_TYPE
-    Double::class -> Type.DOUBLE_TYPE
-    Void::class -> Type.VOID_TYPE
+@OptIn(ExperimentalStdlibApi::class)
+inline fun <reified F : Any> methodTypeOf(): Type {
+    val t = kotlin.reflect.typeOf<F>()
 
-    // kotlin stuff
+    require((t.classifier as? KClass<*>)?.isSubclassOf(Function::class) == true) {
+        "Type $t is not a function type"
+    }
+
+    val args = t.arguments
+    require(args.isNotEmpty()) { "Function type has no return type? $t" }
+
+    val returnType = args.last().type?.asmType ?: error("Unknown return type for $t")
+
+    return Type.getMethodType(returnType, *args.dropLast(1)
+        .map { it.type?.asmType ?: error("Unknown param type for $t") }
+        .toTypedArray())
+}
+
+val KType.asmType: Type
+    get() = getType(this.classifier as? KClass<*> ?: error("KType must have a classifier"))
+
+inline fun <reified T : Any> typeOf(): Type {
+    return getType(T::class)
+}
+
+fun <T : Any> getType(clazz: KClass<T>): Type = when (clazz) {
+    String::class -> Type.getType(java.lang.String::class.java)
     Unit::class -> Type.VOID_TYPE
     Nothing::class -> Type.VOID_TYPE
-
-    // normal objects
-    else -> Type.getType(T::class.java)
+    else -> Type.getType(clazz.java)
 }

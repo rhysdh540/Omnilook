@@ -7,14 +7,14 @@
         "OptionsMixin",
         "MouseHandlerMixin"
     ],
-    "babric": [
-        "GameRendererMixin",
-        "OptionsMixin"
-    ],
     "legacyfabric": [
         "ActiveRenderInfoMixin",
         "EntityRendererMixin",
         "GameSettingsMixin"
+    ],
+    "babric": [
+        "GameRendererMixin",
+        "OptionsMixin"
     ],
     "lexforge": [
         "CameraMixin",

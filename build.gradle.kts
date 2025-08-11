@@ -1,6 +1,5 @@
 @file:Suppress("UnstableApiUsage", "VulnerableLibrariesLocal")
 
-import Mappings.Companion.seargeMcp
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
 import org.taumc.gradle.compression.DeflateAlgorithm
@@ -60,14 +59,19 @@ repositories {
         forRepository { maven("https://maven.shedaniel.me") }
         filter { includeGroupAndSubgroups("me.shedaniel") }
     }
+    exclusiveContent {
+        forRepository { maven("https://maven.ornithemc.net/releases") }
+        filter { includeGroup("net.ornithemc") }
+    }
 }
 
 val SourceSetContainer.main by sourceSets.getting
 val SourceSetContainer.stubs by sourceSets.creating
 
 val SourceSetContainer.fabric by sourceSets.creating
-val SourceSetContainer.babric by sourceSets.creating
 val SourceSetContainer.legacyfabric by sourceSets.creating
+val SourceSetContainer.ornithe by sourceSets.creating
+val SourceSetContainer.babric by sourceSets.creating
 
 val SourceSetContainer.neoforge by sourceSets.creating
 val SourceSetContainer.lexforge by sourceSets.creating
@@ -90,6 +94,14 @@ mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
+mc(sourceSets.legacyfabric, mappings = searge + mcp) {
+    legacyFabric { loader("fabricloader_version"()) }
+}
+
+mc(sourceSets.ornithe, mappings = feather) {
+    fabric { loader("fabricloader_version"()) }
+}
+
 mc(sourceSets.babric, mappings = Mappings {
     mapping("me.alphamode:nostalgia:${minecraft.version}+build.${"babric_nostalgia_version"()}:v2", "nostalgia") {
         outputs("nostalgia", true) { listOf("intermediary") }
@@ -101,18 +113,14 @@ mc(sourceSets.babric, mappings = Mappings {
     babric { loader("babric_loader_version"()) }
 }
 
-mc(sourceSets.legacyfabric, mappings = seargeMcp) {
-    legacyFabric { loader("fabricloader_version"()) }
-}
-
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge20)
 forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge13, mappings = seargeMcp)
-forge(sourceSets.lexforge12, mappings = seargeMcp)
-forge(sourceSets.lexforge7, mappings = seargeMcp)
+forge(sourceSets.lexforge13, mappings = mcp)
+forge(sourceSets.lexforge12, mappings = mcp)
+forge(sourceSets.lexforge7, mappings = mcp)
 
-mc(sourceSets.rift, mappings = seargeMcp) {
+mc(sourceSets.rift, mappings = searge + mcp) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
     rift {}
@@ -122,7 +130,7 @@ mc(sourceSets.rift, mappings = seargeMcp) {
     }
 }
 
-mc(sourceSets.liteloader, mappings = seargeMcp)
+mc(sourceSets.liteloader, mappings = searge + mcp)
 
 unimined.reIndev(sourceSets.reindev) {
     combineWith(sourceSets.main)
@@ -198,6 +206,8 @@ dependencies {
         reindev.implementation("net.fabricmc:sponge-mixin:0.15.0+mixin.0.8.7")
         reindev.implementation("io.github.llamalad7:mixinextras-common:0.4.0")
         reindev.implementation("org.apache.commons:commons-lang3:3.3.2")
+
+        ornithe.modImplementation
     }
 }
 

@@ -56,10 +56,7 @@ fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
             INVOKESTATIC,
             "dev/rdh/omnilook/config/ModMenuScreenProvider",
             "getScreen",
-            Type.getMethodDescriptor(
-                typeOf<Object>(),
-                typeOf<Object>(),
-            ),
+            methodTypeOf<(Object) -> Object>().descriptor,
             true
         )
         visitInsn(ARETURN)
@@ -97,42 +94,21 @@ fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
             // indy InvocationHandler
             visitInvokeDynamicInsn(
                 "invoke",
-                Type.getMethodDescriptor(
-                    typeOf<InvocationHandler>()
-                ),
+                methodTypeOf<() -> InvocationHandler>().descriptor,
                 Handle(
                     H_INVOKESTATIC,
                     "java/lang/invoke/LambdaMetafactory", "metafactory",
-                    Type.getMethodDescriptor(
-                        typeOf<CallSite>(),
-                        typeOf<MethodHandles.Lookup>(), typeOf<String>(), typeOf<MethodType>(),
-                        typeOf<MethodType>(), typeOf<MethodHandle>(), typeOf<MethodType>()
-                    ),
+                    methodTypeOf<(MethodHandles.Lookup, String, MethodType, MethodType, MethodHandle, MethodType) -> CallSite>().descriptor,
                     false
                 ),
-                Type.getMethodType(
-                    typeOf<Object>(),
-                    typeOf<Object>(),
-                    typeOf<Method>(),
-                    typeOf<Array<Object>>()
-                ),
+                methodTypeOf<(Object, Method, Array<Object>) -> Object>(),
                 Handle(
                     H_INVOKESTATIC,
                     "dev/rdh/omnilook/config/ModMenuCompat", "lambda",
-                    Type.getMethodDescriptor(
-                        typeOf<Object>(),
-                        typeOf<Object>(),
-                        typeOf<Method>(),
-                        typeOf<Array<Object>>()
-                    ),
+                    methodTypeOf<(Object, Method, Array<Object>) -> Object>().descriptor,
                     false
                 ),
-                Type.getMethodType(
-                    typeOf<Object>(),
-                    typeOf<Object>(),
-                    typeOf<Method>(),
-                    typeOf<Array<Object>>()
-                )
+                methodTypeOf<(Object, Method, Array<Object>) -> Object>().descriptor
             )
             callMethod<Proxy, Object>(INVOKESTATIC, "newProxyInstance",
                 typeOf<ClassLoader>(),
@@ -158,20 +134,17 @@ fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
             Handle(
                 H_INVOKESTATIC,
                 "java/lang/invoke/LambdaMetafactory", "metafactory",
-                Type.getMethodDescriptor(
-                    typeOf<CallSite>(),
-                    typeOf<MethodHandles.Lookup>(), typeOf<String>(), typeOf<MethodType>(),
-                    typeOf<MethodType>(), typeOf<MethodHandle>(), typeOf<MethodType>()
-                ),
+                methodTypeOf<(MethodHandles.Lookup, String, MethodType, MethodType, MethodHandle, MethodType) -> CallSite>().descriptor,
                 false
             ),
             Type.getMethodType(typeOf<Object>(), typeOf<Object>()),
             Handle(
                 H_INVOKESTATIC,
                 "dev/rdh/omnilook/config/ModMenuScreenProvider", "getScreen",
-                Type.getMethodDescriptor(typeOf<Object>(), typeOf<Object>()), true
+                methodTypeOf<(Object) -> Object>().descriptor,
+                true
             ),
-            Type.getMethodType(typeOf<Object>(), typeOf<Object>())
+            methodTypeOf<(Object) -> Object>().descriptor
         )
         visitInsn(ARETURN)
     }

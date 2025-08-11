@@ -1,5 +1,4 @@
 
-import Mappings.Companion.mojmap
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.get
@@ -14,19 +13,62 @@ class Mappings(private val action: MappingsConfig.(key: String) -> Unit) {
         action(key)
     }
 
-    companion object {
-        val mojmap
-            get() = Mappings {
-                mojmap()
-                parchment(version = project.prop("${it}_parchment_version"))
-            }
+    operator fun plus(next: Mappings) = Mappings { key ->
+        this.action(key)
+        next.action.invoke(this, key)
+    }
+}
 
-        val seargeMcp
-            get() = Mappings {
-                searge()
-                val channel = project.findProperty("${it}_mcp_channel")?.toString() ?: "snapshot"
-                mcp(channel, version = project.prop("${it}_mcp_version"))
-            }
+val mojmap = Mappings {
+    mojmap()
+    parchment(version = project.prop("${it}_parchment_version"))
+}
+
+val searge = Mappings { searge() }
+
+val mcp = Mappings {
+    val channel = project.findProperty("${it}_mcp_channel")?.toString() ?: "snapshot"
+    mcp(channel, version = project.prop("${it}_mcp_version"))
+}
+
+val feather = Mappings {
+    calamus()
+    val version = project.findProperty("${it}_feather_version")?.toString()
+        ?: project.prop("feather_version")
+    feather(version)
+}
+
+//https://github.com/p0t4t0sandwich/TaterLib/blob/dd900eaf9749af07374133237de775d4c464580e/versions/v1_12_2/build.gradle.kts#L53
+val featherForge112Fix = Mappings {
+    stub.withMappings("searge", "intermediary") {
+        // METHODs net/minecraft/unmapped/C_9482745/[m_9076954, getMaxSpeed]()D -> getMaxSpeed
+        c(
+            "afe",
+            listOf(
+                "net/minecraft/entity/item/EntityMinecart",
+                "net/minecraft/entity/vehicle/MinecartEntity"
+            )
+        ) {
+            m("getMaxSpeed", "()D", "m_9076954", "getMaxSpeedForge")
+        }
+    }
+}
+
+// https://github.com/p0t4t0sandwich/TaterLib/blob/dd900eaf9749af07374133237de775d4c464580e/versions/v1_7_10/build.gradle.kts#L48
+val featherForge17fix = Mappings {
+    stub.withMappings("searge", "intermediary") {
+        // METHODs cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry/[net/minecraft/unmapped/C_7135514/m_1782140, get](Ljava/lang/String;)Ljava/lang/Object; -> get
+        c(
+            "cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry", listOf()
+        ) {
+            m("get", "(Ljava/lang/String;)Ljava/lang/Object;", "net/minecraft/unmapped/C_7135514/m_1782140", "getObjectFromString")
+        }
+        // METHODs cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry/[net/minecraft/unmapped/C_7135514/m_9381448, get](I)Ljava/lang/Object; -> get
+        c(
+            "cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry", listOf()
+        ) {
+            m("get", "(I)Ljava/lang/Object;", "net/minecraft/unmapped/C_7135514/m_9381448", "getObjectFromInteger")
+        }
     }
 }
 
@@ -65,7 +107,7 @@ inline operator fun String.invoke() = prop(this)
 
 // for when you're not in a Project context
 fun Project.prop(name: String): String {
-    return rootProject.properties[name] as? String ?: error("Property $this not found")
+    return rootProject.properties[name] as? String ?: error("Property $name not found")
 }
 
 val SourceSet.implementation get() = this.implementationConfigurationName

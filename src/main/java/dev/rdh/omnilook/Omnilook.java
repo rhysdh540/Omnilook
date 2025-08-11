@@ -6,7 +6,6 @@ import org.spongepowered.asm.service.MixinService;
 import dev.rdh.omnilook.config.Config;
 
 import java.nio.file.Path;
-import java.util.Objects;
 
 public abstract class Omnilook {
 	public static final String ID = "omnilook";
@@ -19,7 +18,9 @@ public abstract class Omnilook {
 	private static Omnilook instance;
 
 	public static Omnilook getInstance() {
-		return Objects.requireNonNull(instance, "Omnilook has not been initialized");
+		if (instance == null)
+			throw new NullPointerException("Omnilook has not been initialized");
+		return instance;
 	}
 
 	public static Omnilook getInstanceOrNull() {
@@ -122,18 +123,31 @@ public abstract class Omnilook {
 	// endregion
 
 	// region impl
+	/** @return the directory where the config file is to be stored */
 	public abstract Path getConfigDir();
 
+	/**
+	 * Sets the camera type.
+	 * @param cameraType 0 - first person, 1 - third person back, 2 - third person front
+	 */
 	protected abstract void setCameraType(int cameraType);
 
+	/**
+	 * @return the current camera type
+	 * @see #setCameraType
+	 */
 	protected abstract int getCameraType();
 
+	/** @return the current rotation about the x axis (pitch) */
 	protected abstract float getMCXRot();
 
+	/** @return the current rotation about the y axis (yaw) */
 	protected abstract float getMCYRot();
 
+	/** @return whether the keybind was clicked (once) */
 	protected abstract boolean isKeyClicked();
 
+	/** @return whether the keybind is currently held down */
 	protected abstract boolean isKeyDown();
 	// endregion
 }

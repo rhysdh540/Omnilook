@@ -38,6 +38,7 @@ dependencies {
     implementation("org.ow2.asm:asm-tree:${"asm_version"()}")
     implementation("org.ow2.asm:asm-commons:${"asm_version"()}")
     implementation(group = "org.jetbrains", name = "annotations")
+    implementation("net.fabricmc:tiny-remapper:0.8.7")
 
     plugin(id = "xyz.wagyourtail.unimined", version = "unimined_version"())
     plugin(id = "org.taumc.gradle.compression", version = "taugradle_version"())
