@@ -6,7 +6,7 @@ import org.lwjgl.glfw.GLFW;
 import dev.rdh.omnilook.config.Config;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.options.KeyBinding;
 import net.minecraft.launchwrapper.Launch;
 
 import java.nio.file.Path;
@@ -36,35 +36,35 @@ public class Riftlook extends Omnilook implements KeyBindingAdder {
 
 	@Override
 	protected void setCameraType(int cameraType) {
-		Minecraft.getInstance().gameSettings.thirdPersonView = cameraType;
+		Minecraft.getInstance().options.perspective = cameraType;
 
-		Minecraft.getInstance().gameRenderer.loadEntityShader(cameraType == 0 ? Minecraft.getInstance().getRenderViewEntity() : null);
+		Minecraft.getInstance().gameRenderer.updateShader(cameraType == 0 ? Minecraft.getInstance().getCamera() : null);
 
-		Minecraft.getInstance().worldRenderer.setDisplayListEntitiesDirty();
+		Minecraft.getInstance().worldRenderer.onViewChanged();
 	}
 
 	@Override
 	protected int getCameraType() {
-		return Minecraft.getInstance().gameSettings.thirdPersonView;
+		return Minecraft.getInstance().options.perspective;
 	}
 
 	@Override
 	protected float getMCXRot() {
-		return Minecraft.getInstance().getRenderViewEntity().rotationPitch;
+		return Minecraft.getInstance().getCamera().pitch;
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return Minecraft.getInstance().getRenderViewEntity().rotationYaw;
+		return Minecraft.getInstance().getCamera().yaw;
 	}
 
 	@Override
 	protected boolean isKeyClicked() {
-		return key.isPressed();
+		return key.consumeClick();
 	}
 
 	@Override
 	protected boolean isKeyDown() {
-		return key.isKeyDown();
+		return key.isPressed();
 	}
 }

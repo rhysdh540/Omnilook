@@ -11,33 +11,33 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import dev.rdh.omnilook.Omnilook;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.Entity;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
 	@SuppressWarnings("DiscouragedShift")
-	@Inject(method = "orientCamera", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/Minecraft;getRenderViewEntity()Lnet/minecraft/entity/Entity;", shift = At.Shift.AFTER))
+	@Inject(method = "transformCamera", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/Minecraft;getCamera()Lnet/minecraft/entity/Entity;", shift = At.Shift.AFTER))
 	private void modify(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch, @Local Entity entity) {
 		Omnilook o = Omnilook.getInstance();
 		o.update();
 		if (o.isEnabled()) {
-			pitch.set(entity.rotationPitch);
-			yaw.set(entity.rotationYaw);
+			pitch.set(entity.pitch);
+			yaw.set(entity.pitch);
 
-			entity.rotationPitch = o.getXRot();
-			entity.rotationYaw = o.getYRot();
+			entity.pitch = o.getXRot();
+			entity.pitch = o.getYRot();
 
-			Minecraft.getInstance().worldRenderer.setDisplayListEntitiesDirty();
+			Minecraft.getInstance().worldRenderer.onViewChanged();
 		}
 	}
 
-	@Inject(method = "orientCamera", at = @At("TAIL"))
+	@Inject(method = "transformCamera", at = @At("TAIL"))
 	private void reset(float partialTicks, CallbackInfo ci, @Share("yaw") LocalFloatRef yaw, @Share("pitch") LocalFloatRef pitch, @Local Entity entity) {
 		Omnilook o = Omnilook.getInstance();
 		if (o.isEnabled()) {
-			entity.rotationPitch = pitch.get();
-			entity.rotationYaw = yaw.get();
+			entity.pitch = pitch.get();
+			entity.pitch = yaw.get();
 		}
 	}
 }

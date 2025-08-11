@@ -1,5 +1,6 @@
 @file:Suppress("UnstableApiUsage", "VulnerableLibrariesLocal")
 
+import org.gradle.api.internal.artifacts.configurations.ResolutionBackedFileCollection
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
 import org.taumc.gradle.compression.DeflateAlgorithm
@@ -9,6 +10,8 @@ import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
+import xyz.wagyourtail.unimined.internal.minecraft.task.GenSourcesTaskImpl
+import xyz.wagyourtail.unimined.util.withSourceSet
 
 plugins {
     id("idea")
@@ -116,11 +119,11 @@ mc(sourceSets.babric, mappings = Mappings {
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge20)
 forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge13, mappings = mcp)
+forge(sourceSets.lexforge13, mappings = feather + featherForge112Fix)
 forge(sourceSets.lexforge12, mappings = mcp)
 forge(sourceSets.lexforge7, mappings = mcp)
 
-mc(sourceSets.rift, mappings = searge + mcp) {
+mc(sourceSets.rift, mappings = feather + featherForge112Fix) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
     rift {}
@@ -206,8 +209,26 @@ dependencies {
         reindev.implementation("net.fabricmc:sponge-mixin:0.15.0+mixin.0.8.7")
         reindev.implementation("io.github.llamalad7:mixinextras-common:0.4.0")
         reindev.implementation("org.apache.commons:commons-lang3:3.3.2")
+    }
+}
 
-        ornithe.modImplementation
+// run genSources for minecraft when intellij tries to download them
+gradle.taskGraph.whenReady {
+    allTasks.filter { it.name.startsWith("ijDownloadArtifact") }.forEach { task ->
+        // https://github.com/JetBrains/intellij-community/blob/00c6a47ee4f5aa01215d7bbdf9a07d5f30e8ab0f/plugins/gradle/tooling-extension-impl/resources/org/jetbrains/plugins/gradle/tooling/internal/init/downloadArtifact.gradle#L19
+        val property = task.javaClass.getMethod("getCollectionProvider").invoke(task) as Property<FileCollection>
+        val path = property.get() as ResolutionBackedFileCollection
+
+        val name = path.resolutionHost.displayName.removePrefix("configuration ':").removeSuffix("'")
+        val configuration = configurations.find { it.name == name } ?: error("no configuration $name")
+
+        val dep = configuration.incoming.dependencies.singleOrNull() ?: return@forEach
+
+        if (dep.group == "net.minecraft" && dep.name.startsWith("minecraft+")) {
+            val sourceSetName = dep.name.removePrefix("minecraft+")
+            val sourceSet = sourceSets.findByName(sourceSetName) ?: error("no source set $sourceSetName")
+            tasks.getByName<GenSourcesTaskImpl>("genSources".withSourceSet(sourceSet)).run()
+        }
     }
 }
 
