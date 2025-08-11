@@ -95,8 +95,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			platform = "LiteLoader";
 		} else if(classExists("com.fox2code.foxloader.loader.Mod")) {
 			platform = "ReIndev";
-		} else if(classExists("net.minecraft.command.ICommand")) {
-			// brigadier was introduced in 1.13, obsoleting the old command system
+		} else if(classExists("net.minecraftforge.classloading.FMLForgePlugin")) {
 			platform = "LexForge12";
 		} else {
 			throw new IllegalStateException("Unsupported platform");

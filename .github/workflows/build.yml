@@ -18,9 +18,6 @@ jobs:
             distribution: zulu
             java-version: 21
             cache: gradle
-            cache-dependency-path:
-              ~/.gradle/caches
-              ~/.gradle/wrapper/
 
       -   name: do the build
           run: ./gradlew assemble --stacktrace
