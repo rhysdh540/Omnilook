@@ -6,11 +6,10 @@ import cpw.mods.fml.client.config.GuiConfig;
 
 import dev.rdh.omnilook.Omnilook;
 
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Property;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.screen.Screen;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -24,7 +23,7 @@ public class LexForge7Screen extends GuiConfig implements IModGuiFactory {
 							(value) -> Config.toggleMode = Boolean.parseBoolean(value))
 					.build();
 
-	public LexForge7Screen(GuiScreen parent) {
+	public LexForge7Screen(Screen parent) {
 		super(parent, new ArrayList<>(), Omnilook.ID, false, false, "Omnilook");
 
 		for(Property prop : configs.keySet()) {
@@ -34,8 +33,8 @@ public class LexForge7Screen extends GuiConfig implements IModGuiFactory {
 	}
 
 	@Override
-	public void onGuiClosed() {
-		super.onGuiClosed();
+	public void removed() {
+		super.removed();
 		for(Map.Entry<Property, Consumer<String>> entry : configs.entrySet()) {
 			Property property = entry.getKey();
 			Consumer<String> consumer = entry.getValue();
@@ -50,7 +49,7 @@ public class LexForge7Screen extends GuiConfig implements IModGuiFactory {
 	}
 
 	@Override
-	public Class<? extends GuiScreen> mainConfigGuiClass() {
+	public Class<? extends Screen> mainConfigGuiClass() {
 		return LexForge7Screen.class;
 	}
 

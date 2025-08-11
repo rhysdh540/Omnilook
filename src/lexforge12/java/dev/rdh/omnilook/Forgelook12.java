@@ -7,9 +7,9 @@ import org.objectweb.asm.*;
 
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.world.WorldRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.launchwrapper.Launch;
 
@@ -21,41 +21,41 @@ import java.nio.file.Path;
 
 public class Forgelook12 extends Omnilook {
 	private final KeyBinding key;
-	private static final MethodHandle getRenderViewEntity;
-	public static final MethodHandle setDisplayListEntitiesDirty;
-	public static final MethodHandle loadEntityShader;
+	private static final MethodHandle getCamera;
+	public static final MethodHandle onViewChanged;
+	public static final MethodHandle updateShader;
 
 	static {
 		MethodHandles.Lookup lookup = MethodHandles.lookup();
-		Field f = MixinPlugin.field(Minecraft.class, "field_175622_Z", "field_71451_h", "renderViewEntity");
+		Field f = MixinPlugin.field(Minecraft.class, "field_175622_Z", "field_71451_h", "camera");
 		f.setAccessible(true);
-		getRenderViewEntity = lookup.unreflectGetter(f);
+		getCamera = lookup.unreflectGetter(f);
 		MethodHandle s = null, l;
 		try {
-			String getMinecraftName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(
+			String getInstanceName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(
 					Type.getInternalName(Minecraft.class),
 					"func_71410_x",
 					Type.getMethodDescriptor(Type.getType(Minecraft.class))
 			);
-			MethodHandle getMinecraft = lookup.findStatic(Minecraft.class, getMinecraftName, MethodType.methodType(Minecraft.class));
+			MethodHandle getInstance = lookup.findStatic(Minecraft.class, getInstanceName, MethodType.methodType(Minecraft.class));
 
 			String setDisplayListEntitiesDirty = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(
-					Type.getInternalName(RenderGlobal.class),
+					Type.getInternalName(WorldRenderer.class),
 					"func_174979_m",
 					"()V"
 			);
 
-			String renderGlobal = FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(
+			String worldRenderer = FMLDeobfuscatingRemapper.INSTANCE.mapFieldName(
 					Type.getInternalName(Minecraft.class),
 					"field_71438_f",
-					Type.getDescriptor(RenderGlobal.class)
+					Type.getDescriptor(WorldRenderer.class)
 			);
 
 			s = MethodHandles.collectArguments(
-					lookup.findVirtual(RenderGlobal.class, setDisplayListEntitiesDirty, MethodType.methodType(void.class)),
+					lookup.findVirtual(WorldRenderer.class, setDisplayListEntitiesDirty, MethodType.methodType(void.class)),
 					0, MethodHandles.collectArguments(
-							lookup.findGetter(Minecraft.class, renderGlobal, RenderGlobal.class),
-							0, getMinecraft
+							lookup.findGetter(Minecraft.class, worldRenderer, WorldRenderer.class),
+							0, getInstance
 					)
 			);
 
@@ -75,7 +75,7 @@ public class Forgelook12 extends Omnilook {
 					lookup.findVirtual(EntityRenderer.class, loadEntityShader, MethodType.methodType(void.class, Entity.class)),
 					0, MethodHandles.collectArguments(
 							lookup.findGetter(Minecraft.class, entityRenderer, EntityRenderer.class),
-							0, getMinecraft
+							0, getInstance
 					)
 			);
 		} catch (Throwable e) {
@@ -88,14 +88,14 @@ public class Forgelook12 extends Omnilook {
 			);
 		}
 
-		setDisplayListEntitiesDirty = s;
-		loadEntityShader = l;
+		onViewChanged = s;
+		updateShader = l;
 	}
 
 	public Forgelook12() {
 		key = new KeyBinding(KEYBINDING_NAME, Keyboard.KEY_GRAVE, KEYBINDING_CATEGORY);
 
-		Minecraft.getMinecraft().gameSettings.keyBindings = ArrayUtils.add(Minecraft.getMinecraft().gameSettings.keyBindings, key);
+		Minecraft.getInstance().options.keyBindings = ArrayUtils.add(Minecraft.getInstance().options.keyBindings, key);
 	}
 
 	@Override
@@ -105,35 +105,35 @@ public class Forgelook12 extends Omnilook {
 
 	@Override
 	protected void setCameraType(int cameraType) {
-		Minecraft mc = Minecraft.getMinecraft();
-		mc.gameSettings.thirdPersonView = cameraType;
-		loadEntityShader.invokeExact((Entity) (cameraType == 0 ? (Entity) getRenderViewEntity.invoke(mc) : null));
+		Minecraft mc = Minecraft.getInstance();
+		mc.options.perspective = cameraType;
+		updateShader.invokeExact((Entity) (cameraType == 0 ? (Entity) getCamera.invoke(mc) : null));
 
-		setDisplayListEntitiesDirty.invokeExact();
+		onViewChanged.invokeExact();
 	}
 
 	@Override
 	protected int getCameraType() {
-		return Minecraft.getMinecraft().gameSettings.thirdPersonView;
+		return Minecraft.getInstance().options.perspective;
 	}
 
 	@Override
 	protected float getMCXRot() {
-		return ((Entity) getRenderViewEntity.invoke(Minecraft.getMinecraft())).rotationPitch;
+		return ((Entity) getCamera.invoke(Minecraft.getInstance())).pitch;
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return ((Entity) getRenderViewEntity.invoke(Minecraft.getMinecraft())).rotationYaw;
+		return ((Entity) getCamera.invoke(Minecraft.getInstance())).yaw;
 	}
 
 	@Override
 	protected boolean isKeyClicked() {
-		return key.isPressed();
+		return key.consumeClick();
 	}
 
 	@Override
 	protected boolean isKeyDown() {
-		return key.isKeyDown();
+		return key.isPressed();
 	}
 }

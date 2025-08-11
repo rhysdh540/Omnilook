@@ -1,5 +1,7 @@
 import groovy.json.JsonOutput
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.get
 import xyz.wagyourtail.unimined.api.unimined
@@ -10,6 +12,9 @@ abstract class GenerateMixinList : DefaultTask() {
     init {
         notCompatibleWithConfigurationCache("gradle convention requires putting thought into your code")
     }
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
 
     @TaskAction
     fun generate() {
@@ -33,9 +38,8 @@ abstract class GenerateMixinList : DefaultTask() {
             }
         }
 
-        val outputFile = project.sourceSets["main"].resources.srcDirs.first().resolve("META-INF/mixinlist.json")
 
-        outputFile.let {
+        outputFile.get().asFile.let {
             it.deleteRecursively()
             it.parentFile.mkdirs()
             it.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(mixinList)))

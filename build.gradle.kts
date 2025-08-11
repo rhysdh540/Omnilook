@@ -120,8 +120,8 @@ forge(sourceSets.lexforge)
 forge(sourceSets.lexforge20)
 forge(sourceSets.lexforge16)
 forge(sourceSets.lexforge13, mappings = feather + featherForge112Fix)
-forge(sourceSets.lexforge12, mappings = mcp)
-forge(sourceSets.lexforge7, mappings = mcp)
+forge(sourceSets.lexforge12, mappings = feather + featherForge112Fix)
+forge(sourceSets.lexforge7, mappings = feather + featherForge17fix)
 
 mc(sourceSets.rift, mappings = feather + featherForge112Fix) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
@@ -212,10 +212,11 @@ dependencies {
     }
 }
 
-// run genSources for minecraft when intellij tries to download them
+// intellij auto-download/find sources
 gradle.taskGraph.whenReady {
-    allTasks.filter { it.name.startsWith("ijDownloadArtifact") }.forEach { task ->
+    allTasks.filter { it.name.startsWith("ijDownloadArtifact") && it.javaClass.name.startsWith("IjDownloadTask") }.forEach { task ->
         // https://github.com/JetBrains/intellij-community/blob/00c6a47ee4f5aa01215d7bbdf9a07d5f30e8ab0f/plugins/gradle/tooling-extension-impl/resources/org/jetbrains/plugins/gradle/tooling/internal/init/downloadArtifact.gradle#L19
+        @Suppress("UNCHECKED_CAST")
         val property = task.javaClass.getMethod("getCollectionProvider").invoke(task) as Property<FileCollection>
         val path = property.get() as ResolutionBackedFileCollection
 
@@ -224,10 +225,16 @@ gradle.taskGraph.whenReady {
 
         val dep = configuration.incoming.dependencies.singleOrNull() ?: return@forEach
 
+        // run genSources for minecraft
         if (dep.group == "net.minecraft" && dep.name.startsWith("minecraft+")) {
             val sourceSetName = dep.name.removePrefix("minecraft+")
             val sourceSet = sourceSets.findByName(sourceSetName) ?: error("no source set $sourceSetName")
             tasks.getByName<GenSourcesTaskImpl>("genSources".withSourceSet(sourceSet)).run()
+        }
+
+        // for remapped dependencies, disable the task (nothing to do for now)
+        if (dep.group?.startsWith("remapped_") == true) {
+            task.enabled = false
         }
     }
 }
@@ -248,9 +255,11 @@ tasks.withType<JavaCompile> {
     options.release = 8
 }
 
+val generatedOutput = layout.buildDirectory.dir("generated/resources")
+
 tasks.compileJava {
     doLast {
-        generateModMenuCompat(destinationDirectory)
+        generateModMenuCompat(generatedOutput)
     }
 }
 
@@ -269,10 +278,14 @@ tasks.withType<ProcessResources> {
     filesMatching(listOf("*.json", "mcmod.info", "META-INF/*.toml")) {
         expand(props)
     }
+
+    from(generatedOutput)
 }
 
 val generateMixinList by tasks.registering(GenerateMixinList::class) {
     group = "build"
+
+    outputFile = generatedOutput.map { it.dir("META-INF").file("mixinlist.json") }
 }
 
 tasks.processResources {

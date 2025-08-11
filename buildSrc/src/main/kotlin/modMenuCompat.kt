@@ -1,6 +1,7 @@
 @file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
 import org.objectweb.asm.Handle
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes.*
@@ -14,7 +15,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
 // I wish there was a better way to generate classes than like this
-fun generateModMenuCompat(buildDir: DirectoryProperty) = constructClass(
+fun generateModMenuCompat(buildDir: Provider<Directory>) = constructClass(
     access = ACC_PUBLIC + ACC_SUPER,
     name = "dev/rdh/omnilook/config/ModMenuCompat",
     interfaces = arrayOf("io/github/prospector/modmenu/api/ModMenuApi"),

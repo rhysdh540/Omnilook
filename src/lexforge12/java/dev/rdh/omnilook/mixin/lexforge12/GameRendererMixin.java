@@ -9,16 +9,17 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 
 import dev.rdh.omnilook.Omnilook;
 
-import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.render.GameRenderer;
 
-@Mixin(value = EntityRenderer.class)
-public class EntityRendererMixin {
+
+@Mixin(GameRenderer.class)
+public class GameRendererMixin {
 	@Dynamic
 	@WrapWithCondition(method = {
-			"updateCameraAndRender", // 1.8+
+			"render(FJ)V", // 1.8+
 			"func_78480_b(F)V" // 1.7.10-
 	}, at = {
-			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;turn(FF)V"), // 1.8+
+			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/living/player/LocalClientPlayerEntity;updateLocalPlayerCamera(FF)V"), // 1.8+
 			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityClientPlayerMP;func_70082_c(FF)V") // 1.7.10-
 	})
 	private boolean onTurn(@Coerce Object instance, float yaw, float pitch) {
@@ -26,9 +27,9 @@ public class EntityRendererMixin {
 	}
 
 	@Dynamic
-	@ModifyExpressionValue(method = "orientCamera", at = {
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationYaw:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationYaw:F"),
+	@ModifyExpressionValue(method = "transformCamera", at = {
+			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"),
+			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevYaw:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;rotationYaw:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;prevRotationYaw:F")
 	})
@@ -41,9 +42,9 @@ public class EntityRendererMixin {
 	}
 
 	@Dynamic
-	@ModifyExpressionValue(method = "orientCamera", at = {
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;rotationPitch:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevRotationPitch:F"),
+	@ModifyExpressionValue(method = "transformCamera", at = {
+			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;pitch:F"),
+			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevPitch:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;rotationPitch:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;prevRotationPitch:F")
 	})
