@@ -12,22 +12,15 @@ jobs:
       -   name: install advzip
           run: sudo apt-get install -y advancecomp
 
-      -   name: gradle caches
-          uses: actions/cache@v4
-          with:
-            key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-            restore-keys: |
-              ${{ runner.os }}-gradle-
-            path: |
-              ~/.gradle/caches
-              ~/.gradle/wrapper/
-
       -   name: setup java
           uses: actions/setup-java@v4
           with:
             distribution: zulu
             java-version: 21
             cache: gradle
+            cache-dependency-path:
+              ~/.gradle/caches
+              ~/.gradle/wrapper/
 
       -   name: do the build
           run: ./gradlew assemble --stacktrace
