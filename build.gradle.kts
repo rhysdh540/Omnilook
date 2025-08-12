@@ -20,7 +20,7 @@ plugins {
 }
 
 group = "dev.rdh"
-version = "0.1"
+version = "mod_version"()
 base.archivesName = project.name.lowercase()
 
 //idea.module {
@@ -200,7 +200,7 @@ dependencies {
 
         rift.compileOnly(sourceSets.stubs.output)
 
-        liteloader.implementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
+        liteloader.modImplementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
         liteloader.implementation("net.minecraft:launchwrapper:1.12")
         liteloader.implementation("org.spongepowered:mixin:${"liteloader_mixin_version"()}")
 
@@ -278,8 +278,6 @@ tasks.withType<ProcessResources> {
     filesMatching(listOf("*.json", "mcmod.info", "META-INF/*.toml")) {
         expand(props)
     }
-
-    from(generatedOutput)
 }
 
 val generateMixinList by tasks.registering(GenerateMixinList::class) {
@@ -290,6 +288,7 @@ val generateMixinList by tasks.registering(GenerateMixinList::class) {
 
 tasks.processResources {
     dependsOn(generateMixinList)
+    from(generatedOutput)
 }
 
 tasks.named<Jar>("lexforge12Jar") {
