@@ -119,11 +119,11 @@ mc(sourceSets.babric, mappings = Mappings {
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge20)
 forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge13, mappings = feather + featherForge112Fix)
+forge(sourceSets.lexforge13, mappings = feather + featherForge113Fix)
 forge(sourceSets.lexforge12, mappings = feather + featherForge112Fix)
-forge(sourceSets.lexforge7, mappings = feather + featherForge17fix)
+forge(sourceSets.lexforge7, mappings = feather + featherForge17Fix)
 
-mc(sourceSets.rift, mappings = feather + featherForge112Fix) {
+mc(sourceSets.rift, mappings = feather + featherForge113Fix) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
     rift {}

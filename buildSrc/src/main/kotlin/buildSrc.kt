@@ -39,11 +39,11 @@ val feather = Mappings {
 }
 
 //https://github.com/p0t4t0sandwich/TaterLib/blob/dd900eaf9749af07374133237de775d4c464580e/versions/v1_12_2/build.gradle.kts#L53
-val featherForge112Fix = Mappings {
+fun featherForge1213Fix(srcName: String) = Mappings {
     stub.withMappings("searge", "intermediary") {
         // METHODs net/minecraft/unmapped/C_9482745/[m_9076954, getMaxSpeed]()D -> getMaxSpeed
         c(
-            "afe",
+            srcName,
             listOf(
                 "net/minecraft/entity/item/EntityMinecart",
                 "net/minecraft/entity/vehicle/MinecartEntity"
@@ -54,8 +54,11 @@ val featherForge112Fix = Mappings {
     }
 }
 
+val featherForge112Fix = featherForge1213Fix("afe")
+val featherForge113Fix = featherForge1213Fix("aph")
+
 // https://github.com/p0t4t0sandwich/TaterLib/blob/dd900eaf9749af07374133237de775d4c464580e/versions/v1_7_10/build.gradle.kts#L48
-val featherForge17fix = Mappings {
+val featherForge17Fix = Mappings {
     stub.withMappings("searge", "intermediary") {
         // METHODs cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry/[net/minecraft/unmapped/C_7135514/m_1782140, get](Ljava/lang/String;)Ljava/lang/Object; -> get
         c(
