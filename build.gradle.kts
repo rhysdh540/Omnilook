@@ -123,7 +123,7 @@ forge(sourceSets.lexforge13, mappings = feather + featherForge113Fix)
 forge(sourceSets.lexforge12, mappings = feather + featherForge112Fix)
 forge(sourceSets.lexforge7, mappings = feather + featherForge17Fix)
 
-mc(sourceSets.rift, mappings = feather + featherForge113Fix) {
+mc(sourceSets.rift, mappings = feather) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
     rift {}
@@ -225,9 +225,15 @@ gradle.taskGraph.whenReady {
 
         val dep = configuration.incoming.dependencies.singleOrNull() ?: return@forEach
 
+        fun Dependency.isGameDep(): Boolean {
+            if (this.group == "net.minecraft" && this.name.startsWith("minecraft+")) return true
+            if (this.group == "net.silveros" && this.name.startsWith("reindev+")) return true
+            return false
+        }
+
         // run genSources for minecraft
-        if (dep.group == "net.minecraft" && dep.name.startsWith("minecraft+")) {
-            val sourceSetName = dep.name.removePrefix("minecraft+")
+        if (dep.isGameDep()) {
+            val sourceSetName = dep.name.substringAfter("+")
             val sourceSet = sourceSets.findByName(sourceSetName) ?: error("no source set $sourceSetName")
             tasks.getByName<GenSourcesTaskImpl>("genSources".withSourceSet(sourceSet)).run()
         }
