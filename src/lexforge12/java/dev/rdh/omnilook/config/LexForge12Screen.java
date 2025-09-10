@@ -11,6 +11,7 @@ import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -23,7 +24,7 @@ public class LexForge12Screen extends GuiConfig implements IModGuiFactory {
 					.build();
 
 	public LexForge12Screen(Screen parent) {
-		super(parent, Omnilook.ID, "Omnilook");
+		super(parent, Collections.emptyList(), Omnilook.ID, false, false, "Omnilook");
 
 		for(Property prop : configs.keySet()) {
 			configElements.add(new ConfigElement(prop));
@@ -41,7 +42,7 @@ public class LexForge12Screen extends GuiConfig implements IModGuiFactory {
 	}
 
 	public LexForge12Screen() {
-		super(null, null, null);
+		super(null, Collections.emptyList(), null, false, false, null);
 	}
 
 	@Override
@@ -57,6 +58,10 @@ public class LexForge12Screen extends GuiConfig implements IModGuiFactory {
 	@Override
 	public Screen createConfigGui(Screen guiScreen) {
 		return new LexForge12Screen(guiScreen);
+	}
+
+	public Class<? extends Screen> mainConfigGuiClass() {
+		return LexForge12Screen.class;
 	}
 
 	@Override

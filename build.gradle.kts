@@ -97,6 +97,8 @@ mc(sourceSets.fabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
+// NOTE: currently trying to remap this to feather makes dependencies not remap
+// but mcp works for now i guess
 mc(sourceSets.legacyfabric, mappings = searge + mcp) {
     legacyFabric { loader("fabricloader_version"()) }
 }
