@@ -21,20 +21,21 @@ class Mappings(private val action: MappingsConfig.(key: String) -> Unit) {
 
 val mojmap = Mappings {
     mojmap()
-    parchment(version = project.prop("${it}_parchment_version"))
+    project.propn("${it}_parchment_version")?.let { version ->
+        parchment(version = version)
+    }
 }
 
 val searge = Mappings { searge() }
 
 val mcp = Mappings {
-    val channel = project.findProperty("${it}_mcp_channel")?.toString() ?: "snapshot"
+    val channel = project.propn("${it}_mcp_channel") ?: "snapshot"
     mcp(channel, version = project.prop("${it}_mcp_version"))
 }
 
 val feather = Mappings {
     calamus()
-    val version = project.findProperty("${it}_feather_version")?.toString()
-        ?: project.prop("feather_version")
+    val version = project.propn("${it}_feather_version") ?: project.prop("feather_version")
     feather(version)
 }
 
@@ -110,7 +111,11 @@ inline operator fun String.invoke() = prop(this)
 
 // for when you're not in a Project context
 fun Project.prop(name: String): String {
-    return rootProject.properties[name] as? String ?: error("Property $name not found")
+    return propn(name) ?: error("Property $name not found")
+}
+
+fun Project.propn(name: String): String? {
+    return rootProject.properties[name] as? String
 }
 
 val SourceSet.implementation get() = this.implementationConfigurationName

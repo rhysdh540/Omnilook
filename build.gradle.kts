@@ -10,6 +10,7 @@ import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
+import xyz.wagyourtail.unimined.internal.minecraft.patch.NoTransformMinecraftTransformer
 import xyz.wagyourtail.unimined.internal.minecraft.task.GenSourcesTaskImpl
 import xyz.wagyourtail.unimined.util.withSourceSet
 
@@ -22,11 +23,16 @@ plugins {
 group = "dev.rdh"
 version = "mod_version"()
 base.archivesName = project.name.lowercase()
+unimined.footgunChecks = false
 
 //idea.module {
 //    isDownloadSources = true
 //    isDownloadJavadoc = true
 //}
+
+val disabledPlatforms = listOf(
+    "ornithe"
+)
 
 val ap: Configuration by configurations.creating {
     isCanBeConsumed = false
@@ -71,6 +77,8 @@ repositories {
 val SourceSetContainer.main by sourceSets.getting
 val SourceSetContainer.stubs by sourceSets.creating
 
+val SourceSetContainer.mojmap by sourceSets.creating
+
 val SourceSetContainer.fabric by sourceSets.creating
 val SourceSetContainer.legacyfabric by sourceSets.creating
 val SourceSetContainer.ornithe by sourceSets.creating
@@ -89,6 +97,14 @@ val SourceSetContainer.liteloader by sourceSets.creating
 val SourceSetContainer.reindev by sourceSets.creating
 
 // region unimined
+mc(sourceSets.mojmap, mappings = mojmap + Mappings {
+    freeze()
+    minecraft.mcPatcher.let {
+        it as NoTransformMinecraftTransformer
+        it.prodNamespace = this.getNamespace("mojmap")
+    }
+})
+
 mc(sourceSets.neoforge) {
     neoForge { loader("neoforge_version"()) }
 }
@@ -185,6 +201,9 @@ dependencies {
             exclude("thedarkcolour", "kotlinforforge-neoforge")
         }
         neoforge.modImplementation("me.shedaniel.cloth:cloth-config-forge:15.0.140")
+        neoforge.implementation(sourceSets.mojmap.output)
+
+        lexforge.implementation(sourceSets.mojmap.output)
 
         lexforge20.modImplementation("me.shedaniel.cloth:cloth-config-forge:11.1.136")
 
@@ -265,7 +284,7 @@ tasks.withType<JavaCompile> {
 
 val generatedOutput = layout.buildDirectory.dir("generated/resources")
 
-tasks.compileJava {
+val generateClasses by tasks.registering {
     doLast {
         generateModMenuCompat(generatedOutput)
     }
@@ -296,6 +315,7 @@ val generateMixinList by tasks.registering(GenerateMixinList::class) {
 
 tasks.processResources {
     dependsOn(generateMixinList)
+    dependsOn(generateClasses)
     from(generatedOutput)
 }
 
@@ -336,11 +356,11 @@ val mergeJars by tasks.registering(Jar::class) {
     )
 }
 
-allprojects {
-    afterEvaluate {
-        mergeJars.configure {
-            tasks.withType<RemapJarTask>().forEach { from(zipTree(it.asJar.archiveFile)) }
-        }
+afterEvaluate {
+    mergeJars.configure {
+        tasks.withType<RemapJarTask>().filter { t ->
+            disabledPlatforms.none { it in t.name }
+        }.forEach { from(zipTree(it.asJar.archiveFile)) }
     }
 }
 

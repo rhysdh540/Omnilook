@@ -27,7 +27,15 @@ public final class Fabriclook extends Omnilook implements ModMenuScreenProvider<
 	private final MethodHandle[] xyRotHandles;
 
 	public Fabriclook() {
-		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
+		KeyMapping k;
+		try {
+			k = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.Category.MISC);
+		} catch (Throwable t) {
+			//noinspection JavaReflectionMemberAccess
+			k = KeyMapping.class.getDeclaredConstructor(String.class, int.class, String.class)
+					.newInstance(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
+		}
+		key = k;
 
 		MethodHandles.Lookup lookup = MethodHandles.lookup();
 		MappingResolver mr = FabricLoader.getInstance().getMappingResolver();
@@ -68,8 +76,7 @@ public final class Fabriclook extends Omnilook implements ModMenuScreenProvider<
 
 	@Override
 	public Screen openScreen(Screen parent) {
-		StackTraceElement[] a = new Throwable().getStackTrace();
-		for(StackTraceElement e : a) {
+		for(StackTraceElement e : new Throwable().getStackTrace()) {
 			if(e.getClassName().equals("com.terraformersmc.modmenu.gui.ModsScreen") && e.getMethodName().equals("method_25426")) {
 				return parent;
 			}
@@ -104,12 +111,12 @@ public final class Fabriclook extends Omnilook implements ModMenuScreenProvider<
 
 	@Override
 	protected float getMCXRot() {
-		return (float) xyRotHandles[0].invokeExact(Minecraft.getInstance().cameraEntity);
+		return (float) xyRotHandles[0].invokeExact(Minecraft.getInstance().getCameraEntity());
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return (float) xyRotHandles[1].invokeExact(Minecraft.getInstance().cameraEntity);
+		return (float) xyRotHandles[1].invokeExact(Minecraft.getInstance().getCameraEntity());
 	}
 
 	@Override

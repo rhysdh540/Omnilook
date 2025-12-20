@@ -25,12 +25,9 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @Mod(value = Omnilook.ID, dist = Dist.CLIENT)
-public final class Neolook extends Omnilook {
-	private final KeyMapping key;
-
+public final class Neolook extends BaseMojmapImpl {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public Neolook(IEventBus bus) {
-		key = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
 		NeoForge.EVENT_BUS.addListener(this::onComputeCameraAngles);
 		bus.addListener(this::onRegisterKeyMappings);
 
@@ -78,36 +75,5 @@ public final class Neolook extends Omnilook {
 	@Override
 	public Path getConfigDir() {
 		return FMLPaths.CONFIGDIR.get();
-	}
-
-	@Override
-	protected void setCameraType(int cameraType) {
-		Minecraft.getInstance().options.setCameraType(CameraType.values()[cameraType]);
-		Minecraft.getInstance().gameRenderer.checkEntityPostEffect(cameraType == 0 ? Minecraft.getInstance().getCameraEntity() : null);
-	}
-
-	@Override
-	protected int getCameraType() {
-		return Minecraft.getInstance().options.getCameraType().ordinal();
-	}
-
-	@Override
-	protected float getMCXRot() {
-		return Minecraft.getInstance().cameraEntity.getXRot();
-	}
-
-	@Override
-	protected float getMCYRot() {
-		return Minecraft.getInstance().cameraEntity.getYRot();
-	}
-
-	@Override
-	protected boolean isKeyClicked() {
-		return key.consumeClick();
-	}
-
-	@Override
-	protected boolean isKeyDown() {
-		return key.isDown();
 	}
 }

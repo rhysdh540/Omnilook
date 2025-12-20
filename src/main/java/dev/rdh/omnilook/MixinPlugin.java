@@ -3,6 +3,7 @@ package dev.rdh.omnilook;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
@@ -73,20 +74,25 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
 		} else if(classExists("net.fabricmc.loader.api.FabricLoader")) {
-			Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer("minecraft");
-			if(!mod.isPresent()) {
-				throw new IllegalStateException("Minecraft mod not present?");
-			}
-			Version version = mod.get().getMetadata().getVersion();
-			int cmp = version.compareTo(Version.parse("1.14.4"));
-			if(cmp >= 0) {
-				platform = "Fabric";
+			Omnilook.LOGGER.info("Mappings: {}", FabricLauncherBase.getLauncher().getMappingConfiguration().getNamespaces());
+			if (classExists("net.minecraft.unmapped.C_8105098")) {
+				platform = "Ornithe";
 			} else {
-				cmp = version.compareTo(Version.parse("1.0.0-beta.7.3"));
-				if(cmp > 0) {
-					platform = "LegacyFabric";
+				Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer("minecraft");
+				if(!mod.isPresent()) {
+					throw new IllegalStateException("Minecraft mod not present?");
+				}
+				Version version = mod.get().getMetadata().getVersion();
+				int cmp = version.compareTo(Version.parse("1.14.4"));
+				if(cmp >= 0) {
+					platform = "Fabric";
 				} else {
-					platform = "Babric";
+					cmp = version.compareTo(Version.parse("1.0.0-beta.7.3"));
+					if(cmp > 0) {
+						platform = "LegacyFabric";
+					} else {
+						platform = "Babric";
+					}
 				}
 			}
 		} else if(classExists("org.dimdev.rift.Rift")) {
