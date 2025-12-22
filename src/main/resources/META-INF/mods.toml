@@ -11,17 +11,3 @@ logoFile = "omnilook.png"
     displayName = "${name}"
     authors = "rdh"
     description = "${description}"
-
-[[dependencies.omnilook]]
-    modId = "forge"
-    mandatory = true
-    versionRange = "[25,)"
-    ordering = "AFTER"
-    side = "CLIENT"
-
-[[dependencies.omnilook]]
-    modId = "minecraft"
-    mandatory = true
-    versionRange = "[1.13.2,)"
-    ordering = "AFTER"
-    side = "CLIENT"
