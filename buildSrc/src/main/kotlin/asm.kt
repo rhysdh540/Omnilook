@@ -148,5 +148,5 @@ fun <T : Any> getType(clazz: KClass<T>): Type = when (clazz) {
     String::class -> Type.getType(java.lang.String::class.java)
     Unit::class -> Type.VOID_TYPE
     Nothing::class -> Type.VOID_TYPE
-    else -> Type.getType(clazz.java)
+    else -> Type.getType(clazz.javaPrimitiveType ?: clazz.java)
 }

@@ -16,12 +16,12 @@ logoFile = "omnilook.png"
     modId = "forge"
     mandatory = true
     versionRange = "[25,)"
-    ordering = "NONE"
+    ordering = "AFTER"
     side = "CLIENT"
 
 [[dependencies.omnilook]]
     modId = "minecraft"
     mandatory = true
     versionRange = "[1.13.2,)"
-    ordering = "NONE"
+    ordering = "AFTER"
     side = "CLIENT"

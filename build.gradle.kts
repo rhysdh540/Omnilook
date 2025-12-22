@@ -277,7 +277,7 @@ tasks.withType<AbstractArchiveTask> {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.compilerArgs.add("-Xplugin:Manifold no-bootstrap")
+    options.compilerArgs.addAll(listOf("-Xplugin:Manifold no-bootstrap", "-Xlint:-options"))
     options.annotationProcessorPath = options.annotationProcessorPath?.plus(ap) ?: ap
     options.release = 8
 }
@@ -319,10 +319,6 @@ tasks.processResources {
     from(generatedOutput)
 }
 
-tasks.named<Jar>("lexforge12Jar") {
-    exclude("cpw/mods/fml/**")
-}
-
 // region mergeJars and compression
 val mergeJars by tasks.registering(Jar::class) {
     group = "build"
@@ -359,7 +355,7 @@ val mergeJars by tasks.registering(Jar::class) {
 afterEvaluate {
     mergeJars.configure {
         tasks.withType<RemapJarTask>().filter { t ->
-            disabledPlatforms.none { it in t.name }
+            disabledPlatforms.none { it.lowercase() in t.name.lowercase() }
         }.forEach { from(zipTree(it.asJar.archiveFile)) }
     }
 }

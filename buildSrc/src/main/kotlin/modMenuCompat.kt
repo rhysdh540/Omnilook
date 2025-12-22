@@ -109,7 +109,7 @@ fun generateModMenuCompat(buildDir: Provider<Directory>) = constructClass(
                     methodTypeOf<(Object, Method, Array<Object>) -> Object>().descriptor,
                     false
                 ),
-                methodTypeOf<(Object, Method, Array<Object>) -> Object>().descriptor
+                methodTypeOf<(Object, Method, Array<Object>) -> Object>()
             )
             callMethod<Proxy, Object>(INVOKESTATIC, "newProxyInstance",
                 typeOf<ClassLoader>(),
@@ -145,7 +145,7 @@ fun generateModMenuCompat(buildDir: Provider<Directory>) = constructClass(
                 methodTypeOf<(Object) -> Object>().descriptor,
                 true
             ),
-            methodTypeOf<(Object) -> Object>().descriptor
+            methodTypeOf<(Object) -> Object>()
         )
         visitInsn(ARETURN)
     }

@@ -23,10 +23,10 @@ public class GameRendererMixin {
 		o.update();
 		if (o.isEnabled()) {
 			pitch.set(entity.pitch);
-			yaw.set(entity.pitch);
+			yaw.set(entity.yaw);
 
 			entity.pitch = o.getXRot();
-			entity.pitch = o.getYRot();
+			entity.yaw = o.getYRot();
 
 			Minecraft.getInstance().worldRenderer.onViewChanged();
 		}
@@ -37,7 +37,7 @@ public class GameRendererMixin {
 		Omnilook o = Omnilook.getInstance();
 		if (o.isEnabled()) {
 			entity.pitch = pitch.get();
-			entity.pitch = yaw.get();
+			entity.yaw = yaw.get();
 		}
 	}
 }

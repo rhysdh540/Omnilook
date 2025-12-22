@@ -3,7 +3,6 @@ package dev.rdh.omnilook;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
-import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
@@ -74,7 +73,6 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
 		} else if(classExists("net.fabricmc.loader.api.FabricLoader")) {
-			Omnilook.LOGGER.info("Mappings: {}", FabricLauncherBase.getLauncher().getMappingConfiguration().getNamespaces());
 			if (classExists("net.minecraft.unmapped.C_8105098")) {
 				platform = "Ornithe";
 			} else {

@@ -1,15 +1,12 @@
 package dev.rdh.omnilook;
 
-import org.spongepowered.asm.logging.ILogger;
-import org.spongepowered.asm.service.MixinService;
-
 import dev.rdh.omnilook.config.Config;
 
 import java.nio.file.Path;
 
 public abstract class Omnilook {
 	public static final String ID = "omnilook";
-	public static final ILogger LOGGER = MixinService.getService().getLogger("Omnilook");
+	public static final OmniLog LOGGER = OmniLog.get("Omnilook");
 
 	protected static final String KEYBINDING_NAME = "key.omnilook.toggle";
 	protected static final String KEYBINDING_CATEGORY = "key.categories.misc";

@@ -8,18 +8,15 @@ import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import org.lwjgl.glfw.GLFW;
 
 import dev.rdh.omnilook.config.Config;
 import dev.rdh.omnilook.config.NeoForgeClothScreen;
-import dev.rdh.omnilook.config.NeoForgeConfigScreenFactory;
 import dev.rdh.omnilook.config.NeoForgeYACLScreen;
 
-import net.minecraft.client.CameraType;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 
+import java.lang.reflect.Proxy;
 import java.nio.file.Path;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -35,26 +32,35 @@ public final class Neolook extends BaseMojmapImpl {
 		Object extension;
 		try {
 			extensionPoint = Class.forName("net.neoforged.neoforge.client.gui.IConfigScreenFactory");
-			extension = new NeoForgeConfigScreenFactory();
+			extension = Proxy.newProxyInstance(Neolook.class.getClassLoader(),
+					new Class[]{extensionPoint},
+					(proxy, method, args) -> method.getName().equals("createScreen")
+							? makeConfigScreen(args[0], (Screen) args[1])
+							: method.invoke(proxy, args));
 		} catch (ClassNotFoundException e) {
 			extensionPoint = Class.forName("net.neoforged.neoforge.client.ConfigScreenHandler$ConfigScreenFactory");
 			extension = extensionPoint.getDeclaredConstructor(BiFunction.class)
-					.newInstance((BiFunction<Minecraft, Screen, Screen>) Neolook::makeConfigScreen);
+					.newInstance((BiFunction<Minecraft, Screen, Screen>) this::makeConfigScreen);
 		}
 		Object fextension = extension;
 		ModLoadingContext.get().registerExtensionPoint(extensionPoint, (Supplier) () -> fextension);
 	}
 
-	public static Screen makeConfigScreen(Object arg, Screen parent) {
+	private Screen makeConfigScreen(Object arg, Screen parent) {
 		if (MixinPlugin.classExists("dev.isxander.yacl3.api.YetAnotherConfigLib")) {
-			return NeoForgeYACLScreen.make(parent);
+			try {
+				return NeoForgeYACLScreen.make(parent);
+			} catch (Throwable ignored) {
+			}
 		}
 
 		if (MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
-			return NeoForgeClothScreen.make(parent);
+			try {
+				return NeoForgeClothScreen.make(parent);
+			} catch (Throwable ignored) {
+			}
 		}
 
-		Omnilook.LOGGER.warn("No screen providers found");
 		Config.openTextEditor();
 		return null;
 	}

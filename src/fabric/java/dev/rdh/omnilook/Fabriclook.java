@@ -83,11 +83,17 @@ public final class Fabriclook extends Omnilook implements ModMenuScreenProvider<
 		}
 
 		if(MixinPlugin.classExists("dev.isxander.yacl3.api.YetAnotherConfigLib")) {
-			return FabricYACLScreen.make(parent);
+			try {
+				return FabricYACLScreen.make(parent);
+			} catch (Throwable ignored) {
+			}
 		}
 
 		if(MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
-			return FabricClothScreen.make(parent);
+			try {
+				return FabricClothScreen.make(parent);
+			} catch (Throwable ignored) {
+			}
 		}
 
 		return ModMenuScreenProvider.super.openScreen(parent);
