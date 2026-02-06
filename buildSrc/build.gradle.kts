@@ -43,7 +43,7 @@ dependencies {
     implementation("xyz.wagyourtail.unimined:unimined:${"unimined_version"()}")
     implementation("org.taumc.gradle:compression:${"taugradle_version"()}")
 
-    implementation("xyz.wagyourtail.unimined.mapping:unimined-mapping-library-jvm:1.2.1")
+    implementation("xyz.wagyourtail.unimined.mapping:unimined-mapping-library-jvm:1.2.2")
 }
 
 operator fun String.invoke() = gradleProperties.getProperty(this) ?: error("No property \"$this\"")

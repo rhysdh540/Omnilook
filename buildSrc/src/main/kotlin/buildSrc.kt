@@ -24,6 +24,11 @@ val mojmap = Mappings {
     project.propn("${it}_parchment_version")?.let { version ->
         parchment(version = version)
     }
+
+    if (minecraft.version == "1.21.11") {
+        // unimined bug
+        devNamespace("mojmap")
+    }
 }
 
 val searge = Mappings { searge() }
