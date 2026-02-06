@@ -40,8 +40,10 @@ dependencies {
     implementation(group = "org.jetbrains", name = "annotations")
     implementation("net.fabricmc:tiny-remapper:0.8.7")
 
-    plugin(id = "xyz.wagyourtail.unimined", version = "unimined_version"())
-    plugin(id = "org.taumc.gradle.compression", version = "taugradle_version"())
+    implementation("xyz.wagyourtail.unimined:unimined:${"unimined_version"()}")
+    implementation("org.taumc.gradle:compression:${"taugradle_version"()}")
+
+    implementation("xyz.wagyourtail.unimined.mapping:unimined-mapping-library-jvm:1.2.1")
 }
 
 operator fun String.invoke() = gradleProperties.getProperty(this) ?: error("No property \"$this\"")

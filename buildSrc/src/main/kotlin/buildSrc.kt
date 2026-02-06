@@ -8,8 +8,8 @@ import xyz.wagyourtail.unimined.api.unimined
 import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
 
-class Mappings(private val action: MappingsConfig.(key: String) -> Unit) {
-    operator fun invoke(key: String): MappingsConfig.() -> Unit = {
+class Mappings(private val action: MappingsConfig<*>.(key: String) -> Unit) {
+    operator fun invoke(key: String): MappingsConfig<*>.() -> Unit = {
         action(key)
     }
 
@@ -39,39 +39,20 @@ val feather = Mappings {
     feather(version)
 }
 
-//https://github.com/p0t4t0sandwich/TaterLib/blob/dd900eaf9749af07374133237de775d4c464580e/versions/v1_12_2/build.gradle.kts#L53
-fun featherForge1213Fix(srcName: String) = Mappings {
-    stub.withMappings("searge", "intermediary") {
-        // METHODs net/minecraft/unmapped/C_9482745/[m_9076954, getMaxSpeed]()D -> getMaxSpeed
-        c(
-            srcName,
-            listOf(
-                "net/minecraft/entity/item/EntityMinecart",
-                "net/minecraft/entity/vehicle/MinecartEntity"
-            )
-        ) {
-            m("getMaxSpeed", "()D", "m_9076954", "getMaxSpeedForge")
+val featherForge112Fix = Mappings {
+    stubs("searge", "calamus") {
+        c("net/minecraft/entity/item/EntityMinecart") {
+            m("getMaxSpeed;()D", "getMaxSpeedForge")
         }
     }
 }
 
-val featherForge112Fix = featherForge1213Fix("afe")
-val featherForge113Fix = featherForge1213Fix("aph")
-
-// https://github.com/p0t4t0sandwich/TaterLib/blob/dd900eaf9749af07374133237de775d4c464580e/versions/v1_7_10/build.gradle.kts#L48
 val featherForge17Fix = Mappings {
-    stub.withMappings("searge", "intermediary") {
-        // METHODs cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry/[net/minecraft/unmapped/C_7135514/m_1782140, get](Ljava/lang/String;)Ljava/lang/Object; -> get
-        c(
-            "cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry", listOf()
-        ) {
-            m("get", "(Ljava/lang/String;)Ljava/lang/Object;", "net/minecraft/unmapped/C_7135514/m_1782140", "getObjectFromString")
-        }
-        // METHODs cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry/[net/minecraft/unmapped/C_7135514/m_9381448, get](I)Ljava/lang/Object; -> get
-        c(
-            "cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry", listOf()
-        ) {
-            m("get", "(I)Ljava/lang/Object;", "net/minecraft/unmapped/C_7135514/m_9381448", "getObjectFromInteger")
+    stubs("searge", "feather") {
+        val cls = "cpw/mods/fml/common/registry/FMLControlledNamespacedRegistry"
+        c(cls, cls) {
+            m("get;(I)Ljava/lang/Object;", "getControlled")
+            m("get;(Ljava/lang/String;)Ljava/lang/Object;", "getControlled")
         }
     }
 }

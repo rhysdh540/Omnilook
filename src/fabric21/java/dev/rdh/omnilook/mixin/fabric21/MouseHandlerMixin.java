@@ -1,4 +1,4 @@
-package dev.rdh.omnilook.mixin.fabric;
+package dev.rdh.omnilook.mixin.fabric21;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import org.spongepowered.asm.mixin.Dynamic;

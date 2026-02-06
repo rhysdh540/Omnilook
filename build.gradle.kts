@@ -78,8 +78,9 @@ val SourceSetContainer.main by sourceSets.getting
 val SourceSetContainer.stubs by sourceSets.creating
 
 val SourceSetContainer.mojmap by sourceSets.creating
-
 val SourceSetContainer.fabric by sourceSets.creating
+
+val SourceSetContainer.fabric21 by sourceSets.creating
 val SourceSetContainer.legacyfabric by sourceSets.creating
 val SourceSetContainer.ornithe by sourceSets.creating
 val SourceSetContainer.babric by sourceSets.creating
@@ -97,19 +98,23 @@ val SourceSetContainer.liteloader by sourceSets.creating
 val SourceSetContainer.reindev by sourceSets.creating
 
 // region unimined
-mc(sourceSets.mojmap, mappings = mojmap + Mappings {
+mc(sourceSets.mojmap, mappings = mojmap/* + Mappings {
     freeze()
     minecraft.mcPatcher.let {
         it as NoTransformMinecraftTransformer
         it.prodNamespace = this.getNamespace("mojmap")
     }
-})
+}*/)
 
 mc(sourceSets.neoforge) {
     neoForge { loader("neoforge_version"()) }
 }
 
-mc(sourceSets.fabric) {
+//mc(sourceSets.fabric) {
+//    fabric { loader("fabricloader_version"()) }
+//}
+
+mc(sourceSets.fabric21) {
     fabric { loader("fabricloader_version"()) }
 }
 
@@ -124,12 +129,7 @@ mc(sourceSets.ornithe, mappings = feather) {
 }
 
 mc(sourceSets.babric, mappings = Mappings {
-    mapping("me.alphamode:nostalgia:${minecraft.version}+build.${"babric_nostalgia_version"()}:v2", "nostalgia") {
-        outputs("nostalgia", true) { listOf("intermediary") }
-        mapNamespace("named", "nostalgia")
-        sourceNamespace("intermediary")
-        renest()
-    }
+    nostalgia("babric_nostalgia_version"())
 }) {
     babric { loader("babric_loader_version"()) }
 }
@@ -137,7 +137,7 @@ mc(sourceSets.babric, mappings = Mappings {
 forge(sourceSets.lexforge)
 forge(sourceSets.lexforge20)
 forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge13, mappings = feather + featherForge113Fix)
+forge(sourceSets.lexforge13, mappings = feather + featherForge112Fix)
 forge(sourceSets.lexforge12, mappings = feather + featherForge112Fix)
 forge(sourceSets.lexforge7, mappings = feather + featherForge17Fix)
 
@@ -191,10 +191,10 @@ dependencies {
             "legacyfabric_api_version"()
         ))
 
-        fabric.implementation("ca.weblite:java-objc-bridge:1.1")
-        fabric.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
-        fabric.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
-        fabric.modImplementation("com.terraformersmc:modmenu:11.0.3")
+        fabric21.implementation("ca.weblite:java-objc-bridge:1.1")
+        fabric21.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
+        fabric21.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
+        fabric21.modImplementation("com.terraformersmc:modmenu:11.0.3")
 
         neoforge.implementation("ca.weblite:java-objc-bridge:1.1")
         neoforge.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
@@ -209,7 +209,7 @@ dependencies {
 
         lexforge16.modImplementation("me.shedaniel.cloth:cloth-config-forge:4.17.132")
 
-        lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
+        //lexforge12.modImplementation("zone.rong:mixinbooter:${"lexforge12_mixinbooter_version"()}")
 
         lexforge12.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
         lexforge12.compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")

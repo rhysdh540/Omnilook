@@ -21,12 +21,12 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 
-public final class Fabriclook extends Omnilook implements ModMenuScreenProvider<Screen> {
+public final class IntermediaryFabriclook extends Omnilook implements ModMenuScreenProvider<Screen> {
 	public final KeyMapping key;
 	private final MethodHandle[] cameraTypeHandles;
 	private final MethodHandle[] xyRotHandles;
 
-	public Fabriclook() {
+	public IntermediaryFabriclook() {
 		KeyMapping k;
 		try {
 			k = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.Category.MISC);
