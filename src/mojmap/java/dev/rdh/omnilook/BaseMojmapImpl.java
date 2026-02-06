@@ -7,7 +7,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 
 public abstract class BaseMojmapImpl extends Omnilook {
-	protected final KeyMapping key;
+	public final KeyMapping key;
 
 	protected BaseMojmapImpl() {
 		KeyMapping k;

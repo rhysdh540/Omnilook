@@ -1,4 +1,4 @@
-package dev.rdh.omnilook.mixin.fabric21;
+package dev.rdh.omnilook.mixin.intermediaryfabric;
 
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;

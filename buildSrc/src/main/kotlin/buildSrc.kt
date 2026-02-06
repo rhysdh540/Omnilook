@@ -20,6 +20,9 @@ class Mappings(private val action: MappingsConfig<*>.(key: String) -> Unit) {
 }
 
 val mojmap = Mappings {
+    if (!minecraft.obfuscated) {
+        return@Mappings
+    }
     mojmap()
     project.propn("${it}_parchment_version")?.let { version ->
         parchment(version = version)

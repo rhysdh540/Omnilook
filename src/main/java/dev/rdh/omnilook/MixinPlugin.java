@@ -81,15 +81,20 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 					throw new IllegalStateException("Minecraft mod not present?");
 				}
 				Version version = mod.get().getMetadata().getVersion();
-				int cmp = version.compareTo(Version.parse("1.14.4"));
-				if(cmp >= 0) {
+				int cmp = version.compareTo(Version.parse("1.21.11"));
+				if(cmp > 0) {
 					platform = "Fabric";
 				} else {
-					cmp = version.compareTo(Version.parse("1.0.0-beta.7.3"));
-					if(cmp > 0) {
-						platform = "LegacyFabric";
+					cmp = version.compareTo(Version.parse("1.14.4"));
+					if(cmp >= 0) {
+						platform = "IntermediaryFabric";
 					} else {
-						platform = "Babric";
+						cmp = version.compareTo(Version.parse("1.0.0-beta.7.3"));
+						if(cmp > 0) {
+							platform = "LegacyFabric";
+						} else {
+							platform = "Babric";
+						}
 					}
 				}
 			}

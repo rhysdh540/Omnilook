@@ -11,7 +11,6 @@ package dev.rdh.omnilook;
 		guiFactory = "dev.rdh.omnilook.config.LexForge7Screen",
 		useMetadata = true
 )
-@SuppressWarnings("IfCanBeSwitch")
 public final class Entrypoint {
 	public Entrypoint() {
 		String classname = MixinPlugin.getPlatform();
@@ -23,12 +22,8 @@ public final class Entrypoint {
 			classname = "dev.rdh.omnilook.Forgelook16";
 		} else if(classname.equals("LexForge12")) {
 			classname = "dev.rdh.omnilook.Forgelook12";
-		} else if(classname.equals("Fabric")) {
-			classname = "dev.rdh.omnilook.Fabriclook";
-		} else if(classname.equals("LegacyFabric")) {
-			classname = "dev.rdh.omnilook.LegacyFabriclook";
-		} else if(classname.equals("Babric")) {
-			classname = "dev.rdh.omnilook.Babriclook";
+		} else if(classname.endsWith("abric")) {
+			classname = "dev.rdh.omnilook." + classname + "look";
 		} else if(classname.equals("Ornithe")) {
 			classname = "dev.rdh.omnilook.Avianlook";
 		}

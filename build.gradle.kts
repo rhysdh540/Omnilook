@@ -10,7 +10,6 @@ import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
-import xyz.wagyourtail.unimined.internal.minecraft.patch.NoTransformMinecraftTransformer
 import xyz.wagyourtail.unimined.internal.minecraft.task.GenSourcesTaskImpl
 import xyz.wagyourtail.unimined.util.withSourceSet
 
@@ -30,6 +29,10 @@ unimined.footgunChecks = false
 //    isDownloadJavadoc = true
 //}
 
+java.toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+}
+
 val disabledPlatforms = listOf(
     "ornithe"
 )
@@ -39,6 +42,7 @@ val ap: Configuration by configurations.creating {
     isCanBeResolved = true
 }
 
+// <editor-fold desc="boilerplate" collapsed="true">
 repositories {
     unimined.modrinthMaven()
     unimined.fabricMaven()
@@ -80,7 +84,7 @@ val SourceSetContainer.stubs by sourceSets.creating
 val SourceSetContainer.mojmap by sourceSets.creating
 val SourceSetContainer.fabric by sourceSets.creating
 
-val SourceSetContainer.fabric21 by sourceSets.creating
+val SourceSetContainer.intermediaryfabric by sourceSets.creating
 val SourceSetContainer.legacyfabric by sourceSets.creating
 val SourceSetContainer.ornithe by sourceSets.creating
 val SourceSetContainer.babric by sourceSets.creating
@@ -96,25 +100,22 @@ val SourceSetContainer.lexforge7 by sourceSets.creating
 val SourceSetContainer.rift by sourceSets.creating
 val SourceSetContainer.liteloader by sourceSets.creating
 val SourceSetContainer.reindev by sourceSets.creating
+// </editor-fold>
 
 // region unimined
-mc(sourceSets.mojmap, mappings = mojmap/* + Mappings {
-    freeze()
-    minecraft.mcPatcher.let {
-        it as NoTransformMinecraftTransformer
-        it.prodNamespace = this.getNamespace("mojmap")
-    }
-}*/)
+mc(sourceSets.mojmap, mappings = mojmap) {
+    this.mcPatcher.prodNamespace("mojmap")
+}
 
 mc(sourceSets.neoforge) {
     neoForge { loader("neoforge_version"()) }
 }
 
-//mc(sourceSets.fabric) {
-//    fabric { loader("fabricloader_version"()) }
-//}
+mc(sourceSets.fabric) {
+    fabric { loader("fabricloader_version"()) }
+}
 
-mc(sourceSets.fabric21) {
+mc(sourceSets.intermediaryfabric) {
     fabric { loader("fabricloader_version"()) }
 }
 
@@ -191,12 +192,12 @@ dependencies {
             "legacyfabric_api_version"()
         ))
 
-        fabric21.implementation("ca.weblite:java-objc-bridge:1.1")
-        fabric21.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
-        fabric21.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
-        fabric21.modImplementation("com.terraformersmc:modmenu:11.0.3")
+        fabric.implementation(sourceSets.mojmap.output)
 
-        neoforge.implementation("ca.weblite:java-objc-bridge:1.1")
+        intermediaryfabric.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
+        intermediaryfabric.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
+        intermediaryfabric.modImplementation("com.terraformersmc:modmenu:11.0.3")
+
         neoforge.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
             exclude("thedarkcolour", "kotlinforforge-neoforge")
         }
@@ -280,6 +281,9 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(listOf("-Xplugin:Manifold no-bootstrap", "-Xlint:-options"))
     options.annotationProcessorPath = options.annotationProcessorPath?.plus(ap) ?: ap
     options.release = 8
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 val generatedOutput = layout.buildDirectory.dir("generated/resources")
@@ -309,6 +313,7 @@ tasks.withType<ProcessResources> {
 
 val generateMixinList by tasks.registering(GenerateMixinList::class) {
     group = "build"
+    outputs.upToDateWhen { false }
 
     outputFile = generatedOutput.map { it.dir("META-INF").file("mixinlist.json") }
 }
