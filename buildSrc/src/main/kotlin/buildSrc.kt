@@ -93,10 +93,10 @@ fun Project.forge(sourceSet: SourceSet, key: String = sourceSet.name.lowercase()
 
 // note that this can't be used in buildscripts and must be copied:
 // operator fun String.invoke() = prop(this)
-// because you can't enable context receivers in buildscripts :(
-context(Project)
-@Suppress("NOTHING_TO_INLINE", "CONTEXT_RECEIVERS_DEPRECATED")
-inline operator fun String.invoke() = prop(this)
+// because you can't enable context parameters in buildscripts :(
+context(p: Project)
+@Suppress("NOTHING_TO_INLINE")
+inline operator fun String.invoke() = p.prop(this)
 
 // for when you're not in a Project context
 fun Project.prop(name: String): String {

@@ -31,7 +31,7 @@ kotlin {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
 
-    compilerOptions.freeCompilerArgs.add("-Xcontext-receivers")
+    compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
 }
 
 dependencies {

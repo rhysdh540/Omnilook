@@ -104,7 +104,7 @@ val SourceSetContainer.reindev by sourceSets.creating
 
 // region unimined
 mc(sourceSets.mojmap, mappings = mojmap) {
-    this.mcPatcher.prodNamespace("mojmap")
+    mcPatcher.prodNamespace("mojmap")
 }
 
 mc(sourceSets.neoforge) {
@@ -145,7 +145,7 @@ forge(sourceSets.lexforge7, mappings = feather + featherForge17Fix)
 mc(sourceSets.rift, mappings = feather) {
     minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
-    rift {}
+    rift()
 
     minecraftRemapper.config {
         ignoreConflicts(true)
