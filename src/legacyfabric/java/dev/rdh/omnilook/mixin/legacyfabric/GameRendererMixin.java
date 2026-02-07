@@ -29,8 +29,8 @@ public class GameRendererMixin {
 	@ModifyExpressionValue(method = "transformCamera", at = {
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevYaw:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;field_70177_z:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;field_70126_B:F")
+			@At(value = "FIELD", target = "Lnet/minecraft/class_1699;field_3258:F"),
+			@At(value = "FIELD", target = "Lnet/minecraft/class_1699;field_3194:F")
 	})
 	private float modifyYaw(float value) {
 		Omnilook o = Omnilook.getInstance();
@@ -44,8 +44,8 @@ public class GameRendererMixin {
 	@ModifyExpressionValue(method = "transformCamera", at = {
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;pitch:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevPitch:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;field_70125_A:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;field_70127_C:F")
+			@At(value = "FIELD", target = "Lnet/minecraft/class_1699;field_3193:F"),
+			@At(value = "FIELD", target = "Lnet/minecraft/class_1699;field_3195:F")
 	})
 	private float modifyPitch(float value) {
 		Omnilook o = Omnilook.getInstance();
