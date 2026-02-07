@@ -26,7 +26,7 @@ public class GameRendererMixin {
 	}
 
 	@Dynamic
-	@ModifyExpressionValue(method = "orientCamera", at = {
+	@ModifyExpressionValue(method = "transformCamera", at = {
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevYaw:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;field_70177_z:F"),

@@ -42,6 +42,11 @@ val ap: Configuration by configurations.creating {
     isCanBeResolved = true
 }
 
+val mmstub: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
+
 // <editor-fold desc="boilerplate" collapsed="true">
 repositories {
     unimined.modrinthMaven()
@@ -75,6 +80,14 @@ repositories {
     exclusiveContent {
         forRepository { maven("https://maven.ornithemc.net/releases") }
         filter { includeGroup("net.ornithemc") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://libraries.minecraft.net") }
+        filter { includeVersion("ca.weblite", "java-objc-bridge", "1.0.0") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.taumc.org/releases") }
+        filter { includeGroup("dev.rdh") }
     }
 }
 
@@ -195,6 +208,7 @@ dependencies {
         intermediaryfabric.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
         intermediaryfabric.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
         intermediaryfabric.modImplementation("com.terraformersmc:modmenu:11.0.3")
+        mmstub(intermediaryfabric.implementation("dev.rdh:modmenu-legacy-compat-stub:1.0")!!)
 
         neoforge.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
             exclude("thedarkcolour", "kotlinforforge-neoforge")
@@ -333,6 +347,11 @@ val mergeJars by tasks.registering(Jar::class) {
 
     from(file("LICENSE")) {
         into("META-INF")
+    }
+
+    from(mmstub) {
+        into("META-INF/")
+        rename { "mm.jar" }
     }
 
     manifest.attributes(

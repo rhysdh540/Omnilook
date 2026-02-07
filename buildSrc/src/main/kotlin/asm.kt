@@ -66,7 +66,7 @@ fun constructClass(
     access: Int = ACC_PUBLIC + ACC_SUPER,
     superName: String = "java/lang/Object",
     interfaces: Array<String> = emptyArray(),
-    action: ClassConstructor.() -> Unit
+    action: ClassConstructor.() -> Unit = {}
 ): ByteArray {
     val cw = ClassWriter(ClassWriter.COMPUTE_FRAMES + ClassWriter.COMPUTE_MAXS)
     cw.visit(
