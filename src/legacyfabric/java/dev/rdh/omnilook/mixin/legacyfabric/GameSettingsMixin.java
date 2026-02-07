@@ -11,16 +11,16 @@ import dev.rdh.omnilook.LegacyFabriclook;
 import dev.rdh.omnilook.MixinPlugin;
 import dev.rdh.omnilook.Omnilook;
 
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.options.GameOptions;
+import net.minecraft.client.options.KeyBinding;
 
 import java.util.ArrayList;
 
-@Mixin(GameSettings.class)
+@Mixin(GameOptions.class)
 public class GameSettingsMixin {
 	@Shadow public KeyBinding[] keyBindings;
 
-	@Inject(method = "loadOptions", at = @At("HEAD"))
+	@Inject(method = "load", at = @At("HEAD"))
 	public void loadKey(CallbackInfo ci) {
 		if(MixinPlugin.classExists("net.legacyfabric.fabric.api.client.keybinding.v1.KeyBindingHelper")) {
 			return;

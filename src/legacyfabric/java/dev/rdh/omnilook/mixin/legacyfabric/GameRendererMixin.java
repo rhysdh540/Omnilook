@@ -1,4 +1,4 @@
-package dev.rdh.omnilook.mixin.lexforge12;
+package dev.rdh.omnilook.mixin.legacyfabric;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
@@ -16,17 +16,17 @@ public class GameRendererMixin {
 	@Dynamic
 	@WrapWithCondition(method = {
 			"render(FJ)V", // 1.8+
-			"func_78480_b(F)V" // 1.7.10-
+			"method_1331(F)V" // 1.7.10-
 	}, at = {
 			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/living/player/LocalClientPlayerEntity;updateLocalPlayerCamera(FF)V"), // 1.8+
-			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityClientPlayerMP;func_70082_c(FF)V") // 1.7.10-
+			@At(value = "INVOKE", target = "Lnet/minecraft/class_481;method_2534(FF)V") // 1.7.10-
 	})
 	private boolean onTurn(@Coerce Object instance, float yaw, float pitch) {
 		return Omnilook.getInstance().updateCamera(-pitch, yaw);
 	}
 
 	@Dynamic
-	@ModifyExpressionValue(method = "transformCamera", at = {
+	@ModifyExpressionValue(method = "orientCamera", at = {
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevYaw:F"),
 			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;field_70177_z:F"),

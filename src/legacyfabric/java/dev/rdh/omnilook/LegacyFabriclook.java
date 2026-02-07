@@ -10,9 +10,9 @@ import org.objectweb.asm.*;
 import dev.rdh.omnilook.config.ModMenuScreenProvider;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.options.KeyBinding;
+import net.minecraft.client.render.world.WorldRenderer;
 import net.minecraft.entity.Entity;
 
 import java.lang.invoke.MethodHandle;
@@ -22,9 +22,9 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<GuiScreen> {
+public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<Screen> {
 	public final KeyBinding key;
-	private final MethodHandle getRenderViewEntity;
+	private final MethodHandle getCamera;
 
 	public LegacyFabriclook() {
 		KeyBinding key;
@@ -47,13 +47,13 @@ public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<
 			}
 		}
 
-		Field f = MixinPlugin.field(Minecraft.class, "field_10309", "field_6279", "renderViewEntity");
+		Field f = MixinPlugin.field(Minecraft.class, "field_10309", "field_6279", "camera");
 		f.setAccessible(true);
-		getRenderViewEntity = MethodHandles.lookup().unreflectGetter(f);
+		getCamera = MethodHandles.lookup().unreflectGetter(f);
 	}
 
 	@Override
-	public GuiScreen openScreen(GuiScreen parent) {
+	public Screen openScreen(Screen parent) {
 		StackTraceElement[] a = new Throwable().getStackTrace();
 		for(StackTraceElement e : a) {
 			if(e.getClassName().equals("io.github.prospector.modmenu.gui.ModsScreen") && e.getMethodName().equals("method_1044")) {
@@ -71,41 +71,41 @@ public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<
 
 	@Override
 	protected void setCameraType(int cameraType) {
-		Minecraft.getMinecraft().gameSettings.thirdPersonView = cameraType;
+		Minecraft.getInstance().options.perspective = cameraType;
 	}
 
 	@Override
 	protected int getCameraType() {
-		return Minecraft.getMinecraft().gameSettings.thirdPersonView;
+		return Minecraft.getInstance().options.perspective;
 	}
 
 	@Override
 	protected float getMCXRot() {
-		return ((Entity) getRenderViewEntity.invoke(Minecraft.getMinecraft())).rotationPitch;
+		return ((Entity) getCamera.invoke(Minecraft.getInstance())).pitch;
 	}
 
 	@Override
 	protected float getMCYRot() {
-		return ((Entity) getRenderViewEntity.invoke(Minecraft.getMinecraft())).rotationYaw;
+		return ((Entity) getCamera.invoke(Minecraft.getInstance())).yaw;
 	}
 
 	@Override
 	protected boolean isKeyClicked() {
-		return key.isPressed();
+		return key.consumeClick();
 	}
 
 	@Override
 	protected boolean isKeyDown() {
-		return key.isKeyDown();
+		return key.isPressed();
 	}
 
-	public static MethodHandle getMH_setDisplayListEntitiesDirty() {
+	public static MethodHandle getMH_onViewChanged() {
 		try {
 			MappingResolver mr = FabricLoader.getInstance().getMappingResolver();
 
-			String setDisplayListEntitiesDirty = mr.mapMethodName(
+			String onViewChanged = mr.mapMethodName(
 					"intermediary",
-					Type.getInternalName(RenderGlobal.class),
+					Type.getInternalName(WorldRenderer.class),
 					"method_9917",
 					"()V"
 			);
@@ -114,7 +114,7 @@ public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<
 					"intermediary",
 					Type.getInternalName(Minecraft.class),
 					"field_3804",
-					Type.getDescriptor(RenderGlobal.class)
+					Type.getDescriptor(WorldRenderer.class)
 			);
 
 			String getMinecraft = mr.mapMethodName(
@@ -125,10 +125,10 @@ public class LegacyFabriclook extends Omnilook implements ModMenuScreenProvider<
 			);
 
 			return MethodHandles.collectArguments(
-					MethodHandles.lookup().findVirtual(RenderGlobal.class, setDisplayListEntitiesDirty, MethodType.methodType(void.class)),
+					MethodHandles.lookup().findVirtual(WorldRenderer.class, onViewChanged, MethodType.methodType(void.class)),
 					0,
 					MethodHandles.collectArguments(
-							MethodHandles.lookup().findGetter(Minecraft.class, renderGlobal, RenderGlobal.class),
+							MethodHandles.lookup().findGetter(Minecraft.class, renderGlobal, WorldRenderer.class),
 							0,
 							MethodHandles.lookup().findStatic(Minecraft.class, getMinecraft, MethodType.methodType(Minecraft.class))
 					)
