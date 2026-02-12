@@ -62,10 +62,6 @@ repositories {
         filter { includeGroup("zone.rong") }
     }
     exclusiveContent {
-        forRepository { maven("https://maven.wispforest.io") }
-        filter { includeModule("me.alphamode", "nostalgia") }
-    }
-    exclusiveContent {
         forRepository { maven("https://maven.terraformersmc.com/releases") }
         filter { includeGroup("com.terraformersmc") }
     }
@@ -94,89 +90,75 @@ repositories {
 val SourceSetContainer.main by sourceSets.getting
 val SourceSetContainer.stubs by sourceSets.creating
 
-val SourceSetContainer.mojmap by sourceSets.creating
-val SourceSetContainer.fabric by sourceSets.creating
+class PlatformsImpl(project: Project) : PlatformContainer<PlatformsImpl>(project) {
+    val mojmap by creating {
+        mcPatcher.prodNamespace("mojmap")
+    }
 
-val SourceSetContainer.intermediaryfabric by sourceSets.creating
-val SourceSetContainer.legacyfabric by sourceSets.creating
-val SourceSetContainer.ornithe by sourceSets.creating
-val SourceSetContainer.babric by sourceSets.creating
+    val neoforge by creating {
+        neoForge { loader("neoforge_version"()) }
+    }
 
-val SourceSetContainer.neoforge by sourceSets.creating
-val SourceSetContainer.lexforge by sourceSets.creating
-val SourceSetContainer.lexforge20 by sourceSets.creating
-val SourceSetContainer.lexforge16 by sourceSets.creating
-val SourceSetContainer.lexforge13 by sourceSets.creating
-val SourceSetContainer.lexforge12 by sourceSets.creating
-val SourceSetContainer.lexforge7 by sourceSets.creating
+    val fabric by creating {
+        fabric { loader("fabricloader_version"()) }
+    }
 
-val SourceSetContainer.rift by sourceSets.creating
-val SourceSetContainer.liteloader by sourceSets.creating
-val SourceSetContainer.reindev by sourceSets.creating
-// </editor-fold>
+    val intermediaryfabric by creating {
+        fabric { loader("fabricloader_version"()) }
+    }
 
-// region unimined
-mc(sourceSets.mojmap, mappings = mojmap) {
-    mcPatcher.prodNamespace("mojmap")
-}
+    val legacyfabric by creating(feather) {
+        legacyFabric { loader("fabricloader_version"()) }
+    }
 
-mc(sourceSets.neoforge) {
-    neoForge { loader("neoforge_version"()) }
-}
+    val ornithe by creating(feather) {
+        fabric { loader("fabricloader_version"()) }
+    }
 
-mc(sourceSets.fabric) {
-    fabric { loader("fabricloader_version"()) }
-}
+    val babric by creating(Mappings { nostalgia("babric_nostalgia_version"()) }) {
+        babric { loader("babric_loader_version"()) }
+    }
 
-mc(sourceSets.intermediaryfabric) {
-    fabric { loader("fabricloader_version"()) }
-}
+    val lexforge by forge()
+    val lexforge20 by forge()
+    val lexforge16 by forge()
+    val lexforge13 by forge(mappings = feather + featherForge112Fix)
+    val lexforge12 by forge(mappings = feather + featherForge112Fix)
+    val lexforge7 by forge(mappings = feather + featherForge17Fix)
 
-mc(sourceSets.legacyfabric, mappings = feather) {
-    legacyFabric { loader("fabricloader_version"()) }
-}
+    val rift by creating(feather) {
+        minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
 
-mc(sourceSets.ornithe, mappings = feather) {
-    fabric { loader("fabricloader_version"()) }
-}
+        rift()
 
-mc(sourceSets.babric, mappings = Mappings {
-    nostalgia("babric_nostalgia_version"())
-}) {
-    babric { loader("babric_loader_version"()) }
-}
+        minecraftRemapper.config {
+            ignoreConflicts(true)
+        }
+    }
 
-forge(sourceSets.lexforge)
-forge(sourceSets.lexforge20)
-forge(sourceSets.lexforge16)
-forge(sourceSets.lexforge13, mappings = feather + featherForge112Fix)
-forge(sourceSets.lexforge12, mappings = feather + featherForge112Fix)
-forge(sourceSets.lexforge7, mappings = feather + featherForge17Fix)
+    val liteloader by creating(searge + mcp) {
+        side("client")
+        liteloader {
+            loader("liteloader_version"())
+        }
+    }
 
-mc(sourceSets.rift, mappings = feather) {
-    minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
+    val reindev by empty {
+        unimined.reIndev(it) {
+            combineWith(sourceSets.main)
+            version = "reindev_version"()
+            side("client")
+            runs.all { jvmArgs("-Dmixin.debug.export=true") }
 
-    rift()
-
-    minecraftRemapper.config {
-        ignoreConflicts(true)
+            foxLoader {
+                loader()
+                modId = "omnilook"
+            }
+        }
     }
 }
 
-mc(sourceSets.liteloader, mappings = searge + mcp)
-
-unimined.reIndev(sourceSets.reindev) {
-    combineWith(sourceSets.main)
-    version = "reindev_version"()
-    side("client")
-    runs.all { jvmArgs("-Dmixin.debug.export=true") }
-
-    foxLoader {
-        loader()
-        modId = "omnilook"
-    }
-}
-// endregion
+val platforms = PlatformsImpl(project).init()
 
 (sourceSets - sourceSets.main).forEach {
     tasks.named(it.classesTaskName) {
@@ -197,13 +179,13 @@ dependencies {
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
-    sourceSets {
+    platforms {
         legacyfabric.modImplementation(fabricApi.legacyFabricModule(
             "legacy-fabric-keybindings-api-v1-common",
             "legacyfabric_api_version"()
         ))
 
-        fabric.implementation(sourceSets.mojmap.output)
+        fabric.implementation(platforms.mojmap.dep)
 
         intermediaryfabric.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
         intermediaryfabric.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
@@ -214,9 +196,9 @@ dependencies {
             exclude("thedarkcolour", "kotlinforforge-neoforge")
         }
         neoforge.modImplementation("me.shedaniel.cloth:cloth-config-forge:15.0.140")
-        neoforge.implementation(sourceSets.mojmap.output)
+        neoforge.implementation(platforms.mojmap.dep)
 
-        lexforge.implementation(sourceSets.mojmap.output)
+        lexforge.implementation(platforms.mojmap.dep)
 
         lexforge20.modImplementation("me.shedaniel.cloth:cloth-config-forge:11.1.136")
 
@@ -233,10 +215,6 @@ dependencies {
         lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
 
         rift.compileOnly(sourceSets.stubs.output)
-
-        liteloader.modImplementation("com.mumfrey:liteloader:${"liteloader_version"()}") // should be modImplementation but that gets rid of sources
-        liteloader.implementation("net.minecraft:launchwrapper:1.12")
-        liteloader.implementation("org.spongepowered:mixin:${"liteloader_mixin_version"()}")
 
         // reindev might be a little broken
         reindev.implementation("org.semver4j:semver4j:5.3.0")
@@ -341,7 +319,7 @@ val mergeJars by tasks.registering(Jar::class) {
     group = "build"
     archiveClassifier = "dev"
     from(sourceSets.main.output)
-    from(sourceSets.reindev.output)
+    from(platforms.reindev.sourceSet.output)
 
     destinationDirectory = layout.buildDirectory.dir("libs")
 
@@ -441,10 +419,6 @@ tasks.withType<RemapJarTask> {
         disableRefmap()
         enableMixinExtra()
     }
-}
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 operator fun String.invoke() = prop(this)

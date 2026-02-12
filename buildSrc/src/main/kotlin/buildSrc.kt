@@ -9,8 +9,9 @@ import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
 
 class Mappings(private val action: MappingsConfig<*>.(key: String) -> Unit) {
-    operator fun invoke(key: String): MappingsConfig<*>.() -> Unit = {
-        action(key)
+    context(m: MappingsConfig<*>)
+    operator fun invoke(key: String) {
+        m.action(key)
     }
 
     operator fun plus(next: Mappings) = Mappings { key ->
@@ -61,32 +62,6 @@ val featherForge17Fix = Mappings {
         c(cls, cls) {
             m("get;(I)Ljava/lang/Object;", "getControlled")
             m("get;(Ljava/lang/String;)Ljava/lang/Object;", "getControlled")
-        }
-    }
-}
-
-fun Project.mc(sourceSet: SourceSet, key: String = sourceSet.name.lowercase(), mappings: Mappings = mojmap, block: MinecraftConfig.() -> Unit = {}) {
-    unimined.minecraft(sourceSet) {
-        combineWith(rootProject.sourceSets["main"])
-        version = "${key}_minecraft_version"()
-        runs.config("server") { enabled = false }
-        runs.all { jvmArgs("-Dmixin.debug.export=true") }
-
-        block()
-
-        mappings {
-            mappings(key)()
-        }
-    }
-}
-
-fun Project.forge(sourceSet: SourceSet, key: String = sourceSet.name.lowercase(), mappings: Mappings = mojmap, block: MinecraftConfig.() -> Unit = {}) {
-    mc(sourceSet, key, mappings) {
-        block()
-
-        minecraftForge {
-            loader("${key}_version"())
-            mixinConfig("omnilook.mixins.json")
         }
     }
 }
