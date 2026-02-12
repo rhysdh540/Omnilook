@@ -31,6 +31,9 @@ class Platform internal constructor(val sourceSet: SourceSet) {
 
     class Delegate internal constructor(private val platform: Platform) {
         operator fun getValue(thisRef: PlatformContainer<*>, property: KProperty<*>): Platform {
+            if (platform.name != property.name) {
+                throw IllegalStateException("Platform delegate reuse: ${platform.name} and ${property.name}")
+            }
             return platform
         }
     }
