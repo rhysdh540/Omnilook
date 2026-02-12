@@ -1,13 +1,19 @@
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.get
 import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.unimined
+import xyz.wagyourtail.unimined.util.capitalized
 import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
 import kotlin.reflect.KProperty
 
-class Platform internal constructor(val sourceSet: SourceSet) {
+class Platform internal constructor(
+    private val project: Project,
+    val sourceSet: SourceSet,
+    val includeInOutput: Boolean
+) {
     val name: String
         get() = sourceSet.name
 
@@ -21,11 +27,26 @@ class Platform internal constructor(val sourceSet: SourceSet) {
     val dep: Any
         get() = sourceSet.output
 
-    class Provider internal constructor(private val action: (SourceSet) -> Unit) {
+    val supportsJarInJar by lazy {
+        project.configurations.findByName("include".withSourceSet(sourceSet)) != null
+    }
+
+    val outputJar: Jar by lazy {
+        (project.tasks.findByName("remap${name.capitalized()}Jar") ?: project.tasks.findByName(sourceSet.jarTaskName))
+            as? Jar ?: error("No remap${name.capitalized()}Jar or ${sourceSet.jarTaskName} task found for platform ${name}")
+    }
+
+    class Provider internal constructor(
+        private val include: Boolean = true,
+        private val callback: (String, Platform) -> Unit,
+        private val action: (SourceSet) -> Unit
+    ) {
         operator fun provideDelegate(thisRef: PlatformContainer<*>, property: KProperty<*>): Delegate {
             val sourceSet = thisRef.project.sourceSets.maybeCreate(property.name)
             action(sourceSet)
-            return Delegate(Platform(sourceSet))
+            val platform = Platform(thisRef.project, sourceSet, include)
+            callback(platform.name, platform)
+            return Delegate(platform)
         }
     }
 
@@ -40,13 +61,16 @@ class Platform internal constructor(val sourceSet: SourceSet) {
 }
 
 @Suppress("UNCHECKED_CAST")
-abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project) {
+abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project): Iterable<Platform> {
+    private val platforms = mutableMapOf<String, Platform>()
+
+    override fun iterator(): Iterator<Platform> = platforms.values.iterator()
+
     operator fun invoke(action: T.() -> Unit) = (this as T).action()
 
-    protected fun creating(mappings: Mappings = mojmap, action: MinecraftConfig.() -> Unit = {}): Platform.Provider {
-        return Platform.Provider { sourceSet ->
+    protected fun creating(mappings: Mappings = mojmap, include: Boolean = true, action: MinecraftConfig.() -> Unit = {}): Platform.Provider {
+        return Platform.Provider(include, platforms::put) { sourceSet ->
             project.unimined.minecraft(sourceSet) {
-                combineWith(project.rootProject.sourceSets["main"])
                 version = project.prop("${sourceSet.name}_minecraft_version")
                 runs.config("server") { enabled = false }
                 runs.all { jvmArgs("-Dmixin.debug.export=true") }
@@ -59,7 +83,7 @@ abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project)
         }
     }
 
-    protected fun forge(mappings: Mappings = mojmap, action: MinecraftConfig.() -> Unit = {}) = creating(mappings) {
+    protected fun forge(mappings: Mappings = mojmap, include: Boolean = true, action: MinecraftConfig.() -> Unit = {}) = creating(mappings, include) {
         action()
 
         minecraftForge {
@@ -68,6 +92,6 @@ abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project)
         }
     }
 
-    protected fun empty(action: (SourceSet) -> Unit = {}) = Platform.Provider(action)
+    protected fun empty(include: Boolean = true, action: (SourceSet) -> Unit = {}) = Platform.Provider(include, platforms::put, action)
 }
 

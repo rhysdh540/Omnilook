@@ -33,10 +33,6 @@ java.toolchain {
     languageVersion = JavaLanguageVersion.of(25)
 }
 
-val disabledPlatforms = listOf(
-    "ornithe"
-)
-
 val ap: Configuration by configurations.creating {
     isCanBeConsumed = false
     isCanBeResolved = true
@@ -110,7 +106,7 @@ class PlatformsImpl(project: Project) : PlatformContainer<PlatformsImpl>(project
         legacyFabric { loader("fabricloader_version"()) }
     }
 
-    val ornithe by creating(feather) {
+    val ornithe by creating(feather, include = false) {
         fabric { loader("fabricloader_version"()) }
     }
 
@@ -179,6 +175,9 @@ dependencies {
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
 
     platforms {
+        forEach {
+            it.sourceSet.compileClasspath += sourceSets.main.output
+        }
         legacyfabric.modImplementation(fabricApi.legacyFabricModule(
             "legacy-fabric-keybindings-api-v1-common",
             "legacyfabric_api_version"()
@@ -313,53 +312,21 @@ tasks.processResources {
     from(generatedOutput)
 }
 
-// region mergeJars and compression
-val mergeJars by tasks.registering(Jar::class) {
+val mergeJijs by tasks.registering(Jar::class) {
     group = "build"
-    archiveClassifier = "dev"
-    from(sourceSets.main.output)
-    from(platforms.reindev.sourceSet.output)
-
-    destinationDirectory = layout.buildDirectory.dir("libs")
-
-    from(file("LICENSE")) {
-        into("META-INF")
-    }
+    archiveClassifier = "jij"
 
     from(mmstub) {
         into("META-INF/")
         rename { "mm.jar" }
     }
 
-    manifest.attributes(
-        "MixinConfigs" to "omnilook.mixins.json",
-        "Fabric-Loom-Mixin-Remap-Type" to "static",
+    from("src/main/jijMetadata")
 
-        // old forge stuff
-        "FMLCorePlugin" to "dev.rdh.omnilook.MixinPlugin",
-        "FMLCorePluginContainsFMLMod" to true,
-        "ForceLoadAsMod" to true,
-        "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
-
-        // reindev stuff
-        "ModId" to "omnilook",
-        "ModName" to "mod_name"(),
-        "ModVersion" to project.version,
-        "ModDesc" to "mod_description"(),
-        "ClientMod" to "dev.rdh.omnilook.FoxlookMod",
-        "ClientMixin" to "omnilook.mixins.json",
-    )
+    destinationDirectory = layout.buildDirectory.dir("devlibs")
 }
 
-afterEvaluate {
-    mergeJars.configure {
-        tasks.withType<RemapJarTask>().filter { t ->
-            disabledPlatforms.none { it.lowercase() in t.name.lowercase() }
-        }.forEach { from(zipTree(it.asJar.archiveFile)) }
-    }
-}
-
-val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars, replaceOriginal = false) {
+val jarEntryModificationAction = Action<JarEntryModificationTask> {
     group = "build"
     archiveClassifier = ""
 
@@ -401,6 +368,68 @@ val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars,
             .map { it.replace(Regex("\\s*=\\s*"), "=") } // remove whitespaces around '='
             .joinToString("\n").toByteArray()
     }
+}
+
+val compressJij = tau.compression.compress<JarEntryModificationTask>(mergeJijs, replaceOriginal = true) {
+    entryCompression = ZipEntryCompression.STORED
+    jarEntryModificationAction(this)
+}
+
+// region mergeJars and compression
+val mergeJars by tasks.registering(Jar::class) {
+    group = "build"
+    archiveClassifier = "dev"
+    from(sourceSets.main.output)
+    from(platforms.reindev.sourceSet.output)
+
+    destinationDirectory = layout.buildDirectory.dir("libs")
+
+    from(file("LICENSE")) {
+        into("META-INF")
+    }
+
+    mustRunAfter("jar")
+
+    from(compressJij) {
+        into("META-INF")
+        rename { "ji.jar" }
+    }
+
+    manifest.attributes(
+        "MixinConfigs" to "omnilook.mixins.json",
+        "Fabric-Loom-Mixin-Remap-Type" to "static",
+
+        // old forge stuff
+        "FMLCorePlugin" to "dev.rdh.omnilook.MixinPlugin",
+        "FMLCorePluginContainsFMLMod" to true,
+        "ForceLoadAsMod" to true,
+        "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
+
+        // reindev stuff
+        "ModId" to "omnilook",
+        "ModName" to "mod_name"(),
+        "ModVersion" to project.version,
+        "ModDesc" to "mod_description"(),
+        "ClientMod" to "dev.rdh.omnilook.FoxlookMod",
+        "ClientMixin" to "omnilook.mixins.json",
+    )
+}
+
+afterEvaluate {
+    mergeJijs.configure {
+        platforms.filter { it.includeInOutput && it.supportsJarInJar }.forEach {
+            from(zipTree(it.outputJar.archiveFile))
+        }
+    }
+    mergeJars.configure {
+        platforms.filter { it.includeInOutput && !it.supportsJarInJar }.forEach {
+            from(zipTree(it.outputJar.archiveFile))
+        }
+    }
+}
+
+val compressJar1 = tau.compression.compress<JarEntryModificationTask>(mergeJars, replaceOriginal = false) {
+    jarEntryModificationAction(this)
 }
 
 val compressJar2 = tau.compression.compress<AdvzipTask>(compressJar1) {

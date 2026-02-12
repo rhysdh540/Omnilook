@@ -1,33 +1,17 @@
 {
   "schemaVersion": 1,
-  "id": "omnilook",
+  "id": "omnilook-container",
   "version": "${version}",
 
-  "name": "${name}",
-  "description": "${description}",
-  "authors": ["rdh"],
-  "icon": "omnilook.png",
-  "contact": {
-    "homepage": "${github}",
-    "sources": "${github}",
-    "issues": "${github}/issues"
-  },
-
-  "license": "Unlicense",
-
-  "environment": "client",
-  "entrypoints": {
-    "client": ["dev.rdh.omnilook.Entrypoint::fabric"],
-    "modmenu": ["dev.rdh.omnilook.config.ModMenuCompat"]
-  },
-  "mixins": ["omnilook.mixins.json"],
-
-  "depends": {
-    "minecraft": ["1.0.0-beta.7.3", ">=1.3.0 <=1.12.2", ">=1.14"],
-    "fabricloader": ">=0.15.0"
+  "custom": {
+    "modmenu": {
+      "parent": {
+        "id": "omnilook"
+      }
+    }
   },
 
   "jars": [
-    { "file": "META-INF/mm.jar" }
+    { "file": "META-INF/ji.jar" }
   ]
 }

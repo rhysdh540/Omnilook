@@ -1,0 +1,16 @@
+{
+  "jars": [
+    {
+      "identifier": {
+        "group": "dev.rdh",
+        "artifact": "omnilook"
+      },
+      "version": {
+        "range": "[${version}]",
+        "artifactVersion": "${version}"
+      },
+      "path": "META-INF/ji.jar",
+      "isObfuscated": true
+    }
+  ]
+}
