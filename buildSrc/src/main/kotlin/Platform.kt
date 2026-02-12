@@ -1,15 +1,11 @@
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.get
 import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
 import xyz.wagyourtail.unimined.api.unimined
 import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
-import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
-import kotlin.reflect.full.memberProperties
 
 class Platform internal constructor(val sourceSet: SourceSet) {
     val name: String
@@ -24,21 +20,28 @@ class Platform internal constructor(val sourceSet: SourceSet) {
 
     val dep: Any
         get() = sourceSet.output
+
+    class Provider internal constructor(private val action: (SourceSet) -> Unit) {
+        operator fun provideDelegate(thisRef: PlatformContainer<*>, property: KProperty<*>): Delegate {
+            val sourceSet = thisRef.project.sourceSets.maybeCreate(property.name)
+            action(sourceSet)
+            return Delegate(Platform(sourceSet))
+        }
+    }
+
+    class Delegate internal constructor(private val platform: Platform) {
+        operator fun getValue(thisRef: PlatformContainer<*>, property: KProperty<*>): Platform {
+            return platform
+        }
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
 abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project) {
     operator fun invoke(action: T.() -> Unit) = (this as T).action()
 
-    fun init(): T {
-        this::class.memberProperties.forEach {
-            it.getter.call(this)
-        }
-        return this as T
-    }
-
-    protected fun creating(mappings: Mappings = mojmap, action: MinecraftConfig.() -> Unit = {}): ReadOnlyProperty<PlatformContainer<*>, Platform> {
-        return PlatformHolder { sourceSet ->
+    protected fun creating(mappings: Mappings = mojmap, action: MinecraftConfig.() -> Unit = {}): Platform.Provider {
+        return Platform.Provider { sourceSet ->
             project.unimined.minecraft(sourceSet) {
                 combineWith(project.rootProject.sourceSets["main"])
                 version = project.prop("${sourceSet.name}_minecraft_version")
@@ -62,25 +65,6 @@ abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project)
         }
     }
 
-    protected fun empty(action: (SourceSet) -> Unit = {}): ReadOnlyProperty<PlatformContainer<*>, Platform> {
-        return PlatformHolder(action)
-    }
+    protected fun empty(action: (SourceSet) -> Unit = {}) = Platform.Provider(action)
 }
 
-private class PlatformHolder(val action: (SourceSet) -> Unit) : ReadOnlyProperty<PlatformContainer<*>, Platform> {
-    private var cached: Platform? = null
-
-    override fun getValue(thisRef: PlatformContainer<*>, property: KProperty<*>): Platform {
-        if (cached != null) {
-            if (cached!!.name != property.name) {
-                throw IllegalStateException("PlatformHolder reuse detected: ${cached!!.name} vs ${property.name}")
-            }
-            return cached!!
-        }
-
-        val sourceSet = thisRef.project.sourceSets.maybeCreate(property.name)
-        action(sourceSet)
-
-        return Platform(sourceSet).also { cached = it }
-    }
-}

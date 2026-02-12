@@ -47,7 +47,6 @@ val mmstub: Configuration by configurations.creating {
     isCanBeResolved = true
 }
 
-// <editor-fold desc="boilerplate" collapsed="true">
 repositories {
     unimined.modrinthMaven()
     unimined.fabricMaven()
@@ -158,7 +157,7 @@ class PlatformsImpl(project: Project) : PlatformContainer<PlatformsImpl>(project
     }
 }
 
-val platforms = PlatformsImpl(project).init()
+val platforms = PlatformsImpl(project)
 
 (sourceSets - sourceSets.main).forEach {
     tasks.named(it.classesTaskName) {
