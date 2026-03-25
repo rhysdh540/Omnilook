@@ -9,6 +9,7 @@ import org.taumc.gradle.compression.entryprocessing.EntryProcessors
 import org.taumc.gradle.compression.task.AdvzipTask
 import org.taumc.gradle.compression.task.JarEntryModificationTask
 import org.taumc.gradle.compression.util.toBytes
+import xyz.wagyourtail.unimined.api.minecraft.patch.fabric.FabricLikePatcher
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
 import xyz.wagyourtail.unimined.internal.minecraft.task.GenSourcesTaskImpl
 import xyz.wagyourtail.unimined.util.withSourceSet
@@ -321,7 +322,33 @@ val mergeJijs by tasks.registering(Jar::class) {
         rename { "mm.jar" }
     }
 
-    from("src/main/jijMetadata")
+    // put a string into a path
+    from(temporaryDir.resolve("m.json")) {
+        rename { "fabric.mod.json" }
+    }
+
+    doFirst {
+        temporaryDir.resolve("m.json").writeText(
+            """
+            {
+              "schemaVersion": 1,
+              "id": "omnilook-inner",
+              "version": "$version",
+
+              "custom": {
+                "modmenu": {
+                  "parent": {
+                    "id": "omnilook"
+                  }
+                }
+              },
+
+              "jars": [
+                { "file": "META-INF/mm.jar" }
+              ]
+            }
+        """.trimIndent())
+    }
 
     destinationDirectory = layout.buildDirectory.dir("devlibs")
 }
@@ -415,14 +442,17 @@ val mergeJars by tasks.registering(Jar::class) {
     )
 }
 
+val Platform.isFabric
+    get() = this.minecraft.mcPatcher is FabricLikePatcher
+
 afterEvaluate {
     mergeJijs.configure {
-        platforms.filter { it.includeInOutput && it.supportsJarInJar }.forEach {
+        platforms.filter { it.includeInOutput && it.isFabric }.forEach {
             from(zipTree(it.outputJar.archiveFile))
         }
     }
     mergeJars.configure {
-        platforms.filter { it.includeInOutput && !it.supportsJarInJar }.forEach {
+        platforms.filter { it.includeInOutput && !it.isFabric }.forEach {
             from(zipTree(it.outputJar.archiveFile))
         }
     }

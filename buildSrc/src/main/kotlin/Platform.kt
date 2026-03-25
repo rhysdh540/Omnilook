@@ -27,6 +27,9 @@ class Platform internal constructor(
     val dep: Any
         get() = sourceSet.output
 
+    val minecraft: MinecraftConfig
+        get() = project.unimined.minecrafts[sourceSet]!!
+
     val supportsJarInJar by lazy {
         project.configurations.findByName("include".withSourceSet(sourceSet)) != null
     }

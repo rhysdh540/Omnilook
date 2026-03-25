@@ -56,6 +56,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			throw new IllegalStateException("onLoad called twice");
 		}
 
+		Omnilook.LOGGER.info("initializing mixin plugin");
+
 		if(classExists("net.neoforged.fml.common.Mod")) {
 			platform = "NeoForge";
 		} else if(classExists("net.minecraftforge.versions.forge.ForgeVersion")) {
