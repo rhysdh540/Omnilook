@@ -42,7 +42,8 @@ public abstract class Omnilook {
 	private float yRot, xRot;
 
 	// 0 - first person, 1 - third person back, 2 - third person front
-	private int lastCameraType;
+	private int currentCameraType;
+	private boolean returnToFirstPerson;
 
 	/**
 	 * Updates the freelook camera rotation.
@@ -69,9 +70,12 @@ public abstract class Omnilook {
 	 * Updates the freelook camera state based on the keybind's state.
 	 */
 	public void update() {
-		if(getCameraType() != 1 && enabled) {
-			lastCameraType = getCameraType();
-			setEnabled(false);
+		int curr = getCameraType();
+		if(curr != currentCameraType) {
+			currentCameraType = curr;
+			if (enabled) {
+				setEnabled(false);
+			}
 		}
 
 		if(Config.toggleMode) {
@@ -92,15 +96,20 @@ public abstract class Omnilook {
 	 */
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-		if(enabled) {
-			lastCameraType = getCameraType();
-			setCameraType(1);
+		if (enabled) {
+			if (currentCameraType == 0) {
+				returnToFirstPerson = true;
+				setCameraType(1);
+			}
 		} else {
-			setCameraType(lastCameraType);
+			if (returnToFirstPerson) {
+				setCameraType(0);
+			}
 		}
 
 		this.xRot = getMCXRot();
 		this.yRot = getMCYRot();
+		this.currentCameraType = getCameraType();
 	}
 
 	// endregion
