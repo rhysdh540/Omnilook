@@ -28,15 +28,16 @@ public class GameRendererHooks extends MiniTransformer {
 			s.jumpBefore();
 			LabelNode skip = new LabelNode();
 			LabelNode after = new LabelNode();
-				ctx.add(
-						DUP2(),
-						INVOKESTATIC(
-								"dev/rdh/omnilook/mixin/nil/GameRendererHooks",
-								"shouldCallOriginalUpdateLocalPlayerCamera",
-								"(FF)Z"
-						),
-						IFEQ(skip)
-				);
+			ctx.add(
+					DUP2(),
+					FNEG(),
+					SWAP(),
+					INVOKESTATIC("dev/rdh/omnilook/Omnilook", "getInstance", "()Ldev/rdh/omnilook/Omnilook;"),
+					DUP_X2(),
+					POP(),
+					INVOKEVIRTUAL("dev/rdh/omnilook/Omnilook", "updateCamera", "(FF)Z"),
+					IFEQ(skip)
+			);
 			s.jumpAfter();
 			ctx.add(GOTO(after), skip, POP2(), POP(), after);
 		}
@@ -80,10 +81,5 @@ public class GameRendererHooks extends MiniTransformer {
 			return o.getXRot();
 		}
 		return value;
-	}
-
-	public static boolean shouldCallOriginalUpdateLocalPlayerCamera(float yawDelta, float pitchDelta) {
-		Omnilook o = Omnilook.getInstanceOrNull();
-		return o == null || o.updateCamera(-pitchDelta, yawDelta);
 	}
 }
