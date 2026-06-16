@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.util.Properties
 
 plugins {
@@ -26,7 +25,6 @@ repositories {
 idea.module.isDownloadSources = true
 
 kotlin {
-    compilerOptions.languageVersion = KotlinVersion.KOTLIN_2_2
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
@@ -37,7 +35,7 @@ kotlin {
 dependencies {
     implementation("org.ow2.asm:asm-tree:${"asm_version"()}")
     implementation("org.ow2.asm:asm-commons:${"asm_version"()}")
-    implementation(group = "org.jetbrains", name = "annotations")
+    implementation("org.jetbrains:annotations")
     implementation("net.fabricmc:tiny-remapper:0.8.7")
 
     implementation("xyz.wagyourtail.unimined:unimined:${"unimined_version"()}")
@@ -49,4 +47,4 @@ dependencies {
 operator fun String.invoke() = gradleProperties.getProperty(this) ?: error("No property \"$this\"")
 
 fun DependencyHandler.plugin(id: String, version: String) =
-    implementation(group = id, name = "$id.gradle.plugin", version = version)
+    implementation("$id:$id.gradle.plugin:$version")

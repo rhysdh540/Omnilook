@@ -81,6 +81,10 @@ repositories {
         forRepository { maven("https://maven.taumc.org/releases") }
         filter { includeGroup("dev.rdh") }
     }
+    exclusiveContent {
+        forRepository { maven("https://repo.sleeping.town") }
+        filter { includeGroup("com.unascribed") }
+    }
 }
 
 val SourceSetContainer.main by sourceSets.getting
@@ -137,6 +141,10 @@ class PlatformsImpl(project: Project) : PlatformContainer<PlatformsImpl>(project
         liteloader {
             loader("liteloader_version"())
         }
+    }
+
+    val nil by creating(feather) {
+        side("client")
     }
 
     val reindev by empty {
@@ -214,6 +222,8 @@ dependencies {
         lexforge13.compileOnly("io.github.llamalad7:mixinextras-common:0.3.6")
 
         rift.compileOnly(sourceSets.stubs.output)
+
+        nil.implementation("com.unascribed:nilloader:1.3.6")
 
         // reindev might be a little broken
         reindev.implementation("org.semver4j:semver4j:5.3.0")
@@ -295,7 +305,7 @@ tasks.withType<ProcessResources> {
 
     inputs.properties(props)
 
-    filesMatching(listOf("*.json", "mcmod.info", "META-INF/*.toml")) {
+    filesMatching(listOf("*.json", "mcmod.info", "META-INF/*.toml", "*.nilmod.css")) {
         expand(props)
     }
 }

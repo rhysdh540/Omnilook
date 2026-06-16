@@ -3,6 +3,7 @@ package dev.rdh.omnilook;
 import org.apache.commons.lang3.ArrayUtils;
 import org.lwjgl.glfw.GLFW;
 
+import dev.rdh.omnilook.config.Config;
 import dev.rdh.omnilook.config.LexForge20Screens;
 
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,7 +27,14 @@ public final class Forgelook20 extends Omnilook {
 			return;
 		}
 
-		MinecraftForge.registerConfigScreen(LexForge20Screens::make);
+		MinecraftForge.registerConfigScreen(parent -> {
+			if (MixinPlugin.classExists("me.shedaniel.clothconfig2.api.ConfigBuilder")) {
+				return LexForge20Screens.cloth(parent);
+			}
+
+			Config.openTextEditor();
+			return null;
+		});
 
 		// this is kind of jank but RegisterKeyMappingsEvent doesn't exist until like 1.19
 		// and ClientRegistry (the old way to do it) changed packages a lot

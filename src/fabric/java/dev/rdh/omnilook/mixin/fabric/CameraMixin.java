@@ -1,5 +1,6 @@
 package dev.rdh.omnilook.mixin.fabric;
 
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
@@ -11,7 +12,11 @@ import net.minecraft.client.Camera;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
-	@ModifyArgs(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
+	@Dynamic("multiversion")
+	@ModifyArgs(method = {
+			"setup", // 26.1-snapshot-6 and before
+			"alignWithEntity" // 26.1-snapshot-7 and later
+	}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
 	private void hookRotation(Args args) {
 		Omnilook o = Omnilook.getInstance();
 		o.update();

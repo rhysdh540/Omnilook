@@ -1,0 +1,10 @@
+@nilmod {
+    name: "${name}";
+    description: "${description}";
+    authors: "rdh";
+    version: "${version}";
+}
+
+entrypoints {
+    premain: "dev.rdh.omnilook.mixin.nil.InitHooks";
+}

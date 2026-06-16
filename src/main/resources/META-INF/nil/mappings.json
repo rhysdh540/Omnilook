@@ -1,0 +1,59 @@
+{
+  "default": {
+    "classes": [
+      {
+        "from": "net/minecraft/client/Minecraft",
+        "to": "net/minecraft/client/Minecraft",
+        "methods": {
+          "init()V": "a()V"
+        },
+        "fields": {
+          "runDir:Ljava/io/File;": "D:Ljava/io/File;"
+        }
+      }, {
+        "from": "net/minecraft/client/render/Camera",
+        "to": "aro",
+        "methods": {
+          "setup(Lnet/minecraft/entity/living/player/PlayerEntity;Z)V": "a(Lqx;Z)V"
+        }
+      }, {
+        "from": "net/minecraft/client/render/GameRenderer",
+        "to": "ban",
+        "methods": {
+          "render(F)V": "b(F)V",
+          "transformCamera(F)V": "g(F)V"
+        }
+      }, {
+        "from": "net/minecraft/client/entity/living/player/LocalClientPlayerEntity",
+        "to": "ays",
+        "methods": {
+          "updateLocalPlayerCamera(FF)V": "c(FF)V"
+        }
+      }, {
+        "from": "net/minecraft/entity/living/player/PlayerEntity",
+        "to": "qx"
+      }, {
+        "from": "net/minecraft/entity/living/LivingEntity",
+        "to": "md",
+        "fields": {
+          "yaw:F": "z:F",
+          "pitch:F": "A:F",
+          "prevYaw:F": "B:F",
+          "prevPitch:F": "C:F"
+        }
+      }, {
+        "from": "net/minecraft/client/options/GameOptions",
+        "to": "ast",
+        "methods": {
+          "load()V": "a()V"
+        },
+        "fields": {
+          "keyBindings:[Lnet/minecraft/client/options/KeyBinding;": "S:[Larv;"
+        }
+      }, {
+        "from": "net/minecraft/client/options/KeyBinding",
+        "to": "arv"
+      }
+    ]
+  }
+}
