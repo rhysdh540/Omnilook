@@ -16,7 +16,7 @@ public class NilLook extends Omnilook {
 
 	@Override
 	public Path getConfigDir() {
-		return Minecraft.getInstance().runDir.toPath().resolve("config");
+		return Minecraft.getInstance().gameDir.toPath().resolve("config");
 	}
 
 	@Override

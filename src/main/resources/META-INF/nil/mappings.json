@@ -8,7 +8,7 @@
           "init()V": "a()V"
         },
         "fields": {
-          "runDir:Ljava/io/File;": "D:Ljava/io/File;"
+          "gameDir:Ljava/io/File;": "D:Ljava/io/File;"
         }
       }, {
         "from": "net/minecraft/client/render/Camera",
