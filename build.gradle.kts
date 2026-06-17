@@ -223,7 +223,7 @@ dependencies {
 
         rift.compileOnly(sourceSets.stubs.output)
 
-        nil.implementation("com.unascribed:nilloader:1.3.6")
+        nil.implementation("com.unascribed:nilloader:${"nilloader_version"()}")
 
         // reindev might be a little broken
         reindev.implementation("org.semver4j:semver4j:5.3.0")
