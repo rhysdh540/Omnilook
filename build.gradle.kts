@@ -480,6 +480,28 @@ tasks.assemble {
     dependsOn(mergeJars, compressJar2)
 }
 
+val smokeMinecraftVersion = providers.gradleProperty("smokeMinecraftVersion").getOrElse("1.21.1")
+val smokeJar = providers.gradleProperty("smokeJar").orNull?.let { file(it) } ?: compressJar2
+val smokeTest = runProduction("smokeTest", smokeJar) {
+    version = smokeMinecraftVersion
+    fabric {
+        loader(providers.gradleProperty("smokeLoaderVersion").getOrElse("fabricloader_version"()))
+    }
+}
+
+dependencies {
+    val runtimeOnly = smokeTest.get().sourceSet.runtimeOnlyConfigurationName
+    if (unimined.minecrafts.getValue(smokeTest.get().sourceSet).obfuscated) {
+        add(runtimeOnly, "net.fabricmc:intermediary:$smokeMinecraftVersion")
+    }
+    val mods = providers.gradleProperty("smokeMods").orNull?.split(',') ?: if (smokeMinecraftVersion == "1.21.1") listOf(
+        "net.fabricmc.fabric-api:fabric-api:0.102.1+1.21.1",
+        "me.shedaniel.cloth:cloth-config-fabric:15.0.140:fabric",
+        "com.terraformersmc:modmenu:11.0.3"
+    ) else emptyList()
+    mods.filter { it.isNotBlank() }.forEach { add(runtimeOnly, it.trim()) }
+}
+
 // endregion
 
 tasks.withType<RemapJarTask> {

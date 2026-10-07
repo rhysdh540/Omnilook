@@ -1,38 +1,56 @@
-/*
 import org.gradle.api.Project
-import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.named
 import xyz.wagyourtail.unimined.api.minecraft.MinecraftConfig
-import xyz.wagyourtail.unimined.api.minecraft.resolver.MinecraftData
 import xyz.wagyourtail.unimined.api.runs.RunConfig
-import xyz.wagyourtail.unimined.internal.minecraft.MinecraftProvider
-import xyz.wagyourtail.unimined.internal.minecraft.patch.AbstractMinecraftTransformer
-import xyz.wagyourtail.unimined.internal.minecraft.patch.reindev.ReIndevProvider
-import xyz.wagyourtail.unimined.internal.minecraft.resolver.MinecraftDownloader
+import xyz.wagyourtail.unimined.api.unimined
+import xyz.wagyourtail.unimined.internal.minecraft.patch.fabric.FabricLikeMinecraftTransformer
 import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
+import java.util.zip.ZipFile
 
-// VERY WIP!!!
+fun Project.runProduction(
+    name: String,
+    modJar: Any,
+    configure: MinecraftConfig.() -> Unit
+): TaskProvider<RunConfig> {
+    val sourceSet = sourceSets.create(name)
+    sourceSet.java.setSrcDirs(emptyList<String>())
+    sourceSet.resources.setSrcDirs(emptyList<String>())
 
-private val MinecraftData.metadata get() = (this as MinecraftDownloader).metadata
+    unimined.minecraft(sourceSet) {
+        configure()
+        side("client")
+        defaultRemapJar = false
+        defaultRemapSourcesJar = false
+        val patcher = mcPatcher as? FabricLikeMinecraftTransformer
+            ?: error("Production smoke runs currently support Fabric-like loaders")
+        patcher.devMappings = null
+        mappings { devNamespace("official") }
 
-inline fun RunConfig.minecraft(configure: MinecraftConfig.() -> Unit) = this.conf(::MinecraftProvider, configure)
-inline fun RunConfig.reindev(configure: MinecraftConfig.() -> Unit) = this.conf(::ReIndevProvider, configure)
+        val modFiles = project.files(modJar, project.configurations.getByName(sourceSet.runtimeClasspathConfigurationName))
+            .filter { file -> ZipFile(file).use { it.getEntry("fabric.mod.json") != null } }
 
-inline fun <T : MinecraftProvider> RunConfig.conf(constructor: (Project, SourceSet) -> T, configure: T.() -> Unit): Unit {
-    val sourceSet = project.sourceSets.create("__internal_runProduction__${this.name}")
-    sourceSet.java.destinationDirectory.set(this.temporaryDir.resolve("compileOutput"))
-    sourceSet.output.setResourcesDir(this.temporaryDir.resolve("compileOutput"))
-    val mc = constructor(project, sourceSet)
-    mc.configure()
-
-    mc.defaultRemapJar = false
-    mc.defaultRemapSourcesJar = false
-    mc.apply()
-    project.tasks.named("genSources".withSourceSet(sourceSet)).configure {
-        group = "runProd-internal"
+        runs.config("client") {
+            group = "runProd"
+            description = "Launch Minecraft $version with the production mod jar"
+            workingDir = project.file("run/production/$name/$version")
+            classpath = (sourceSet.runtimeClasspath - sourceSet.output - minecraft) +
+                project.files(minecraftData.minecraftClientFile)
+            dependsOn(project.files(modJar))
+            systemProperty("java.awt.headless", true)
+            jvmArgs = jvmArgs!!.filterNot {
+                it.startsWith("-Dfabric.development=") ||
+                    it.startsWith("-Dfabric.remapClasspathFile=") ||
+                    it.startsWith("-Dfabric.classPathGroups=")
+            }
+            doFirst {
+                check(classpath.files.all { it.isFile }) { "Production classpath contains missing files or directories" }
+                check(jvmArgs!!.none { it.startsWith("-Dfabric.development=") }) { "Fabric development mode is enabled" }
+                systemProperty("fabric.addMods", modFiles.asPath)
+                classpath -= modFiles
+            }
+        }
     }
-    project.tasks.named("exportMappings".withSourceSet(sourceSet)).configure {
-        group = "runProd-internal"
-    }
-    (mc.mcPatcher as AbstractMinecraftTransformer).applyClientRunTransform(this)
-}*/
+    return tasks.named<RunConfig>("runClient".withSourceSet(sourceSet))
+}

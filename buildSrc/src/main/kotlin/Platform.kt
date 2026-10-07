@@ -1,4 +1,6 @@
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.internal.file.UnionFileCollection
 import org.gradle.api.tasks.SourceSet
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.get
@@ -7,6 +9,7 @@ import xyz.wagyourtail.unimined.api.unimined
 import xyz.wagyourtail.unimined.util.capitalized
 import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
+import java.nio.file.Path
 import kotlin.reflect.KProperty
 
 class Platform internal constructor(
@@ -83,6 +86,15 @@ abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project)
                     mappings(sourceSet.name)
                 }
             }
+
+            // IntelliJ's dependency model recursively iterates raw Paths from Unimined.
+            (sourceSet.runtimeClasspath as? UnionFileCollection)?.sources
+                ?.filterIsInstance<ConfigurableFileCollection>()
+                ?.forEach { files ->
+                    files.setFrom(files.from.map {
+                        if (it is Path) project.layout.file(project.provider { it.toFile() }) else it
+                    })
+                }
         }
     }
 
@@ -97,4 +109,3 @@ abstract class PlatformContainer<T : PlatformContainer<T>>(val project: Project)
 
     protected fun empty(include: Boolean = true, action: (SourceSet) -> Unit = {}) = Platform.Provider(include, platforms::put, action)
 }
-
