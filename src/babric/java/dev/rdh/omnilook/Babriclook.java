@@ -38,6 +38,18 @@ public class Babriclook extends Omnilook implements ModMenuScreenProvider<Screen
 	}
 
 	@Override
+	public Screen openScreen(Screen parent) {
+		StackTraceElement[] a = new Throwable().getStackTrace();
+		for(StackTraceElement e : a) {
+			if(e.getClassName().equals("net.danygames2014.modmenu.gui.ModsScreen") && e.getMethodName().equals("m_41805697")) {
+				return parent;
+			}
+		}
+
+		return ModMenuScreenProvider.super.openScreen(parent);
+	}
+
+	@Override
 	public Path getConfigDir() {
 		return FabricLoader.getInstance().getConfigDir();
 	}
