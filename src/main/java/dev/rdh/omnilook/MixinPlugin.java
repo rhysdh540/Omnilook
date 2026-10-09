@@ -125,8 +125,14 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
 		} else if(platform.equals("Fabric")) {
-			if (classExists("net.minecraft.unmapped.C_8105098")) {
+			if (classExists("net.minecraft.unmapped.C_76792751") ||
+					(FabricLoader.getInstance().isDevelopmentEnvironment() &&
+					 FabricLoader.getInstance().getMappingResolver().getNamespaces().contains("intermediary") &&
+					 FabricLoader.getInstance().getMappingResolver().mapClassName("intermediary",
+						 "net.minecraft.unmapped.C_76792751").equals("net.minecraft.client.options.GameOptions"))) {
 				platform = "Ornithe";
+			} else if(classExists("net.minecraft.unmapped.C_8105098")) {
+				throw new IllegalStateException("Omnilook requires Ornithe generation 2 intermediaries");
 			} else {
 				Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer("minecraft");
 				if(!mod.isPresent()) {
@@ -187,6 +193,10 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if(mixinClassName.endsWith(".ornithe.EarlyInputMixin")) {
+			return FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion()
+					.compareTo(Version.parse("1.0.0-alpha.0.1.1")) < 0;
+		}
 		return true;
 	}
 

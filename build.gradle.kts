@@ -13,6 +13,7 @@ import xyz.wagyourtail.unimined.api.minecraft.patch.fabric.FabricLikePatcher
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
 import xyz.wagyourtail.unimined.internal.minecraft.task.GenSourcesTaskImpl
 import xyz.wagyourtail.unimined.util.withSourceSet
+import xyz.wagyourtail.unimined.util.compareFlexVer
 
 plugins {
     id("idea")
@@ -59,7 +60,7 @@ repositories {
     }
     exclusiveContent {
         forRepository { maven("https://maven.terraformersmc.com/releases") }
-        filter { includeGroup("com.terraformersmc") }
+        filter { includeVersionByRegex("com.terraformersmc", "modmenu", "(?!0\\.5\\.0\\+mc).*") }
     }
     exclusiveContent {
         forRepository { maven("https://maven.isxander.dev/releases") }
@@ -71,7 +72,10 @@ repositories {
     }
     exclusiveContent {
         forRepository { maven("https://maven.ornithemc.net/releases") }
-        filter { includeGroup("net.ornithemc") }
+        filter {
+            includeGroup("net.ornithemc")
+            includeVersionByRegex("com.terraformersmc", "modmenu", "0\\.5\\.0\\+mc.*")
+        }
     }
     exclusiveContent {
         forRepository { maven("https://libraries.minecraft.net") }
@@ -111,8 +115,10 @@ class PlatformsImpl(project: Project) : PlatformContainer<PlatformsImpl>(project
         legacyFabric { loader("fabricloader_version"()) }
     }
 
-    val ornithe by creating(feather, include = false) {
-        fabric { loader("fabricloader_version"()) }
+    val ornithe by creating(Mappings { ornitheGenVersion = 2 } + feather) {
+        ornitheMetadata()
+        side("client")
+        ornitheFabric { loader("fabricloader_version"()) }
     }
 
     val babric by creating(Mappings { nostalgia("babric_nostalgia_version"()) }) {
@@ -192,11 +198,19 @@ dependencies {
             "legacyfabric_api_version"()
         ))
 
+        ornithe.modImplementation("net.ornithemc.osl-gen2:core:0.11.0+mc14w27a-mc1.14.4")
+        ornithe.modImplementation("net.ornithemc.osl-gen2:keybinds:0.3.0+mc17w16a-mc1.12.2")
+
         fabric.implementation(platforms.mojmap.dep)
 
         intermediaryfabric.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-fabric")
         intermediaryfabric.modImplementation("me.shedaniel.cloth:cloth-config-fabric:15.0.140")
         intermediaryfabric.modImplementation("com.terraformersmc:modmenu:11.0.3")
+        // Unimined cannot statically remap the new Mixin API's array-valued @At.
+        intermediaryfabric.compileOnly("org.spongepowered:mixin:${"mixin_version"()}")
+        intermediaryfabric.sourceSet.compileClasspath = intermediaryfabric.sourceSet.compileClasspath.filter {
+            !it.name.startsWith("sponge-mixin-")
+        }
         mmstub(intermediaryfabric.implementation("dev.rdh:modmenu-legacy-compat-stub:1.0")!!)
 
         neoforge.modImplementation("dev.isxander:yet-another-config-lib:3.6.1+1.21-neoforge") {
@@ -326,6 +340,7 @@ tasks.processResources {
 val mergeJijs by tasks.registering(Jar::class) {
     group = "build"
     archiveClassifier = "jij"
+    manifest.attributes("Calamus-Generation" to "2")
 
     from(mmstub) {
         into("META-INF/")
@@ -434,6 +449,7 @@ val mergeJars by tasks.registering(Jar::class) {
 
     manifest.attributes(
         "MixinConfigs" to "omnilook.mixins.json",
+        "Calamus-Generation" to "2",
         "Fabric-Loom-Mixin-Remap-Type" to "static",
 
         // old forge stuff
@@ -480,26 +496,116 @@ tasks.assemble {
     dependsOn(mergeJars, compressJar2)
 }
 
-val smokeMinecraftVersion = providers.gradleProperty("smokeMinecraftVersion").getOrElse("1.21.1")
+val smokeLoader = providers.gradleProperty("smokeLoader").getOrElse("fabric").lowercase()
+val smokeMinecraftVersion = providers.gradleProperty("smokeMinecraftVersion").getOrElse(when (smokeLoader) {
+    "babric" -> "babric_minecraft_version"()
+    "rift" -> "rift_minecraft_version"()
+    "ornithe", "legacyfabric", "liteloader" -> "1.12.2"
+    "nil" -> "nil_minecraft_version"()
+    "foxloader" -> "reindev_version"()
+    else -> "1.21.1"
+})
+val smokeLoaderVersion = providers.gradleProperty("smokeLoaderVersion").orNull ?: when (smokeLoader) {
+    "fabric", "ornithe", "legacyfabric" -> "fabricloader_version"()
+    "babric" -> "babric_loader_version"()
+    "rift" -> smokeMinecraftVersion
+    "liteloader" -> "liteloader_version"()
+    "nil" -> "nilloader_version"()
+    "quilt" -> "0.30.1"
+    "forge" -> platforms.firstOrNull { it.name.startsWith("lexforge") && it.minecraft.version == smokeMinecraftVersion }
+        ?.let { "${smokeMinecraftVersion}-${prop("${it.name}_version")}" }
+        ?: error("Set -PsmokeLoaderVersion to the full Forge version for $smokeMinecraftVersion")
+    "neoforge" -> if (smokeMinecraftVersion == "neoforge_minecraft_version"()) "21.1.${"neoforge_version"()}"
+        else error("Set -PsmokeLoaderVersion to the full NeoForge version for $smokeMinecraftVersion")
+    "foxloader" -> null
+    else -> error("Unknown smokeLoader: $smokeLoader")
+}
+val requiredSmokeMods = when (smokeLoader) {
+    "ornithe" -> if (smokeMinecraftVersion.startsWith("in-") || smokeMinecraftVersion.startsWith("inf-")) emptyList()
+        else listOf("maven.modrinth:osl:${"ornithe_stdlib_version"()}")
+    "forge" if smokeMinecraftVersion == "1.7.10" -> listOf("maven.modrinth:unimixins:SeOh2lEZ")
+    "forge" if smokeMinecraftVersion.compareFlexVer("1.13") < 0 -> listOf("maven.modrinth:mixinbooter:6jJK1B2d")
+    "forge" if smokeMinecraftVersion.compareFlexVer("1.14") < 0 -> listOf("maven.modrinth:modernmixins:rVn7ZhuV")
+    "forge" if smokeMinecraftVersion.compareFlexVer("1.15.2") < 0 -> listOf("maven.modrinth:mixinbootstrap:hOGSWOX8")
+    in listOf("fabric", "legacyfabric") if smokeMinecraftVersion == "1.6.4" -> listOf("maven.modrinth:legacy-fabric-api:E9wI3ZXg")
+    else -> emptyList()
+}
+val ornitheModMenuVersions = setOf(
+    "b1.7.3", "b1.8.1", "1.0.0", "1.1", "1.2.5", "1.3.2", "1.4.7", "1.5.2", "1.6.4",
+    "1.7.7", "1.7.9", "1.7.10", "1.8.1", "1.8.8", "1.8.9", "1.9.4", "1.10.2", "1.11.2", "1.12.2", "1.13.2"
+)
+val smokeMods = requiredSmokeMods + (providers.gradleProperty("smokeMods").orNull?.split(',') ?: if (
+    smokeLoader == "fabric" && smokeMinecraftVersion == "1.21.1"
+) listOf(
+    "net.fabricmc.fabric-api:fabric-api:0.102.1+1.21.1",
+    "me.shedaniel.cloth:cloth-config-fabric:15.0.140:fabric",
+    "com.terraformersmc:modmenu:11.0.3"
+) else if (smokeLoader == "ornithe" && smokeMinecraftVersion in ornitheModMenuVersions) listOf(
+    "com.terraformersmc:modmenu:0.5.0+mc$smokeMinecraftVersion"
+) else emptyList()).filter { it.isNotBlank() }.map { it.trim() }
 val smokeJar = providers.gradleProperty("smokeJar").orNull?.let { file(it) } ?: compressJar2
-val smokeTest = runProduction("smokeTest", smokeJar) {
+val smokeTest = runProduction("smokeTest", smokeJar, smokeLoader, smokeMods, when (smokeLoader) {
+    "forge" -> "net.minecraftforge:forge:$smokeLoaderVersion:installer"
+    "neoforge" -> "net.neoforged:neoforge:$smokeLoaderVersion:installer"
+    else -> null
+}) {
     version = smokeMinecraftVersion
-    fabric {
-        loader(providers.gradleProperty("smokeLoaderVersion").getOrElse("fabricloader_version"()))
+    when (smokeLoader) {
+        "fabric" -> if (version.compareFlexVer("1.13") < 0) legacyFabric { loader(smokeLoaderVersion!!) }
+            else fabric { loader(smokeLoaderVersion!!) }
+        "ornithe" -> {
+            ornitheMetadata()
+            mappings { ornitheGenVersion = 2 }
+            ornitheFabric { loader(smokeLoaderVersion!!) }
+            runs.config("client") { systemProperty("fabric.gameVersion", version) }
+            runs.config("client") { systemProperty("fabric.fixPackageAccess", true) }
+        }
+        "legacyfabric" -> legacyFabric { loader(smokeLoaderVersion!!) }
+        "babric" -> babric { loader(smokeLoaderVersion!!) }
+        "quilt" -> quilt { loader(smokeLoaderVersion!!) }
+        "rift" -> {
+            minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")
+            rift { loader(smokeLoaderVersion!!) }
+            minecraftRemapper.config { ignoreConflicts(true) }
+        }
+        "liteloader" -> {
+            mappings { searge() }
+            liteloader { loader(smokeLoaderVersion!!) }
+            mods {
+                modImplementation {
+                    namespace("searge")
+                    mixinRemap {
+                        // LiteLoader's refmaps already contain official names.
+                        resetMetadataReader()
+                        resetRefmapBuilder()
+                    }
+                }
+            }
+        }
+        "forge" -> unimined.minecraftForgeMaven()
+        "neoforge" -> unimined.neoForgedMaven()
+        "foxloader" -> foxLoader {
+            if (smokeLoaderVersion == null) loader() else loader(smokeLoaderVersion)
+            modId = "omnilook"
+        }
+        "nil" -> {
+            val agent = configurations.create("smokeNilAgent") { isTransitive = false }
+            dependencies.add(agent.name, "com.unascribed:nilloader:$smokeLoaderVersion")
+            runs.config("client") { doFirst { jvmArgs("-javaagent:${agent.singleFile}") } }
+        }
+        else -> error("Unknown smokeLoader: $smokeLoader")
     }
 }
 
 dependencies {
     val runtimeOnly = smokeTest.get().sourceSet.runtimeOnlyConfigurationName
-    if (unimined.minecrafts.getValue(smokeTest.get().sourceSet).obfuscated) {
-        add(runtimeOnly, "net.fabricmc:intermediary:$smokeMinecraftVersion")
+    if (unimined.minecrafts.getValue(smokeTest.get().sourceSet).obfuscated) when (smokeLoader) {
+        "fabric", "quilt" -> add(runtimeOnly, if (smokeMinecraftVersion.compareFlexVer("1.13") < 0)
+            "net.legacyfabric:intermediary:$smokeMinecraftVersion:v2" else "net.fabricmc:intermediary:$smokeMinecraftVersion")
+        "ornithe" -> add(runtimeOnly, "net.ornithemc:calamus-intermediary-gen2:$smokeMinecraftVersion:v2")
+        "legacyfabric" -> add(runtimeOnly, "net.legacyfabric:intermediary:$smokeMinecraftVersion:v2")
+        "babric" -> add(runtimeOnly, "babric:intermediary:$smokeMinecraftVersion")
     }
-    val mods = providers.gradleProperty("smokeMods").orNull?.split(',') ?: if (smokeMinecraftVersion == "1.21.1") listOf(
-        "net.fabricmc.fabric-api:fabric-api:0.102.1+1.21.1",
-        "me.shedaniel.cloth:cloth-config-fabric:15.0.140:fabric",
-        "com.terraformersmc:modmenu:11.0.3"
-    ) else emptyList()
-    mods.filter { it.isNotBlank() }.forEach { add(runtimeOnly, it.trim()) }
 }
 
 // endregion
