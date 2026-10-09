@@ -5,9 +5,11 @@ import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.spongepowered.asm.service.MixinService;
 
 import net.minecraftforge.versions.forge.ForgeVersion;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
@@ -25,11 +27,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	// region Reflection Utilities
 	public static boolean classExists(String className) {
-		try {
-			Class.forName(className, false, MixinPlugin.class.getClassLoader());
-			return true;
-		} catch (ClassNotFoundException e) {
-			return false;
+		try(InputStream stream = MixinService.getService().getResourceAsStream(className.replace('.', '/') + ".class")) {
+			return stream != null;
 		}
 	}
 
@@ -75,8 +74,14 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
 		} else if(classExists("net.fabricmc.loader.api.FabricLoader")) {
-			if (classExists("net.minecraft.unmapped.C_8105098")) {
+			if (classExists("net.minecraft.unmapped.C_76792751") ||
+					(FabricLoader.getInstance().isDevelopmentEnvironment() &&
+					 FabricLoader.getInstance().getMappingResolver().getNamespaces().contains("intermediary") &&
+					 FabricLoader.getInstance().getMappingResolver().mapClassName("intermediary",
+						 "net.minecraft.unmapped.C_76792751").equals("net.minecraft.client.options.GameOptions"))) {
 				platform = "Ornithe";
+			} else if(classExists("net.minecraft.unmapped.C_8105098")) {
+				throw new IllegalStateException("Omnilook requires Ornithe generation 2 intermediaries");
 			} else {
 				Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer("minecraft");
 				if(!mod.isPresent()) {
@@ -153,6 +158,10 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+		if(mixinClassName.endsWith(".ornithe.EarlyInputMixin")) {
+			return FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion()
+					.compareTo(Version.parse("1.0.0-alpha.0.1.1")) < 0;
+		}
 		return true;
 	}
 

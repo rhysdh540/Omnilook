@@ -1,58 +1,21 @@
 package dev.rdh.omnilook.mixin.ornithe;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import org.spongepowered.asm.mixin.Dynamic;
+import dev.rdh.omnilook.Omnilook;
+import net.minecraft.client.render.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
-
-import dev.rdh.omnilook.Omnilook;
-
-import net.minecraft.client.render.GameRenderer;
-
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
-	@Dynamic
-	@WrapWithCondition(method = {
-			"render(FJ)V", // 1.8+
-			"func_78480_b(F)V" // 1.7.10-
-	}, at = {
-			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/living/player/LocalClientPlayerEntity;updateLocalPlayerCamera(FF)V"), // 1.8+
-			@At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityClientPlayerMP;func_70082_c(FF)V") // 1.7.10-
-	})
-	private boolean onTurn(@Coerce Object instance, float yaw, float pitch) {
-		return Omnilook.getInstance().updateCamera(-pitch, yaw);
+	// indev–inf-20100629: m_23117156(F)
+	// inf-20100630–1.8.2-pre1: render(F)
+	// 1.8.2-pre2–1.12.2: render(FJ)
+	// 17w43a–1.14.4: render(FJZ)
+	@Inject(method = {"render(F)V", "render(FJ)V", "render(FJZ)V", "m_08357947", "m_23117156"}, remap = false, at = @At("HEAD"))
+	private void update(CallbackInfo ci) {
+		Omnilook.getInstance().update();
 	}
 
-	@Dynamic
-	@ModifyExpressionValue(method = "transformCamera", at = {
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;yaw:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevYaw:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;rotationYaw:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;prevRotationYaw:F")
-	})
-	private float modifyYaw(float value) {
-		Omnilook o = Omnilook.getInstance();
-		if (o.isEnabled()) {
-			return o.getYRot();
-		}
-		return value;
-	}
-
-	@Dynamic
-	@ModifyExpressionValue(method = "transformCamera", at = {
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;pitch:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/Entity;prevPitch:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;rotationPitch:F"),
-			@At(value = "FIELD", target = "Lnet/minecraft/entity/EntityLivingBase;prevRotationPitch:F")
-	})
-	private float modifyPitch(float value) {
-		Omnilook o = Omnilook.getInstance();
-		if (o.isEnabled()) {
-			return o.getXRot();
-		}
-		return value;
-	}
 }
