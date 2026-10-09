@@ -1,6 +1,6 @@
 package dev.rdh.omnilook;
 
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
@@ -10,13 +10,14 @@ public abstract class BaseMojmapImpl extends Omnilook {
 	public final KeyMapping key;
 
 	protected BaseMojmapImpl() {
+		int grave = InputConstants.getKey("key.keyboard.grave.accent").getValue();
 		KeyMapping k;
 		try {
-			k = new KeyMapping(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KeyMapping.Category.MISC);
+			k = new KeyMapping(KEYBINDING_NAME, grave, KeyMapping.Category.MISC);
 		} catch (Throwable t) {
 			//noinspection JavaReflectionMemberAccess
 			k = KeyMapping.class.getDeclaredConstructor(String.class, int.class, String.class)
-					.newInstance(KEYBINDING_NAME, GLFW.GLFW_KEY_GRAVE_ACCENT, KEYBINDING_CATEGORY);
+					.newInstance(KEYBINDING_NAME, grave, KEYBINDING_CATEGORY);
 		}
 		key = k;
 	}
