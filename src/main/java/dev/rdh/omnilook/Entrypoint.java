@@ -24,6 +24,8 @@ public final class Entrypoint {
 			classname = "dev.rdh.omnilook.Forgelook12";
 		} else if(classname.endsWith("abric")) {
 			classname = "dev.rdh.omnilook." + classname + "look";
+		} else if(classname.equals("BTA")) {
+			classname = "dev.rdh.omnilook.BTAlook";
 		} else if(classname.equals("Ornithe")) {
 			classname = "dev.rdh.omnilook.Avianlook";
 		}

@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage", "VulnerableLibrariesLocal")
 
 import org.gradle.api.internal.artifacts.configurations.ResolutionBackedFileCollection
+import org.gradle.api.attributes.java.TargetJvmVersion
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.tree.ClassNode
 import org.taumc.gradle.compression.DeflateAlgorithm
@@ -57,6 +58,14 @@ repositories {
     exclusiveContent {
         forRepository { maven("https://maven.cleanroommc.com") }
         filter { includeGroup("zone.rong") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.thesignalumproject.net/infrastructure") }
+        filter { includeVersionByRegex("net.fabricmc", "fabric-loader", ".*-bta\\..*") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.thesignalumproject.net/releases") }
+        filter { includeGroup("turniplabs") }
     }
     exclusiveContent {
         forRepository { maven("https://maven.terraformersmc.com/releases") }
@@ -153,6 +162,19 @@ class PlatformsImpl(project: Project) : PlatformContainer<PlatformsImpl>(project
         side("client")
     }
 
+    val bta by empty(include = false) {
+        unimined.bta(it) {
+            combineWith(sourceSets.main)
+            version = "bta_version"()
+            side("client")
+            btaRuntime()
+            legacyFabric { loader("bta_loader_version"()) }
+            runs.config("client") { javaVersion = JavaVersion.VERSION_21 }
+            runs.config("server") { enabled = false }
+            runs.all { jvmArgs("-Dmixin.debug.export=true") }
+        }
+    }
+
     val reindev by empty {
         unimined.reIndev(it) {
             combineWith(sourceSets.main)
@@ -169,6 +191,10 @@ class PlatformsImpl(project: Project) : PlatformContainer<PlatformsImpl>(project
 }
 
 val platforms = PlatformsImpl(project)
+
+listOf(platforms.bta.sourceSet.compileClasspathConfigurationName, platforms.bta.sourceSet.runtimeClasspathConfigurationName).forEach {
+    configurations.named(it) { attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17) }
+}
 
 (sourceSets - sourceSets.main).forEach {
     tasks.named(it.classesTaskName) {
@@ -433,6 +459,7 @@ val mergeJars by tasks.registering(Jar::class) {
     archiveClassifier = "dev"
     from(sourceSets.main.output)
     from(platforms.reindev.sourceSet.output)
+    from(platforms.bta.sourceSet.output)
 
     destinationDirectory = layout.buildDirectory.dir("libs")
 
@@ -503,11 +530,13 @@ val smokeMinecraftVersion = providers.gradleProperty("smokeMinecraftVersion").ge
     "ornithe", "legacyfabric", "liteloader" -> "1.12.2"
     "nil" -> "nil_minecraft_version"()
     "foxloader" -> "reindev_version"()
+    "bta" -> "bta_version"()
     else -> "1.21.1"
 })
 val smokeLoaderVersion = providers.gradleProperty("smokeLoaderVersion").orNull ?: when (smokeLoader) {
     "fabric", "ornithe", "legacyfabric" -> "fabricloader_version"()
     "babric" -> "babric_loader_version"()
+    "bta" -> "bta_loader_version"()
     "rift" -> smokeMinecraftVersion
     "liteloader" -> "liteloader_version"()
     "nil" -> "nilloader_version"()
@@ -540,6 +569,8 @@ val smokeMods = requiredSmokeMods + (providers.gradleProperty("smokeMods").orNul
     "net.fabricmc.fabric-api:fabric-api:0.102.1+1.21.1",
     "me.shedaniel.cloth:cloth-config-fabric:15.0.140:fabric",
     "com.terraformersmc:modmenu:11.0.3"
+) else if (smokeLoader == "bta") listOf(
+    "turniplabs:modmenu-bta:5.0.2"
 ) else if (smokeLoader == "ornithe" && smokeMinecraftVersion in ornitheModMenuVersions) listOf(
     "com.terraformersmc:modmenu:0.5.0+mc$smokeMinecraftVersion"
 ) else emptyList()).filter { it.isNotBlank() }.map { it.trim() }
@@ -562,6 +593,7 @@ val smokeTest = runProduction("smokeTest", smokeJar, smokeLoader, smokeMods, whe
         }
         "legacyfabric" -> legacyFabric { loader(smokeLoaderVersion!!) }
         "babric" -> babric { loader(smokeLoaderVersion!!) }
+        "bta" -> legacyFabric { loader(smokeLoaderVersion!!) }
         "quilt" -> quilt { loader(smokeLoaderVersion!!) }
         "rift" -> {
             minecraftData.metadataURL = uri("https://skyrising.github.io/mc-versions/manifest/f/f/8444b7446a793191e0c496bba07ac41ff17031/1.13.2.json")

@@ -20,6 +20,7 @@ import xyz.wagyourtail.unimined.util.execOps
 import xyz.wagyourtail.unimined.util.sourceSets
 import xyz.wagyourtail.unimined.util.withSourceSet
 import java.net.URI
+import java.io.File
 import java.nio.file.Files
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
@@ -45,6 +46,7 @@ fun Project.runProduction(
 
     val action: MinecraftConfig.() -> Unit = action@{
         configure()
+        val btaVanilla = if (loader == "bta") btaRuntime(production = true) else null
         side("client")
         defaultRemapJar = false
         defaultRemapSourcesJar = false
@@ -58,7 +60,7 @@ fun Project.runProduction(
             (loader == "ornithe" && (version.startsWith("in-") || version.startsWith("inf-"))) ||
             version.compareFlexVer("1.13") < 0
         val metadata = (minecraftData as MinecraftDownloader).metadata
-        val requiredJava = metadata.javaVersion
+        val requiredJava = if (loader == "bta") JavaVersion.VERSION_17 else metadata.javaVersion
         val upgradeLwjgl3 = !lwjgl2 && requiredJava > JavaVersion.VERSION_1_8 &&
             OSUtils.oSId == "osx" && System.getProperty("os.arch") in listOf("aarch64", "arm64") &&
             metadata.libraries.any { it.name.startsWith("org.lwjgl:") && it.name.split(':')[2].compareFlexVer("3.3.0") < 0 }
@@ -77,11 +79,12 @@ fun Project.runProduction(
         runs.config("client") {
             group = "runProd"
             description = "Launch Minecraft $version with the production mod jar"
-            javaVersion = listOf(JavaVersion.VERSION_1_8, JavaVersion.VERSION_21, JavaVersion.VERSION_25)
+            javaVersion = if (loader == "bta") JavaVersion.VERSION_17 else listOf(JavaVersion.VERSION_1_8, JavaVersion.VERSION_21, JavaVersion.VERSION_25)
                 .first { it >= requiredJava }
             workingDir = project.file("run/production/$loader/$version")
             classpath = (sourceSet.runtimeClasspath - sourceSet.output - minecraft) +
                 project.files(minecraftData.minecraftClientFile)
+            if (btaVanilla != null) classpath += project.files(btaVanilla)
             dependsOn(productionMods)
             if (!lwjgl2) systemProperty("java.awt.headless", true)
             jvmArgs = jvmArgs.filterNot {
@@ -121,6 +124,7 @@ fun Project.runProduction(
         }
     }
     if (loader == "foxloader") unimined.reIndev(sourceSet, action = action)
+    else if (loader == "bta") unimined.bta(sourceSet, action = action)
     else unimined.minecraft(sourceSet, action = action)
     return tasks.named<RunConfig>("runClient".withSourceSet(sourceSet))
 }
@@ -230,4 +234,35 @@ fun MinecraftConfig.ornitheMetadata() {
             project.dependencies.add(minecraftLibraries.name, it.asJsonObject["name"].asString)
         }
     }
+}
+
+fun MinecraftConfig.btaRuntime(production: Boolean = false): File? {
+    val os = if (OSUtils.oSId == "osx") "macos" else OSUtils.oSId
+    val arch = System.getProperty("os.arch")
+    val suffix = when {
+        arch in listOf("aarch64", "arm64") -> "-arm64"
+        arch.startsWith("arm") -> "-arm32"
+        os == "windows" && arch in listOf("x86", "i386", "i686") -> "-x86"
+        else -> ""
+    }
+    listOf("lwjgl", "lwjgl-glfw", "lwjgl-openal", "lwjgl-opengl", "lwjgl-stb").forEach {
+        project.dependencies.add(minecraftLibraries.name, "org.lwjgl:$it:3.3.3:natives-$os$suffix")
+    }
+    if (!production) listOf(
+        "com.paulscode:soundsystem:20120107",
+        "com.paulscode:codecjorbis:20101023",
+        "com.paulscode:codecwav:20101023"
+    ).forEach { project.dependencies.add(minecraftLibraries.name, it) }
+    // BTA 8 bundles LWJGL 3, but its launcher manifest still lists LWJGL 2 libraries.
+    minecraftLibraries.withDependencies {
+        removeAll { it.group in setOf("org.lwjgl.lwjgl", "net.java.jinput", "net.java.jutils", "net.sf.jopt-simple") ||
+            (it.group == "net.minecraft" && it.name == "launchwrapper") ||
+            (it.group == "org.ow2.asm" && it.name == "asm-all") ||
+            (production && it.group in setOf("org.jetbrains", "io.github.llamalad7")) }
+    }
+    return if (production) project.cachingDownload(
+        URI("https://piston-data.mojang.com/v1/objects/43db9b498cb67058d2e12d394e6507722e71bb45/client.jar"),
+        sha1 = "43db9b498cb67058d2e12d394e6507722e71bb45",
+        size = 1465375
+    ).toFile() else null
 }

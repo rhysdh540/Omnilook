@@ -125,7 +125,9 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
 		} else if(platform.equals("Fabric")) {
-			if (classExists("net.minecraft.unmapped.C_76792751") ||
+			if(classExists("net.minecraft.client.render.camera.EntityCamera")) {
+				platform = "BTA";
+			} else if (classExists("net.minecraft.unmapped.C_76792751") ||
 					(FabricLoader.getInstance().isDevelopmentEnvironment() &&
 					 FabricLoader.getInstance().getMappingResolver().getNamespaces().contains("intermediary") &&
 					 FabricLoader.getInstance().getMappingResolver().mapClassName("intermediary",
@@ -202,7 +204,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	public static void noop() {}
 
-	//region Unused
+	//region Mixin callbacks
 	@Override
 	public String getRefMapperConfig() {
 		return null;
@@ -214,6 +216,9 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	@Override
 	public void preApply(String targetClassName, org.objectweb.asm.tree.ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+		if(mixinClassName.endsWith(".bta.ModMenuCompatMixin")) {
+			targetClass.methods.removeIf(method -> method.name.equals("getModConfigScreenFactory"));
+		}
 	}
 
 	@Override

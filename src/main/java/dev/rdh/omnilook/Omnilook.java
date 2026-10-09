@@ -97,8 +97,8 @@ public abstract class Omnilook {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 		if (enabled) {
-			if (currentCameraType == 0) {
-				returnToFirstPerson = true;
+			returnToFirstPerson = currentCameraType == 0;
+			if (returnToFirstPerson) {
 				setCameraType(1);
 			}
 		} else {
