@@ -85,6 +85,18 @@ public class Avianlook extends Omnilook implements ModMenuScreenProvider<Screen>
 	}
 
 	@Override
+	public Screen openScreen(Screen parent) {
+		StackTraceElement[] a = new Throwable().getStackTrace();
+		for(StackTraceElement e : a) {
+			if(e.getClassName().equals("com.terraformersmc.modmenu.gui.ModsScreen") && e.getMethodName().equals("m_41805697")) {
+				return parent;
+			}
+		}
+
+		return ModMenuScreenProvider.super.openScreen(parent);
+	}
+
+	@Override
 	public void update() {
 		if(key != null && player.invoke(minecraft) != null) super.update();
 	}

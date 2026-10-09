@@ -41,7 +41,7 @@ public class Babriclook extends Omnilook implements ModMenuScreenProvider<Screen
 	public Screen openScreen(Screen parent) {
 		StackTraceElement[] a = new Throwable().getStackTrace();
 		for(StackTraceElement e : a) {
-			if(e.getClassName().equals("net.danygames2014.modmenu.gui.ModsScreen") && e.getMethodName().equals("m_41805697")) {
+			if(e.getClassName().equals("net.danygames2014.modmenu.gui.ModsScreen") && e.getMethodName().equals("method_119")) {
 				return parent;
 			}
 		}
