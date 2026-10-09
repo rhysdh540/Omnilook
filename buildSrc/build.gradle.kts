@@ -33,6 +33,7 @@ kotlin {
 }
 
 dependencies {
+    compileOnly("com.google.code.gson:gson:2.13.1")
     implementation("org.ow2.asm:asm-tree:${"asm_version"()}")
     implementation("org.ow2.asm:asm-commons:${"asm_version"()}")
     implementation("org.jetbrains:annotations")
