@@ -1,13 +1,20 @@
 package dev.rdh.omnilook;
 
+import com.mumfrey.liteloader.launch.LiteLoaderTweaker;
+import cpw.mods.modlauncher.Environment;
+import cpw.mods.modlauncher.Launcher;
+import cpw.mods.modlauncher.api.IEnvironment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
+import org.dimdev.riftloader.RiftLoader;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.spongepowered.asm.service.MixinService;
 
 import net.minecraftforge.versions.forge.ForgeVersion;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
@@ -25,11 +32,8 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 	// region Reflection Utilities
 	public static boolean classExists(String className) {
-		try {
-			Class.forName(className, false, MixinPlugin.class.getClassLoader());
-			return true;
-		} catch (ClassNotFoundException e) {
-			return false;
+		try(InputStream stream = MixinService.getService().getResourceAsStream(className.replace('.', '/') + ".class")) {
+			return stream != null;
 		}
 	}
 
@@ -49,6 +53,53 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 		return Objects.requireNonNull(platform, "Platform not set");
 	}
 
+	private static String launcherPlatform(Class<?> launcher) {
+		for(Class<?> type = launcher; type != null; type = type.getSuperclass()) {
+			String name = type.getName();
+			if(name.startsWith("net.fabricmc.loader.")) return "Fabric";
+			if(name.startsWith("net.neoforged.fml.")) return "NeoForge";
+			if(name.startsWith("net.minecraftforge.fml.")) return "LexForge";
+			if(name.startsWith("com.fox2code.foxloader.")) return "ReIndev";
+		}
+		throw new IllegalStateException("Unsupported launcher: " + launcher.getName());
+	}
+
+	private static String detectPlatform(Class<?> service) {
+		for(Class<?> type = service; type != null; type = type.getSuperclass()) {
+			String name = type.getName();
+			if(name.equals("org.spongepowered.asm.service.modlauncher.MixinServiceModLauncher")) {
+				Environment environment = Launcher.INSTANCE.environment();
+				String target = environment.getProperty(IEnvironment.Keys.LAUNCHTARGET.get())
+						.orElseThrow(() -> new IllegalStateException("Launch target not set"));
+				return launcherPlatform(environment.findLaunchHandler(target)
+						.orElseThrow(() -> new IllegalStateException("Launch handler not found")).getClass());
+			}
+			if(name.equals("org.spongepowered.asm.service.mojang.MixinServiceLaunchWrapper") ||
+					name.equals("org.spongepowered.asm.service.mojang.AbstractMixinServiceLaunchWrapper")) {
+				if(classExists("org.dimdev.riftloader.RiftLoader")) {
+					Field loaded = field(RiftLoader.class, "loaded");
+					loaded.setAccessible(true);
+					if(loaded.getBoolean(RiftLoader.instance)) return "Rift";
+				}
+				if(classExists("com.mumfrey.liteloader.launch.LiteLoaderTweaker")) {
+					Field instance = field(LiteLoaderTweaker.class, "instance"); // is private
+					instance.setAccessible(true);
+					if(instance.get(null) != null) return "LiteLoader";
+				}
+				if(classExists("net.minecraftforge.fml.relauncher.FMLLaunchHandler") &&
+						net.minecraftforge.fml.relauncher.FMLLaunchHandler.side() != null) {
+					return "LexForge12";
+				}
+				if(classExists("cpw.mods.fml.relauncher.FMLLaunchHandler") &&
+						cpw.mods.fml.relauncher.FMLLaunchHandler.side() != null) {
+					return "LexForge12";
+				}
+				throw new IllegalStateException("No initialized LaunchWrapper platform found");
+			}
+		}
+		return launcherPlatform(service);
+	}
+
 	@SuppressWarnings({"unchecked", "DataFlowIssue", "Java8ListReplaceAll"})
 	@Override
 	public void onLoad(String mixinPackage) {
@@ -58,13 +109,12 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 
 		Omnilook.LOGGER.info("initializing mixin plugin");
 
-		if(classExists("net.neoforged.fml.common.Mod")) {
-			platform = "NeoForge";
-		} else if(classExists("net.minecraftforge.versions.forge.ForgeVersion")) {
+		platform = detectPlatform(MixinService.getService().getClass());
+		if(platform.equals("LexForge")) {
 			String forgeVersion = ForgeVersion.getVersion();
 			int major = Integer.parseInt(forgeVersion.substring(0, forgeVersion.indexOf('.')));
 			if(major >= 50) {
-				platform = "LexForge";
+				// it's already set to LexForge
 			} else if(major >= 37) {
 				platform = "LexForge20";
 			} else if(major >= 26) {
@@ -74,7 +124,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 			} else {
 				throw new IllegalStateException("Unexpected forge version: " + forgeVersion);
 			}
-		} else if(classExists("net.fabricmc.loader.api.FabricLoader")) {
+		} else if(platform.equals("Fabric")) {
 			if (classExists("net.minecraft.unmapped.C_8105098")) {
 				platform = "Ornithe";
 			} else {
@@ -84,9 +134,7 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 				}
 				Version version = mod.get().getMetadata().getVersion();
 				int cmp = version.compareTo(Version.parse("1.21.11"));
-				if(cmp > 0) {
-					platform = "Fabric";
-				} else {
+				if(cmp <= 0) { // if > 1.21.11, is already set to Fabric
 					cmp = version.compareTo(Version.parse("1.14.4"));
 					if(cmp >= 0) {
 						platform = "IntermediaryFabric";
@@ -100,33 +148,19 @@ public final class MixinPlugin implements IMixinConfigPlugin {
 					}
 				}
 			}
-		} else if(classExists("org.dimdev.rift.Rift")) {
-			platform = "Rift";
-		} else if(classExists("com.mumfrey.liteloader.LiteMod")) {
-			platform = "LiteLoader";
-		} else if(classExists("com.fox2code.foxloader.loader.Mod")) {
-			platform = "ReIndev";
-		} else if(classExists("net.minecraftforge.classloading.FMLForgePlugin")) {
-			platform = "LexForge12";
-		} else {
-			throw new IllegalStateException("Unsupported platform");
 		}
 
 		Omnilook.LOGGER.info("Omnilook mixin plugin detected platform: {}", platform);
 
 		Reader raw = new InputStreamReader(MixinPlugin.class.getClassLoader().getResourceAsStream("META-INF/mixinlist.json"));
-		Class<?> Gson =
-				classExists("org.spongepowered.include.com.google.gson.Gson")
-						? Class.forName("org.spongepowered.include.com.google.gson.Gson")
-				: classExists("com.google.gson.Gson")
-						? Class.forName("com.google.gson.Gson")
-				: null;
-		if(Gson == null) {
+		Map<String, List<String>> mixins;
+		if(classExists("org.spongepowered.include.com.google.gson.Gson")) {
+			mixins = new org.spongepowered.include.com.google.gson.Gson().fromJson(raw, Map.class);
+		} else if(classExists("com.google.gson.Gson")) {
+			mixins = new com.google.gson.Gson().fromJson(raw, Map.class);
+		} else {
 			throw new IllegalStateException("Gson not found");
 		}
-
-		Object gson = Gson.getConstructor().newInstance();
-		Map<String, List<String>> mixins = (Map<String, List<String>>) Gson.getMethod("fromJson", Reader.class, Class.class).invoke(gson, raw, Map.class);
 		for(String platform : mixins.keySet()) {
 			List<String> list = mixins.get(platform);
 			for(int i = 0; i < list.size(); i++) {
