@@ -1,9 +1,14 @@
 package dev.rdh.omnilook.config;
 
 import dev.rdh.omnilook.Omnilook;
+import dev.rdh.omnilook.MixinPlugin;
 
 public interface ModMenuScreenProvider<S> {
 	default S openScreen(S parent) {
+		if(MixinPlugin.classExists("org.polyfrost.oneconfig.api.ui.v1.OneConfigUI")) {
+			S screen = OneConfigScreen.make();
+			if(screen != null) return screen;
+		}
 		Config.openTextEditor();
 		return parent;
 	}

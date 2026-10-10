@@ -1,6 +1,7 @@
 package dev.rdh.omnilook;
 
 import dev.rdh.omnilook.config.Config;
+import dev.rdh.omnilook.config.OneConfigScreen;
 
 import java.nio.file.Path;
 
@@ -34,6 +35,9 @@ public abstract class Omnilook {
 		instance = this;
 
 		Config.init();
+		if(MixinPlugin.classExists("org.polyfrost.oneconfig.api.ui.v1.OneConfigUI")) {
+			OneConfigScreen.init();
+		}
 	}
 	// endregion
 

@@ -47,6 +47,14 @@ val mmstub: Configuration by configurations.creating {
 }
 
 repositories {
+    exclusiveContent {
+        forRepository {
+            maven("https://repo.polyfrost.org/releases") {
+                metadataSources { mavenPom(); artifact(); ignoreGradleMetadataRedirection() }
+            }
+        }
+        filter { includeGroup("org.polyfrost.oneconfig") }
+    }
     unimined.modrinthMaven()
     unimined.fabricMaven()
     unimined.wagYourMaven("releases")
@@ -211,6 +219,10 @@ dependencies {
     compileOnly("org.ow2.asm:asm-tree:${"asm_version"()}")
     compileOnly("net.fabricmc:fabric-loader:${"fabricloader_version"()}")
     compileOnly(sourceSets.stubs.output)
+    compileOnly("org.jetbrains:annotations:24.1.0")
+    listOf("config", "config-impl", "utils").forEach {
+        compileOnly("org.polyfrost.oneconfig:$it:${"oneconfig_version"()}") { isTransitive = false }
+    }
 
     ap("systems.manifold:manifold-exceptions:${"manifold_version"()}")
     ap("systems.manifold:manifold-rt:${"manifold_version"()}")
